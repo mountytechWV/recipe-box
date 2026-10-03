@@ -324,6 +324,21 @@ textarea.paste{min-height:260px;border:1.5px dashed var(--rule-2);padding:12px;f
 .wopt b{font-family:var(--type);font-size:17px}.wopt span{color:var(--muted);font-size:15px}
 .bmk{cursor:grab;align-self:flex-start;background:var(--sky);border-color:var(--sky-f);color:var(--sky-f)}
 
+.ibanner{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;background:var(--sky);color:var(--sky-f);border:1.5px dashed var(--sky-f);border-radius:3px;padding:12px 12px 12px 18px;margin-bottom:22px}
+.ibtext{flex:1 1 300px;display:flex;flex-direction:column}
+.ibtext b{font-family:var(--type);font-size:16px}
+.ibacts{display:flex;gap:6px;align-items:center}
+.ibacts .btn{border-color:var(--sky-f);color:var(--sky-f);background:var(--paper)}
+.ibacts .btn.primary{background:var(--red);border-color:var(--red);color:var(--on-red)}
+.ibacts .btn.ghost{background:transparent;border-color:transparent}
+.ibsteps{flex-basis:100%;background:var(--paper);color:var(--ink);border-radius:3px;padding:12px 16px}
+.isteps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;line-height:1.5}
+.shareico{vertical-align:-4px;color:var(--sky-f)}
+.ihint{margin:8px 0 0;font-size:15px;color:var(--ink-2)}
+.wtip{background:var(--sky);color:var(--ink);border:1.5px dashed var(--sky-f);border-radius:3px;padding:12px 16px;margin:0 0 14px}
+.wtip > b{display:block;font-family:var(--type);color:var(--sky-f);margin-bottom:6px}
+textarea.invite{font-family:var(--body);font-size:14px;min-height:170px;border:1.5px dashed var(--rule-2);padding:10px}
+
 /* index */
 .paper{background:var(--paper);border-radius:4px;padding:0 36px 32px;box-shadow:var(--lift)}
 @media (max-width:640px){.paper{padding:0 18px 22px}}
@@ -630,7 +645,7 @@ function render(){const r=route();const app=$('#app');if(!S.box){app.innerHTML=v
   else if(r.name==='print'){const rec=byId(r.id);body=rec?viewPrint(rec):notFound();}
   else body=viewBrowse();
   const active=['index','browse','plan','shop'].includes(r.name)?r.name:'';
-  app.innerHTML=header(active)+'<main><div class="wrap">'+body+'</div></main>';
+  app.innerHTML=header(active)+'<main><div class="wrap">'+(['browse','index','plan','shop'].includes(r.name)?installBanner():'')+body+'</div></main>';
   if(keepFocus){const q=$('#q');q.focus();try{q.setSelectionRange(caret,caret)}catch(e){}}
   if(r.name==='edit'||r.name==='new')bindEditor();
   if(r.name==='print'&&byId(r.id))drawPrint(byId(r.id));
@@ -879,13 +894,16 @@ function settingsDlg(){const n=S.box.recipes.length;const w=openDlg(`<h2>Backup 
 <p>Your ${n} recipes are saved in this browser on this device. A backup file lets you move them to another device or keep a safe copy.</p>
 ${canSave()?`<button class="btn primary" data-s="backup">Download a backup file</button>`:`<p class="subtle">Downloading a backup isn't available in this view.</p>`}
 <label class="btn" for="restoreFile">Restore from a backup file</label><input type="file" id="restoreFile" accept=".json,application/json" class="sr">
-${STANDALONE&&!isInstalled()?`<hr><p class="lblp">Install on this device</p>${installEvt?`<button class="btn" data-s="install">Install Recipe Box</button>`:`<p>${installHelp()}</p>`}<p class="subtle">Installing gives Recipe Box its own icon and keeps your recipes from being cleared with your browser history.</p>`:''}
+${STANDALONE&&!isInstalled()?`<hr><p class="lblp">Install on this device</p>${installEvt?`<button class="btn" data-s="install">Install Recipe Box</button>`:installSteps()}<p class="subtle">Installing gives Recipe Box its own icon and keeps your recipes from being cleared with your browser history.</p>`:''}
+${STANDALONE?`<hr><p class="lblp">Invite family</p><p>Copy this message and send it along with your recipe backup file.</p><label class="sr" for="invite">Invitation message</label><textarea class="in invite" id="invite" rows="8" readonly>${esc(inviteText())}</textarea><div class="acts" style="justify-content:flex-start;margin:0"><button class="btn" data-s="copyinvite">${I2.copy}Copy message</button>${navigator.share?`<button class="btn" data-s="shareinvite">Share…</button>`:''}</div>`:''}
 ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p>Drag this button to your browser’s bookmarks bar. On any recipe website, click it to send the recipe here.</p><a class="btn bmk" href="${esc(bookmarkletCode())}" onclick="return false" draggable="true">${I2.paste}Save to Recipe Box</a><button class="btn small" data-s="copybm">Copy the button’s code (for iPad)</button>`:''}
 <hr><p class="lblp">Appearance</p><div class="seg" role="group" aria-label="Appearance" style="align-self:flex-start">${['light','dark','auto'].map(t=>`<button data-s="theme" data-t="${t}" aria-pressed="${getTheme()===t}">${t==='light'?'Light':t==='dark'?'Dark':'Match device'}</button>`).join('')}</div>
 <hr><p class="lblp">Start over</p><div class="acts" style="justify-content:flex-start">${SEED.recipes.length?`<button class="btn" data-s="seed">Reload the starting recipes</button>`:''}<button class="btn danger" data-s="empty">Empty the recipe box</button></div>
 <div class="acts"><button class="btn" data-close>Close</button></div>`);
   w.addEventListener('click',async e=>{const b=e.target.closest('[data-s]');if(!b)return;const a=b.dataset.s;
     if(a==='install'&&installEvt){installEvt.prompt();const c=await installEvt.userChoice;installEvt=null;if(c.outcome==='accepted')w.remove();return}
+    if(a==='copyinvite'){try{await navigator.clipboard.writeText(inviteText());toast('Message copied')}catch(e){const t=$('#invite',w);t.focus();t.select();toast('Press Ctrl+C or Command+C to copy')}return}
+    if(a==='shareinvite'){try{await navigator.share({title:'Recipe Box',text:inviteText()})}catch(e){}return}
     if(a==='copybm'){try{await navigator.clipboard.writeText(bookmarkletCode());toast('Copied. See the Import page for iPad steps.')}catch(e){toast('Copy is not available here')}return}
     if(a==='theme'){applyTheme(b.dataset.t);$$('[data-s=theme]',w).forEach(x=>x.setAttribute('aria-pressed',x===b));return}
     if(a==='backup'){try{const stamp=new Date().toISOString().slice(0,10);await saveFile(`recipe-box-backup-${stamp}.json`,JSON.stringify({app:'recipe-box',version:1,exported:nowISO(),box:S.box}),'application/json');toast('Backup saved')}catch(err){const code=err&&err.code;toast(code==='declined'?'Backup not saved':code==='rate_limited'?'A save is already open. Try again in a moment.':'Backup could not be saved here')}}
@@ -1132,14 +1150,38 @@ const STANDALONE=!(window.claude&&window.claude.use)&&/^https?:/.test(location.p
 async function saveFile(name,data,mime){if(downloads){return downloads.save({filename:name,data})}
   const blob=new Blob([data],{type:mime||'application/octet-stream'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);return {status:'saved'}}
 const canSave=()=>!!downloads||STANDALONE||/^file:/.test(location.protocol);
-let installEvt=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e});
-window.addEventListener('appinstalled',()=>{installEvt=null;toast('Recipe Box is installed');try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}});
+let installEvt=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;if(S.box&&!$('.dlg')&&!['edit','new'].includes(route().name))render()});
+window.addEventListener('appinstalled',()=>{installEvt=null;setTimeout(()=>{if(S.box&&!['edit','new'].includes(route().name))render()},300);toast('Recipe Box is installed');try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}});
 const isInstalled=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 function installHelp(){const ua=navigator.userAgent;const ios=/iPad|iPhone|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);const mac=/Macintosh/.test(ua)&&!ios;const safari=/Safari/.test(ua)&&!/Chrome|CriOS|Edg|Firefox|FxiOS/.test(ua);
   if(ios)return 'On an iPad or iPhone, tap the Share button at the top of Safari, then choose “Add to Home Screen.”';
   if(mac&&safari)return 'In Safari on a Mac, open the File menu and choose “Add to Dock.”';
   if(/Firefox/.test(ua))return 'Firefox can’t install apps. Open this page in Chrome, Edge, or Safari to install it.';
   return 'Look for the install icon at the right end of the address bar, or open the browser menu and choose “Install Recipe Box.”'}
+
+const SHARE_ICO='<svg class="shareico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="the Share button" role="img"><path d="M8 9H6a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10a1 1 0 0 0-1-1h-2"/><path d="M12 15V3M8.5 6.5 12 3l3.5 3.5"/></svg>';
+const isIOS=()=>{const ua=navigator.userAgent;return /iPad|iPhone|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1)};
+const isAndroid=()=>/Android/.test(navigator.userAgent);
+function installSteps(){if(isIOS())return `<ol class="isteps"><li>Tap the Share button ${SHARE_ICO} ${/CriOS|EdgiOS/.test(navigator.userAgent)?'next to the address bar':/iPhone|iPod/.test(navigator.userAgent)?'at the bottom of Safari (it may be under the ••• button)':'at the top of Safari'}.</li><li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li><li>Close this page and open <b>Recipe Box</b> from the new icon on your Home Screen.</li></ol><p class="ihint">The Home Screen app keeps its own copy of your recipes, separate from this browser page. Restore your recipe backup inside the Home Screen app.</p>`;
+  if(isAndroid())return `<ol class="isteps"><li>Tap the <b>⋮</b> menu at the top right of Chrome.</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>, then confirm.</li><li>Open Recipe Box from its new icon.</li></ol>`;
+  return `<p class="ihint">${installHelp()}</p>`}
+const bannerOff=()=>{try{return localStorage.getItem('rb-install-hide')==='1'}catch(e){return false}};
+function installBanner(){if(!STANDALONE||isInstalled()||bannerOff()||!S.box)return '';
+  return `<section class="ibanner" aria-label="Install Recipe Box"><div class="ibtext"><b>Install Recipe Box on this ${isIOS()||isAndroid()?(/iPad|Tablet/.test(navigator.userAgent)||(isIOS()&&navigator.maxTouchPoints>1&&!/iPhone/.test(navigator.userAgent))?'tablet':'phone'):'computer'}</b><span>It gets its own icon, opens in its own window, and works without internet.</span></div>
+<div class="ibacts">${installEvt?`<button class="btn primary" data-act="doinstall">Install</button>`:`<button class="btn" data-act="howinstall" aria-expanded="${!!S.showHow}">${S.showHow?'Hide the steps':'Show me how'}</button>`}<button class="btn ghost icon-btn" data-act="hideinstall" aria-label="Don't show this again">${I.x}</button></div>
+${S.showHow&&!installEvt?`<div class="ibsteps">${installSteps()}</div>`:''}</section>`}
+function inviteText(){const url=location.origin+location.pathname;return `Hi! I put our family recipes into an app called Recipe Box. It's free and works on computers, iPads, and phones.
+
+1. Open this link: ${url}
+
+2. Install it so it gets its own icon:
+- iPad or iPhone (Safari): tap the Share button, then "Add to Home Screen." Then open Recipe Box from the new icon before going on.
+- Android: tap the ⋮ menu in Chrome, then "Install app."
+- Computer (Chrome or Edge): click the install icon at the right end of the address bar.
+
+3. Load the recipes: save the file I've attached (on an iPad or iPhone, tap it and choose "Save to Files"). In Recipe Box, choose "Restore from a backup file" and pick that file.
+
+That's it. Your recipes stay on your own device, and you can add your own too.`}
 function bookmarkletCode(){const A=location.origin+location.pathname;
   return "javascript:(()=>{const A="+JSON.stringify(A)+";let r=null;const W=o=>{if(!o||r)return;if(Array.isArray(o))return o.forEach(W);if(typeof o!=='object')return;const t=o['@type'];if(t==='Recipe'||(Array.isArray(t)&&t.includes('Recipe'))){r=o;return}if(o['@graph'])W(o['@graph']);if(o.mainEntity)W(o.mainEntity)};document.querySelectorAll('script[type=\"application/ld+json\"]').forEach(s=>{try{W(JSON.parse(s.textContent))}catch(e){}});const T=x=>x==null?'':String(x).replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/\\s+/g,' ').trim();let d;if(r){const S=[];const st=i=>{if(!i)return;if(typeof i==='string'){S.push({t:T(i)});return}if(Array.isArray(i))return i.forEach(st);if(i['@type']==='HowToSection'){S.push({h:T(i.name)});st(i.itemListElement);return}if(i.itemListElement)return st(i.itemListElement);if(i.text||i.name)S.push({t:T(i.text||i.name)})};st(r.recipeInstructions);let im=r.image;if(Array.isArray(im))im=im[0];if(im&&typeof im==='object')im=im.url;const au=Array.isArray(r.author)?r.author[0]:r.author;const sn=document.querySelector('meta[property=\"og:site_name\"]');d={k:'ld',name:T(r.name),desc:T(r.description),ing:[].concat(r.recipeIngredient||[]).map(T),steps:S,y:[].concat(r.recipeYield||[]).map(T),tt:r.totalTime||'',pt:r.prepTime||'',ct:r.cookTime||'',img:im||'',url:location.href,src:T(sn?sn.content:location.hostname.replace(/^www\\./,'')),by:T(au&&au.name)}}else{const s=String(getSelection());if(!s.trim()){alert('Recipe Box could not find a recipe on this page. Select the recipe text with your mouse or finger, then try again.');return}d={k:'txt',text:s,url:location.href}}const b=btoa(unescape(encodeURIComponent(JSON.stringify(d)))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'');window.open(A+'#/import/'+b,'_blank')})()"}
 function isoMin(s){const m=String(s||'').match(/P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?)?/i);if(!m)return 0;return (+(m[1]||0))*1440+(+(m[2]||0))*60+(+(m[3]||0))}
@@ -1155,6 +1197,7 @@ function draftFromPayload(p){let d;try{const j=JSON.parse(decodeURIComponent(esc
 function tryGrabPhoto(url){if(!url)return;const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{try{const max=1200,sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);const data=c.toDataURL('image/jpeg',.82);if(S.draft&&S.draft.__img===url){S.draft.photo=data;if(route().name==='new'){const y=window.scrollY;render();window.scrollTo(0,y)}}}catch(e){}};img.src=url}
 function viewWelcome(){return `<div class="welcome"><div class="welcome-card"><div class="band tg5"><h1>Welcome to Recipe Box</h1></div><div class="panel-body">
 <p>Recipe Box keeps your recipes on this device, works without internet, and lets you plan meals and build shopping lists. How would you like to start?</p>
+${STANDALONE&&isIOS()&&!isInstalled()?`<div class="wtip"><b>On an iPad or iPhone? Add Recipe Box to your Home Screen first.</b>${installSteps()}</div>`:''}
 <div class="welcome-opts">${SEED.recipes.length?`<button class="wopt" data-w="seed"><b>Start with the family recipes</b><span>${SEED.recipes.length} recipes, ready to cook from. You can change or delete any of them.</span></button>`:''}
 <button class="wopt" data-w="empty"><b>Start with an empty recipe box</b><span>Add your own recipes, or paste them in from websites.</span></button>
 <label class="wopt" for="wfile"><b>Restore from a backup file</b><span>${SEED.recipes.length?'Use a backup someone sent you, or one from your other device.':'Got a recipe backup file from family? Choose it here to load all of those recipes.'}</span></label><input type="file" id="wfile" accept=".json,application/json" class="sr"></div></div></div></div>`}
@@ -1173,6 +1216,9 @@ document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCar
   else if(a==='fav'&&r){r.fav=!r.fav;if(!r.fav)delete r.fav;r.updated=nowISO();persist();render()}
   else if(a==='diff'&&r){const v2=+v;r.diff=r.diff===v2?undefined:v2;if(!r.diff)delete r.diff;r.updated=nowISO();persist();render();toast(r.diff?'Difficulty set to '+DIFF[r.diff-1]:'Difficulty cleared')}
   else if(a==='dreset'){S.dmin=1;S.dmax=5;S.dunr=true;render()}
+  else if(a==='doinstall'&&installEvt){installEvt.prompt();installEvt.userChoice.then(()=>{installEvt=null;render()})}
+  else if(a==='howinstall'){S.showHow=!S.showHow;render()}
+  else if(a==='hideinstall'){try{localStorage.setItem('rb-install-hide','1')}catch(e){}render();toast('You can still find install steps in the settings menu')}
   else if(a==='cart'){openCart(b)}
   else if(a==='doneshop'){const before=JSON.stringify(S.box.shop);const n=shopStats().done;clearChecked();persist();closeCart();render();toast(`Cleared ${n} checked ${n===1?'item':'items'}`,{label:'Undo',fn:()=>{S.box.shop=JSON.parse(before);persist();render()}})}
   else if(a==='addshop'&&r){addToShop(r.id,S.servings[r.id]??r.serv);toast('Added to your shopping list');render()}
