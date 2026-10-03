@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recipe Box Help</title>
+<link rel="icon" href="./icons/favicon-32.png">
+<script>try{var t=localStorage.getItem('rb-theme')||'light';if(t==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<style>
+@font-face{font-family:'Caveat';font-weight:700;font-display:swap;src:url(./fonts/caveat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Courier Prime';font-weight:700;font-display:swap;src:url(./fonts/courier-prime-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-weight:400;font-display:swap;src:url(./fonts/libre-franklin-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-weight:600;font-display:swap;src:url(./fonts/libre-franklin-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-weight:700;font-display:swap;src:url(./fonts/libre-franklin-latin-700-normal.woff2) format('woff2')}
+:root{
+  --desk:#DCE5EC;--paper:#FFFFFF;--edge:#C4CFD8;--rule:#D6E4EF;
+  --ink:#1F2933;--ink-2:#3E4C59;--muted:#52606D;--red:#C8352F;--red-dk:#8E221D;--on-red:#FFFFFF;
+  --peach:#FBD9C9;--peach-f:#7A3418;--sky:#D3E4F2;--sky-f:#24506E;--butter:#FBEBB5;--butter-f:#6B4E0E;
+  --sage:#D6E8D3;--sage-f:#2E5A2B;--lilac:#E4DAF0;--lilac-f:#4E3470;--blush:#F7D6DF;--blush-f:#7D2A45;
+  --mint:#D5ECE6;--mint-f:#225A4E;--apricot:#FCE1C4;--apricot-f:#7A4A12;--slate:#E3E8EE;--slate-f:#3B4754;
+  --lift:0 2px 0 var(--edge),0 14px 30px rgba(31,41,51,.10);
+  --hand:Caveat,'Segoe Print','Bradley Hand',cursive;--type:'Courier Prime','Courier New',Courier,monospace;--body:'Libre Franklin','Segoe UI',Helvetica,Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --desk:#161D23;--paper:#222B33;--edge:#33414D;--rule:#2C3944;
+  --ink:#EEF2F5;--ink-2:#CBD5DE;--muted:#A3B0BC;--red:#F07A70;--red-dk:#B5453C;--on-red:#2A0D0B;
+  --peach:#4A2E24;--peach-f:#FFD4C2;--sky:#22384A;--sky-f:#CDE3F5;--butter:#433A1E;--butter-f:#F7E3A6;--sage:#263A27;--sage-f:#CDE8C8;
+  --lilac:#352B47;--lilac-f:#E2D4F5;--blush:#47262F;--blush-f:#F7CCD8;--mint:#1F3B35;--mint-f:#C3EBE0;--apricot:#45321C;--apricot-f:#F9D9B5;--slate:#2B333B;--slate-f:#D5DDE5;
+  --lift:0 2px 0 #0E1317,0 14px 30px rgba(0,0,0,.35);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --desk:#161D23;--paper:#222B33;--edge:#33414D;--rule:#2C3944;
+  --ink:#EEF2F5;--ink-2:#CBD5DE;--muted:#A3B0BC;--red:#F07A70;--red-dk:#B5453C;--on-red:#2A0D0B;
+  --peach:#4A2E24;--peach-f:#FFD4C2;--sky:#22384A;--sky-f:#CDE3F5;--butter:#433A1E;--butter-f:#F7E3A6;--sage:#263A27;--sage-f:#CDE8C8;
+  --lilac:#352B47;--lilac-f:#E2D4F5;--blush:#47262F;--blush-f:#F7CCD8;--mint:#1F3B35;--mint-f:#C3EBE0;--apricot:#45321C;--apricot-f:#F9D9B5;--slate:#2B333B;--slate-f:#D5DDE5;
+  --lift:0 2px 0 #0E1317,0 14px 30px rgba(0,0,0,.35);color-scheme:dark}
+*{box-sizing:border-box}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 84px);-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--desk);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.6}
+a{color:var(--red-dk)}
+:root[data-theme="dark"] a{color:var(--red)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:3px}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--paper);border-bottom:3px solid var(--red);padding:10px 20px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.bar-in{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-family:var(--hand);font-weight:700;font-size:38px;line-height:1;color:var(--red);text-decoration:none;margin-right:auto;white-space:nowrap}
+.brand span{color:var(--ink-2)}
+.bar a.lnk{font-family:var(--type);font-weight:700;font-size:16px;color:var(--ink-2);text-decoration:none;padding:8px 4px}
+.bar a.lnk:hover{color:var(--red)}
+.open{font-family:var(--type);font-weight:700;font-size:16px;background:var(--red);color:var(--on-red)!important;text-decoration:none;padding:10px 16px;border-radius:3px;box-shadow:0 3px 0 var(--red-dk);white-space:nowrap}
+
+main{max-width:980px;margin:0 auto;padding:28px 20px 60px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+
+/* intro + contents */
+.intro{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;margin-bottom:40px}
+.intro h1{font-family:var(--hand);font-weight:700;font-size:clamp(46px,8vw,72px);line-height:.95;margin:6px 0 10px;color:var(--ink)}
+.intro p{margin:0;max-width:40em;color:var(--ink-2)}
+.contents{background:var(--paper);box-shadow:var(--lift);border-radius:2px;padding:22px 24px 12px}
+.contents h2{font-family:var(--hand);font-size:36px;margin:0 0 6px;line-height:1}
+.contents ol{list-style:none;margin:0;padding:0;columns:2 360px;column-gap:28px}
+.contents li{break-inside:avoid;margin:0 0 10px}
+.tab{display:block;text-decoration:none;color:var(--ink);padding:10px 14px 10px 18px;border-left:10px solid;border-radius:0 3px 3px 0;background:var(--paper)}
+.tab:hover{filter:brightness(.97)}
+.tt{display:block;font-weight:700;font-size:19px;line-height:1.3}
+.td{display:block;font-size:16px;color:var(--muted);line-height:1.4;margin-top:2px}
+.t-peach{border-color:var(--peach);background:color-mix(in srgb,var(--peach) 35%,var(--paper))}
+.t-sky{border-color:var(--sky);background:color-mix(in srgb,var(--sky) 35%,var(--paper))}
+.t-butter{border-color:var(--butter);background:color-mix(in srgb,var(--butter) 35%,var(--paper))}
+.t-sage{border-color:var(--sage);background:color-mix(in srgb,var(--sage) 35%,var(--paper))}
+.t-lilac{border-color:var(--lilac);background:color-mix(in srgb,var(--lilac) 35%,var(--paper))}
+.t-blush{border-color:var(--blush);background:color-mix(in srgb,var(--blush) 35%,var(--paper))}
+.t-mint{border-color:var(--mint);background:color-mix(in srgb,var(--mint) 35%,var(--paper))}
+.t-apricot{border-color:var(--apricot);background:color-mix(in srgb,var(--apricot) 35%,var(--paper))}
+.t-slate{border-color:var(--slate);background:color-mix(in srgb,var(--slate) 35%,var(--paper))}
+
+/* section cards */
+.card{background:var(--paper);box-shadow:var(--lift);border-radius:2px;margin:0 0 36px;overflow:hidden}
+.band{padding:16px 28px 10px;border-bottom:2px solid var(--red)}
+.band h2{margin:0;font-family:var(--hand);font-weight:700;font-size:clamp(38px,6vw,52px);line-height:1}
+.b-peach{background:var(--peach);color:var(--peach-f)}.b-sky{background:var(--sky);color:var(--sky-f)}.b-butter{background:var(--butter);color:var(--butter-f)}
+.b-sage{background:var(--sage);color:var(--sage-f)}.b-lilac{background:var(--lilac);color:var(--lilac-f)}.b-blush{background:var(--blush);color:var(--blush-f)}
+.b-mint{background:var(--mint);color:var(--mint-f)}.b-apricot{background:var(--apricot);color:var(--apricot-f)}.b-slate{background:var(--slate);color:var(--slate-f)}
+.body{padding:8px 28px 22px;max-width:46em}
+.body h3{font-size:24px;line-height:1.25;margin:30px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--rule);font-weight:700}
+.body h4{font-size:20px;margin:22px 0 6px;color:var(--ink-2);font-weight:700}
+.body p{margin:0 0 14px}
+.body ol,.body ul{margin:0 0 16px;padding-left:1.5em}
+.body li{margin:0 0 8px;padding-left:4px}
+.body li>ul,.body li>ol{margin:8px 0 4px}
+.body ol>li::marker{color:var(--red);font-weight:700}
+.body ul>li::marker{color:var(--red)}
+.body strong{font-weight:700;color:var(--ink)}
+.tip{margin:18px 0;padding:14px 18px;background:var(--butter);color:var(--butter-f);border-radius:2px;box-shadow:0 2px 0 var(--edge)}
+.tip p{margin:0}
+.tip strong{color:inherit}
+.totop{margin:26px 0 0!important;font-size:16px}
+.foot{text-align:center;color:var(--muted);font-size:16px}
+
+@media (max-width:560px){
+  body{font-size:18px}
+  .bar{padding-top:8px;padding-bottom:8px}
+  .bar-in{flex-wrap:nowrap;gap:10px}
+  .brand{font-size:28px}
+  .bar a.lnk{display:none}
+  .open{font-size:14px;padding:8px 10px}
+  .band{padding:14px 18px 8px}
+  .body{padding:4px 18px 18px}
+  .contents{padding:18px 16px 8px}
+}
+@media print{
+  .bar,.totop,.open{display:none!important}
+  body{background:#fff;font-size:12pt}
+  .card,.contents{box-shadow:none;border:1px solid #bbb;break-inside:auto}
+  .body h3,.body h4{break-after:avoid}
+  .card{break-before:page}
+  .card:first-of-type{break-before:auto}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="brand" href="#top">Recipe Box <span>Help</span></a>
+  <a class="lnk" href="#contents">Contents</a>
+  <a class="open" href="./">Open Recipe Box</a>
+</div></div>
+<main id="top">
+  <div class="intro">
+    <div>
+      <h1>How to use Recipe Box</h1>
+      <p>Everything you need to know, one step at a time. New to Recipe Box? Start with <a href="#getting-started">Getting Started</a>. Looking for something specific? Tap a section below.</p>
+    </div>
+    <nav class="contents" id="contents" aria-label="Contents">
+      <h2>Contents</h2>
+      <ol><li><a class="tab t-peach" href="#getting-started"><span class="tt">Getting Started</span><span class="td">Open Recipe Box, add it to your device, and load your recipes.</span></a></li><li><a class="tab t-sky" href="#tour"><span class="tt">A Quick Tour of Recipe Box</span><span class="td">What everything on the screen does.</span></a></li><li><a class="tab t-butter" href="#finding"><span class="tt">Finding Your Recipes</span><span class="td">Letter tabs, categories, search, and the Index.</span></a></li><li><a class="tab t-sage" href="#cooking"><span class="tt">Viewing and Cooking a Recipe</span><span class="td">Servings, checking off ingredients, cooking mode, and timers.</span></a></li><li><a class="tab t-lilac" href="#adding"><span class="tt">Adding and Editing Recipes</span><span class="td">Typing or pasting a recipe, categories, photos, and fixing mistakes.</span></a></li><li><a class="tab t-blush" href="#websites"><span class="tt">Saving Recipes from Websites</span><span class="td">Save to Recipe Box on a computer, Copy Web Recipe on a tablet or phone.</span></a></li><li><a class="tab t-mint" href="#printing"><span class="tt">Printing a Recipe</span><span class="td">Full pages, half pages, and recipe cards.</span></a></li><li><a class="tab t-apricot" href="#meals"><span class="tt">Meal Plan and Shopping List</span><span class="td">Planning the week and shopping for it.</span></a></li><li><a class="tab t-sky" href="#sync"><span class="tt">Syncing with Google Drive</span><span class="td">Keeping your computer, tablet, and phone matched up.</span></a></li><li><a class="tab t-butter" href="#backups"><span class="tt">Backups and Settings</span><span class="td">Keeping your recipes safe, and everything in settings.</span></a></li><li><a class="tab t-slate" href="#questions"><span class="tt">Common Questions</span><span class="td">Quick answers when something isn’t working.</span></a></li></ol>
+    </nav>
+  </div>
+  <section class="card" id="getting-started" aria-labelledby="getting-started-h"><header class="band b-peach"><h2 id="getting-started-h">Getting Started</h2></header><div class="body"><p>Recipe Box is a place to keep all your favorite recipes, like a recipe card box on your kitchen counter, but on your computer, tablet, or phone. It's free, it works without internet, and your recipes stay private to you.</p>
+<p>Getting set up takes three steps: open Recipe Box, add it to your device, and then add your recipes. Please do them in this order.</p>
+<h3>Step 1: Open Recipe Box</h3>
+<ol>
+<li>Open the program you use to visit websites. This is called a <strong>web browser</strong>.<ul>
+<li>On a computer, use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.</li>
+<li>On an iPad or iPhone, use <strong>Safari</strong> (the blue compass).</li>
+<li>On an Android tablet or phone, use <strong>Chrome</strong>.</li>
+</ul>
+</li>
+<li>Tap or click in the long bar at the very top of the screen where website addresses go.</li>
+<li>Type this address exactly: <strong>mountytechwv.github.io/recipe-box</strong></li>
+<li>Press <strong>Enter</strong> on a keyboard, or tap <strong>Go</strong>.</li>
+</ol>
+<p>You should see a screen that says <strong>Welcome to Recipe Box</strong>. Don't choose anything on it yet. Go on to Step 2 first.</p>
+<h3>Step 2: Add Recipe Box to your device</h3>
+<p>This puts a Recipe Box icon on your screen, just like your other apps, so you never have to type the address again. You only do this once.</p>
+<h4>On an iPad or iPhone</h4>
+<ol>
+<li>Tap the <strong>Share</strong> button at the top of Safari. It looks like a square with an arrow pointing up.</li>
+<li>A list will open. Scroll down past <strong>Copy</strong> and <strong>Add to Bookmarks</strong>.</li>
+<li>Tap <strong>Add to Home Screen</strong>.</li>
+<li>Tap <strong>Add</strong> in the top corner.</li>
+<li>Close Safari. You'll see a red Recipe Box card on your Home Screen. <strong>Tap it to open Recipe Box.</strong> From now on, always open Recipe Box this way, not from Safari.</li>
+</ol>
+<aside class="tip">
+<p>Don't see "Add to Home Screen"? Scroll to the very bottom of the list, tap <strong>Edit Actions</strong>, and add it from there.</p>
+</aside>
+<h4>On a Windows computer or Mac</h4>
+<ol>
+<li>Look at the right end of the address bar at the top of the screen for a small <strong>install icon</strong> (a little computer screen with a down arrow).</li>
+<li>Click it, then click <strong>Install</strong>.</li>
+<li>If you don't see the icon, click the browser's menu (the three dots <strong>⋮</strong> or <strong>…</strong> in the top right corner) and choose <strong>Install Recipe Box</strong>.</li>
+</ol>
+<p>Recipe Box will open in its own window, and an icon will be added to your computer so you can open it anytime.</p>
+<h4>On an Android tablet or phone</h4>
+<ol>
+<li>Tap the three dots <strong>⋮</strong> at the top right of Chrome.</li>
+<li>Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
+<li>Tap <strong>Install</strong> or <strong>Add</strong> to confirm.</li>
+<li>Open Recipe Box from its new icon on your home screen.</li>
+</ol>
+<aside class="tip">
+<p>Forgot this step? No problem. Once you're in Recipe Box, a blue box near the top says <strong>Install Recipe Box</strong>. Tap <strong>Show me how</strong> and it will walk you through it.</p>
+</aside>
+<h3>Step 3: Add your recipes</h3>
+<p>Open Recipe Box from its new icon. You'll see the <strong>Welcome to Recipe Box</strong> screen with two choices.</p>
+<h4>If someone sent you a recipe file</h4>
+<p>A family member may have emailed you a file of their recipes. It will have a name ending in <strong>.json</strong>.</p>
+<ol>
+<li>First, save the file from your email.<ul>
+<li>On a computer, click the attachment and choose <strong>Download</strong>. It will go in your <strong>Downloads</strong> folder.</li>
+<li>On an iPad or iPhone, tap the attachment, tap the <strong>Share</strong> button, and choose <strong>Save to Files</strong>.</li>
+<li>On Android, tap the attachment and choose <strong>Download</strong>.</li>
+</ul>
+</li>
+<li>In Recipe Box, tap <strong>Restore from a backup file</strong>.</li>
+<li>Find the file you saved and tap it.</li>
+</ol>
+<p>In a few seconds, the recipes will appear in your recipe box.</p>
+<h4>If you're starting fresh</h4>
+<p>Tap <strong>Start with an empty recipe box</strong>. Then tap <strong>Add your first recipe</strong> to type in a favorite.</p>
+<aside class="tip">
+<p>Already got past the Welcome screen? You can still load a recipe file anytime. Tap the <strong>settings button</strong> (three small sliders at the top of the screen), then tap <strong>Restore from a backup file</strong>.</p>
+</aside><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="tour" aria-labelledby="tour-h"><header class="band b-sky"><h2 id="tour-h">A Quick Tour of Recipe Box</h2></header><div class="body"><p>Think of Recipe Box as a recipe card box with dividers. Every recipe is a card, filed in alphabetical order by its name.</p>
+<h3>The bar across the top</h3>
+<p>This bar stays at the top of every screen, so you can always get where you need to go. (On a phone, <strong>Browse</strong>, <strong>Index</strong>, <strong>Meal plan</strong>, and <strong>Add</strong> move to the bottom of the screen.)</p>
+<ul>
+<li><strong>Browse</strong> takes you to your recipe box. This is the main screen.</li>
+<li><strong>Index</strong> shows all your recipes in one list, like the index in the back of a cookbook.</li>
+<li><strong>Meal plan</strong> is a calendar for the week where you can plan what to cook each day.</li>
+<li><strong>The search box</strong> finds recipes by name or by ingredient. Type "chicken," for example, to see every recipe that uses chicken.</li>
+<li><strong>The green "Saved" label</strong> tells you your changes are saved. You never need to press a save button for your recipe box.</li>
+<li><strong>The cloud button</strong> appears only if you turn on sync. It shows whether your recipes are synced.</li>
+<li><strong>The shopping cart</strong> opens your shopping list.</li>
+<li><strong>The question mark</strong> opens this help guide.</li>
+<li><strong>The settings button</strong> looks like three small sliders. This is where you make backups and change how the app looks.</li>
+<li><strong>The red "Add recipe" button</strong> lets you add a new recipe.</li>
+</ul>
+<h3>The Browse screen</h3>
+<p>At the top it says <strong>"What's cooking today?"</strong> Below that are three ways to find a recipe.</p>
+<p><strong>Categories (on the left side).</strong> Tap <strong>All</strong> to see every recipe, or <strong>Favorites</strong> to see only the ones you've marked as favorites. Any categories you've made, like Desserts or Soups, also show up here.</p>
+<p><strong>Difficulty.</strong> Slide the two red circles to show only recipes in a certain range, from Very easy to Advanced. Leave them at both ends to see everything.</p>
+<p><strong>The letter tabs.</strong> These work like the dividers in a recipe box. Tap a letter to see every recipe whose name starts with that letter. Recipes that start with a number, like "7 Layer Salad," are under the <strong>#</strong> tab.</p>
+<p>Each recipe appears as a card with its name in a colored band at the top. Tap a card to open it.</p>
+<h3>Inside a recipe</h3>
+<p>When you open a recipe, you'll see its total time, servings, and difficulty at the top, then buttons for <strong>Start cooking</strong>, <strong>Add to Favorites</strong>, <strong>Add to Shopping list</strong>, <strong>Add to Meal plan</strong>, <strong>Print</strong>, and <strong>Edit</strong>. The ingredients are on the left and the steps on the right. To go back, tap <strong>Back to recipes</strong> at the top left.</p>
+<h3>Cooking mode</h3>
+<p>Tap <strong>Start cooking</strong> and the recipe shows one step at a time in large print, so it's easy to read from across the kitchen. If a step mentions a time, a timer button appears.</p>
+<h3>Adding your own recipes</h3>
+<p>Tap the red <strong>Add recipe</strong> button. You can type a recipe in yourself, or if the recipe is on a website, you can copy it and paste it in, and Recipe Box will fill in the form for you. Either way, you'll get a chance to look it over before tapping <strong>Save recipe</strong>.</p>
+<h3>Meal plan and Shopping list</h3>
+<p>The <strong>Meal plan</strong> shows the days of the week. Tap <strong>Add a recipe</strong> under any day to plan a meal. When you add recipes to your <strong>Shopping list</strong>, the ingredients are gathered into one list you can take to the store, and you can add other items too, like paper towels.</p>
+<h3>Don't worry about breaking anything</h3>
+<p>Everything you do is saved automatically. If you ever get lost, tap <strong>Browse</strong> to get back to your recipe box. And if you make a backup now and then (see <a href="#backups">Backups and Settings</a>), your recipes are always safe.</p><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="finding" aria-labelledby="finding-h"><header class="band b-butter"><h2 id="finding-h">Finding Your Recipes</h2></header><div class="body"><p>There are four ways to find a recipe in Recipe Box. Use whichever feels easiest to you.</p>
+<h3>1. Flip through the letter tabs</h3>
+<p>This is just like flipping through the dividers in a recipe card box.</p>
+<ol>
+<li>Tap <strong>Browse</strong> at the top of the screen. (On a phone, Browse is at the bottom of the screen.)</li>
+<li>Find the row of letters, <strong>#</strong> and <strong>A</strong> through <strong>Z</strong>.</li>
+<li>Tap a letter. You'll see a card for every recipe whose name starts with that letter.</li>
+<li>Tap a card to open the recipe.</li>
+</ol>
+<p>A few tips:</p>
+<ul>
+<li>The small number under each letter tells you how many recipes are filed there. A little dot means there are none.</li>
+<li>Recipes are filed by the very first letter of their name. "The Best Meatloaf" is under <strong>T</strong>, not M.</li>
+<li>Recipes that start with a number, like "7 Layer Salad," are under <strong>#</strong>.</li>
+<li>On a phone, the letters don't all fit across the screen. Slide your finger left or right on the letters to see the rest.</li>
+</ul>
+<h3>2. Pick a category</h3>
+<p>Categories are groups of recipes, like Desserts or Soups. On the Browse screen, you'll see them listed on the left side. (On a phone, they're in a row near the top. Slide the row left to see more.)</p>
+<ul>
+<li>Tap <strong>All</strong> to see every recipe.</li>
+<li>Tap <strong>Favorites</strong> to see only the recipes you've marked as favorites.</li>
+<li>Tap any other category, like <strong>Desserts</strong>, to see just those recipes.</li>
+</ul>
+<p>The number next to each one tells you how many recipes it holds.</p>
+<aside class="tip">
+<p>You choose a recipe's categories when you add or edit it. A recipe can be in more than one, so a pie could be in both Desserts and Holidays.</p>
+</aside>
+<h3>3. Search for it</h3>
+<p>The search box is at the top of the screen and says <strong>Search recipes or ingredients</strong>.</p>
+<ol>
+<li>Tap the search box.</li>
+<li>Type part of the recipe's name, or an ingredient it uses. For example, type <strong>carrot</strong> to find every recipe that has carrots in it.</li>
+<li>Matching recipes appear right away. Each card shows why it matched, like <strong>Has Carrots</strong>.</li>
+<li>Tap a card to open it.</li>
+</ol>
+<p>When you're done, tap <strong>Clear search</strong> (or the <strong>×</strong> at the end of the search box) to see all your recipes again.</p>
+<h3>4. Use the Index</h3>
+<p>The Index is a simple list of every recipe, like the index in the back of a cookbook. It's handy when you'd rather read names than look at cards.</p>
+<ol>
+<li>Tap <strong>Index</strong> at the top of the screen.</li>
+<li>Choose how you'd like the list arranged:<ul>
+<li><strong>A to Z</strong> lists every recipe in alphabetical order. Tap a letter near the top to jump straight to it.</li>
+<li><strong>By category</strong> groups the recipes under each category, such as Desserts or Soups.</li>
+</ul>
+</li>
+<li>Tap any recipe name to open it.</li>
+</ol>
+<h3>Narrowing by difficulty</h3>
+<p>On the Browse screen there's a <strong>Difficulty</strong> slider with two red circles, from <strong>Very easy</strong> to <strong>Advanced</strong>.</p>
+<ul>
+<li>To see only easy recipes, slide the right-hand circle toward <strong>Very easy</strong>.</li>
+<li>To see everything again, slide both circles back to the ends. It will say <strong>Any difficulty</strong>.</li>
+</ul>
+<p>Below the slider is a checkbox that says <strong>Include recipes not rated yet</strong>. Leave this checked. If you uncheck it, any recipe that hasn't been given a difficulty rating will disappear from view, which may be most of them.</p>
+<h3>Can't find a recipe?</h3>
+<ul>
+<li>Is there a word in the search box? Tap <strong>Clear search</strong>.</li>
+<li>Is a category other than <strong>All</strong> selected? Tap <strong>All</strong>.</li>
+<li>Has the difficulty slider been moved, or is <strong>Include recipes not rated yet</strong> unchecked? Slide the circles back to the ends and check the box.</li>
+<li>Did you look under the right letter? Remember, "The," "A," and "My" count as the first word.</li>
+</ul><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="cooking" aria-labelledby="cooking-h"><header class="band b-sage"><h2 id="cooking-h">Viewing and Cooking a Recipe</h2></header><div class="body"><h3>Opening a recipe</h3>
+<p>Tap any recipe card on the Browse screen, or any recipe name in the Index. The recipe opens with everything you need on one screen. To go back to all your recipes, tap <strong>Back to recipes</strong> at the top left.</p>
+<h3>The top of the recipe</h3>
+<p>Right under the recipe's name you'll see three boxes.</p>
+<p><strong>Total time</strong> is about how long the recipe takes from start to finish.</p>
+<p><strong>Servings</strong> is how many people the recipe feeds. You can change this:</p>
+<ul>
+<li>Tap <strong>+</strong> to make more. Tap <strong>−</strong> to make less.</li>
+<li>All the ingredient amounts change to match. For example, if you double the servings, 1 cup of sugar becomes 2 cups.</li>
+<li>A note under <strong>Ingredients</strong> reminds you that the amounts have been changed, and the servings box shows the original number, like <strong>"30 (from 24)."</strong></li>
+<li>This doesn't change your saved recipe. It's only for this time you're cooking it.</li>
+</ul>
+<p><strong>Difficulty</strong> shows how hard the recipe is, using little chef hats. If it says <strong>Not rated yet</strong>, you can rate it yourself: tap the first hat for <strong>Very easy</strong>, up to the fifth hat for <strong>Advanced</strong>.</p>
+<h3>The buttons</h3>
+<ul>
+<li><strong>Start cooking</strong> opens cooking mode, explained below.</li>
+<li><strong>Add to Favorites</strong> adds the recipe to your Favorites, so you can find it quickly from the Browse screen. The button then says <strong>Favorite</strong>. Tap it again to take it back out.</li>
+<li><strong>Add to Shopping list</strong> and <strong>Add to Meal plan</strong> are explained in <a href="#meals">Meal Plan and Shopping List</a>.</li>
+<li><strong>Print</strong> is explained in <a href="#printing">Printing a Recipe</a>.</li>
+<li><strong>Edit</strong> lets you change the recipe.</li>
+</ul>
+<p>If the recipe doesn't have a picture yet, you'll see a box that says <strong>Add a photo</strong>. Tapping it opens the recipe for editing so you can add one.</p>
+<h3>Ingredients and steps</h3>
+<p>The <strong>Ingredients</strong> are listed on the left, each with a small box next to it. As you gather each ingredient, tap its box to check it off. The <strong>Steps</strong> are on the right, numbered in the order you do them.</p>
+<h3>Cooking mode</h3>
+<p>Cooking mode is made for when you're standing at the counter. It shows one step at a time in large print.</p>
+<p><strong>To start:</strong> tap the red <strong>Start cooking</strong> button.</p>
+<p><strong>Moving through the steps:</strong></p>
+<ul>
+<li>Tap <strong>Next step</strong> to go forward, or <strong>Back</strong> to go to the previous step.</li>
+<li>At the top, you'll see which step you're on, like <strong>Step 2 of 6</strong>.</li>
+<li>On a tablet or phone, you can also swipe left or right. On a computer, you can use the arrow keys.</li>
+</ul>
+<p><strong>Ingredients for each step:</strong> under each step, <strong>In this step</strong> lists the ingredients that step uses, with their amounts.</p>
+<p><strong>Your screen stays on:</strong> on most devices, the screen won't go dark while you're in cooking mode. You'll see <strong>Screen stays on</strong> when this is working.</p>
+<p><strong>When you're finished:</strong> on the last step, tap <strong>All done</strong>. You can also tap <strong>Exit</strong> at the top anytime.</p>
+<h3>Using a timer</h3>
+<p>When a step mentions a time, like "Bake for 25 minutes," a timer button appears under that step.</p>
+<ol>
+<li>Tap the timer button, for example <strong>Start 25 minutes timer</strong>.</li>
+<li>The timer appears near the top of the screen and counts down.</li>
+<li>When time is up, it beeps three times and says <strong>Time is up</strong>.</li>
+</ol>
+<p>Good to know:</p>
+<ul>
+<li>If a step gives a range, like "9 to 11 minutes," the timer is set for the longer time. Check on your food at the shorter time.</li>
+<li>You can run more than one timer at once.</li>
+<li>To stop a timer early, tap <strong>Cancel</strong> next to it.</li>
+<li>Make sure your device's volume is turned up so you can hear the beep.</li>
+<li>Keep cooking mode open while a timer is running.</li>
+</ul><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="adding" aria-labelledby="adding-h"><header class="band b-lilac"><h2 id="adding-h">Adding and Editing Recipes</h2></header><div class="body"><p>You can <strong>type a recipe in yourself</strong>, like copying a recipe card by hand. Or, if the recipe is on a website or in an email, you can <strong>paste it in</strong>, and Recipe Box fills out the form for you. Either way, you'll get to look everything over before it's saved.</p>
+<h3>Typing in a recipe</h3>
+<ol>
+<li>Tap the red <strong>Add recipe</strong> button at the top of the screen. (On a phone, tap <strong>Add</strong> at the bottom.)</li>
+<li>A form called <strong>Add a recipe</strong> opens. Fill in as much as you like. Only the name is really needed, and you can always come back and add the rest later.</li>
+<li>When you're finished, scroll to the bottom and tap <strong>Save recipe</strong>.</li>
+</ol>
+<p>Here's what each part of the form is for:</p>
+<ul>
+<li><strong>Recipe name.</strong> This is how the recipe is filed. It goes under the first letter of the name, so "Grandma's Pound Cake" is filed under <strong>G</strong>.</li>
+<li><strong>Short description.</strong> A sentence or two about the dish, if you'd like.</li>
+<li><strong>Total time (minutes).</strong> About how long it takes from start to finish. Type just the number, like <strong>45</strong>. For an hour and a half, type <strong>90</strong>.</li>
+<li><strong>Servings.</strong> How many people it feeds. This is what lets you make the recipe bigger or smaller later.</li>
+<li><strong>Makes (optional).</strong> For things that aren't counted in servings, like <strong>2 dozen cookies</strong> or <strong>one 9-inch pie</strong>.</li>
+<li><strong>From.</strong> Where the recipe came from, like <strong>Grandma</strong>, a cookbook, or a website.</li>
+<li><strong>Web link (optional).</strong> If the recipe came from a website, you can put its address here.</li>
+<li><strong>Difficulty.</strong> Tap how hard the recipe is, from <strong>Very easy</strong> to <strong>Advanced</strong>. If you tap one by mistake, tap it again to clear it.</li>
+<li><strong>Category.</strong> How you group recipes, like Desserts or Soups. See <em>Adding categories</em> below.</li>
+<li><strong>Photo.</strong> Tap <strong>Choose a photo</strong> to add a picture of the dish. Recipe Box makes it smaller automatically so it doesn't take up much room.</li>
+</ul>
+<h3>Adding the ingredients</h3>
+<p>Each ingredient has four small boxes:</p>
+<ul>
+<li><strong>Amount:</strong> how much, like <strong>2</strong>, <strong>1 1/2</strong>, or <strong>¾</strong>. You can also type a range like <strong>2 to 3</strong>.</li>
+<li><strong>Unit:</strong> the measurement, like <strong>cups</strong>, <strong>tsp</strong>, or <strong>lb</strong>. Leave it empty for things you count, like 2 eggs.</li>
+<li><strong>Ingredient:</strong> what it is, like <strong>Flour</strong>.</li>
+<li><strong>Note:</strong> anything extra, like <strong>chopped</strong> or <strong>softened</strong>.</li>
+</ul>
+<p>To add another ingredient, tap <strong>Add ingredient</strong>.</p>
+<p><strong>Recipe Box helps you as you type.</strong> When you start typing an ingredient, a list pops up with ones you've used before. Type <strong>chick</strong>, for example, and you'll see Chicken, Chicken Broth, and so on. Tap the right one. If what you're typing is new, tap <strong>Add new ingredient</strong> instead.</p>
+<p><strong>"Did you mean...?"</strong> If you misspell an ingredient, Recipe Box may ask, for example, <strong>Did you mean Buttermilk?</strong> Tap the suggested word to fix it, or tap <strong>keep it as a new ingredient</strong> if your spelling is what you meant. This keeps your recipe box tidy, so searching for an ingredient finds every recipe that uses it.</p>
+<h3>Adding the steps</h3>
+<p>Type the first step in the box labeled <strong>Step 1</strong>. Tap <strong>Add step</strong> for the next one, and so on.</p>
+<aside class="tip">
+<p>Put just one step in each box. It makes cooking mode much easier to follow, since it shows one box at a time.</p>
+</aside>
+<p><strong>Got one long paragraph instead of steps?</strong> Tap <strong>Split into separate steps</strong> under it, and Recipe Box will break it into one step per sentence. Look them over afterward to make sure they split in the right places.</p>
+<h3>Headings, rearranging, and removing</h3>
+<p><strong>Headings:</strong> some recipes have parts, like a cake and its frosting. Tap <strong>Add section heading</strong> to add a title like <strong>Frosting</strong>, then put that part's ingredients or steps below it.</p>
+<p><strong>Rearranging and removing:</strong> next to each ingredient and step are three small buttons. The <strong>up arrow</strong> moves it up, the <strong>down arrow</strong> moves it down, and the <strong>trash can</strong> removes it.</p>
+<h3>The extras at the bottom</h3>
+<p><strong>Equipment you'll need</strong> is for anything special, like a 9x13 pan or a stand mixer. <strong>Tips and notes</strong> is for anything else worth remembering, like "Freezes well."</p>
+<h3>Adding categories</h3>
+<ol>
+<li>In the <strong>Category</strong> part of the form, tap <strong>+ Add category</strong>.</li>
+<li>A list of categories appears, such as Appetizers, Breakfast, and Dessert. Tap the one you want.</li>
+<li>To make your own, type its name, like <strong>Holidays</strong>, and press <strong>Enter</strong> (or tap the new name in the list).</li>
+<li>To take a category off a recipe, tap the small <strong>×</strong> next to its name.</li>
+</ol>
+<h3>Pasting a recipe from a website or email</h3>
+<ol>
+<li>Go to the recipe on the website, or open the email.</li>
+<li>Select the recipe's text, starting at the name and ending after the last step:<ul>
+<li>On a computer, click just before the recipe name, hold the mouse button down, and drag to the end of the last step. Then press <strong>Ctrl</strong> and <strong>C</strong> together (on a Mac, <strong>Command</strong> and <strong>C</strong>).</li>
+<li>On a tablet or phone, press and hold on the first word until it's highlighted, drag the little handle down to the end of the last step, and tap <strong>Copy</strong>.</li>
+</ul>
+</li>
+<li>In Recipe Box, tap <strong>Add recipe</strong>.</li>
+<li>Near the top of the form, tap the box that says <strong>Have a recipe from a website?</strong> The <strong>Paste a recipe</strong> screen opens.</li>
+<li>Paste into the <strong>Recipe text</strong> box:<ul>
+<li>On a computer, press <strong>Ctrl</strong> and <strong>V</strong> together (on a Mac, <strong>Command</strong> and <strong>V</strong>).</li>
+<li>On a tablet or phone, press and hold inside the box and tap <strong>Paste</strong>.</li>
+</ul>
+</li>
+<li>If you'd like, paste the website's address in <strong>Web link</strong>.</li>
+<li>Tap <strong>Read this recipe</strong>.</li>
+</ol>
+<p>Recipe Box fills out the form for you. <strong>Look it over before saving</strong>, since sometimes a line lands in the wrong spot. Fix anything that looks off, then tap <strong>Save recipe</strong>.</p>
+<aside class="tip">
+<p>There's an even faster way to save recipes from websites. See <a href="#websites">Saving Recipes from Websites</a>.</p>
+</aside>
+<h3>Changing a recipe</h3>
+<ol>
+<li>Open the recipe and tap <strong>Edit</strong>.</li>
+<li>Make your changes.</li>
+<li>Tap <strong>Save changes</strong> at the bottom.</li>
+</ol>
+<p>If you don't want to keep your changes, tap <strong>Back to recipe</strong> or <strong>Cancel</strong> instead. <strong>Be careful:</strong> Recipe Box won't ask "Are you sure?" It leaves without saving anything you changed.</p>
+<h3>Deleting a recipe</h3>
+<ol>
+<li>Open the recipe and tap <strong>Edit</strong>.</li>
+<li>Scroll to the bottom and tap <strong>Delete recipe</strong>.</li>
+<li>Recipe Box asks <strong>Delete this recipe?</strong> Tap <strong>Delete recipe</strong> again to confirm.</li>
+</ol>
+<p>Once a recipe is deleted, the only way to get it back is from a backup file. See <a href="#backups">Backups and Settings</a>.</p><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="websites" aria-labelledby="websites-h"><header class="band b-blush"><h2 id="websites-h">Saving Recipes from Websites</h2></header><div class="body"><p>If you find recipes online, there's an easier way to get them into Recipe Box than copying and pasting by hand. You add a special bookmark to your web browser once, and after that it does most of the work for you.</p>
+<ul>
+<li><strong>On a computer</strong>, the bookmark is called <strong>Save to Recipe Box</strong>. One click sends the recipe straight to Recipe Box with the form filled in.</li>
+<li><strong>On a tablet or phone</strong>, the bookmark is called <strong>Copy Web Recipe</strong>. One tap copies the recipe, and then you paste it into Recipe Box.</li>
+</ul>
+<p>Find your device below. You only need to set it up once.</p>
+<h3>On a computer (Chrome or Edge)</h3>
+<p><strong>Step 1: Show your bookmarks bar.</strong> This is the thin strip just under the address bar at the top of your browser.</p>
+<ul>
+<li>On <strong>Windows</strong>, press <strong>Ctrl</strong>, <strong>Shift</strong>, and <strong>B</strong> together.</li>
+<li>On a <strong>Mac</strong>, press <strong>Command</strong>, <strong>Shift</strong>, and <strong>B</strong> together.</li>
+</ul>
+<p>If the bar disappears instead, it was already showing. Press the same keys again to bring it back.</p>
+<p><strong>Step 2: Drag the button onto the bar.</strong></p>
+<ol>
+<li>In Recipe Box, click the <strong>settings button</strong> (three small sliders at the top).</li>
+<li>Scroll down to <strong>Save recipes from websites</strong>.</li>
+<li>Find the button that says <strong>Save to Recipe Box</strong>. Click on it and <strong>hold the mouse button down</strong>.</li>
+<li>While still holding, move your mouse up to the bookmarks bar.</li>
+<li>Let go.</li>
+</ol>
+<aside class="tip">
+<p>Clicked the button instead of dragging it? Nothing will happen. Try again, holding the mouse button down while you move.</p>
+</aside>
+<p><strong>Using it:</strong></p>
+<ol>
+<li>Go to a recipe on any website.</li>
+<li>Click <strong>Save to Recipe Box</strong> on your bookmarks bar.</li>
+<li>Recipe Box opens in a new tab with the recipe filled in.</li>
+<li>Look it over, fix anything that came through wrong, and click <strong>Save recipe</strong>.</li>
+</ol>
+<h3>On a tablet or phone</h3>
+<p><strong>Step 1: Copy the bookmark's code.</strong></p>
+<ol>
+<li>Open Recipe Box from your Home Screen.</li>
+<li>Tap the <strong>settings button</strong> (three small sliders at the top).</li>
+<li>Scroll down to <strong>Save recipes from websites</strong> and tap <strong>Set up Copy Web Recipe</strong>.</li>
+<li>Under <strong>Which are you using?</strong>, make sure the right choice is selected. Recipe Box picks one for you, but tap a different one if it's wrong.</li>
+</ol>
+<p><strong>Step 2: Follow the steps for your device below.</strong></p>
+<h4>iPad or iPhone, using Safari</h4>
+<p><strong>Make the bookmark</strong></p>
+<ol>
+<li>Open <strong>Safari</strong> and go to any website. Any page is fine.</li>
+<li>Tap the <strong>Share</strong> button (a square with an arrow pointing up), then tap <strong>Add Bookmark</strong>.</li>
+<li>Change the name to <strong>Copy Web Recipe</strong>. Under <strong>Location</strong>, choose <strong>Favorites</strong>. Tap <strong>Save</strong>.</li>
+<li>Open your bookmarks. On an iPad, tap the sidebar button at the top left, then <strong>Bookmarks</strong>. On an iPhone, tap the <strong>Bookmarks</strong> button (an open book) at the bottom.</li>
+<li>Open <strong>Favorites</strong>, tap <strong>Edit</strong>, then tap <strong>Copy Web Recipe</strong>.</li>
+<li>Tap the web address under the name, then tap the small <strong>ⓧ</strong> to clear it. Press and hold in the empty box and tap <strong>Paste</strong>.</li>
+<li>Tap <strong>Done</strong>.</li>
+</ol>
+<p><strong>On an iPad, show the Favorites bar:</strong> open the iPad's <strong>Settings</strong> app, tap <strong>Safari</strong>, and turn on <strong>Show Favorites Bar</strong>.</p>
+<p><strong>Use it</strong></p>
+<ol>
+<li>Go to a recipe on any website in Safari.</li>
+<li>On an iPad, tap <strong>Copy Web Recipe</strong> on the Favorites bar under the address. On an iPhone, tap the <strong>Bookmarks</strong> button, then <strong>Favorites</strong>, then <strong>Copy Web Recipe</strong>.</li>
+<li>Tap <strong>Copy this recipe</strong>, then paste it into Recipe Box (see <em>Pasting the recipe</em> below).</li>
+</ol>
+<h4>iPad or iPhone, using Chrome</h4>
+<p><strong>Make the bookmark</strong></p>
+<ol>
+<li>Open <strong>Chrome</strong> and go to any website. Any page is fine.</li>
+<li>Tap the <strong>⋯</strong> menu, then tap <strong>Add to Bookmarks</strong>.</li>
+<li>Tap <strong>⋯</strong> again, then <strong>Bookmarks</strong>. Open <strong>Mobile Bookmarks</strong> and find the bookmark you just made.</li>
+<li>Press and hold that bookmark, then tap <strong>Edit Bookmark</strong>.</li>
+<li>Change the name to <strong>Copy Web Recipe</strong>.</li>
+<li>Clear the web address, press and hold in the empty box, and tap <strong>Paste</strong>.</li>
+<li>Tap <strong>Done</strong>.</li>
+</ol>
+<p><strong>Use it</strong></p>
+<ol>
+<li>Go to a recipe on any website in Chrome.</li>
+<li>Tap the address bar at the top and type <strong>Copy Web Recipe</strong>.</li>
+<li>In the list that drops down, tap <strong>Copy Web Recipe</strong> (it has a star next to it).</li>
+<li>Tap <strong>Copy this recipe</strong>, then paste it into Recipe Box (see <em>Pasting the recipe</em> below).</li>
+</ol>
+<aside class="tip">
+<p>Chrome has no bookmarks bar on tablets and phones, and tapping this bookmark from the Bookmarks list will not work. Always start it from the address bar.</p>
+</aside>
+<h4>Android tablet or phone, using Chrome</h4>
+<p><strong>Make the bookmark</strong></p>
+<ol>
+<li>Open <strong>Chrome</strong> and go to any website. Any page is fine.</li>
+<li>Tap the <strong>⋮</strong> menu at the top right, then tap the <strong>star ☆</strong> at the top of the menu.</li>
+<li>Tap <strong>⋮</strong> again, then <strong>Bookmarks</strong>. Open <strong>Mobile bookmarks</strong> and find the bookmark you just made.</li>
+<li>Tap the <strong>⋮</strong> next to that bookmark, then tap <strong>Edit</strong>.</li>
+<li>Change the name to <strong>Copy Web Recipe</strong>.</li>
+<li>Clear the web address, press and hold in the empty box, and tap <strong>Paste</strong>.</li>
+<li>Tap the <strong>back arrow</strong> at the top left to save.</li>
+</ol>
+<p><strong>Use it</strong></p>
+<ol>
+<li>Go to a recipe on any website in Chrome.</li>
+<li>Tap the address bar at the top and type <strong>Copy Web Recipe</strong>.</li>
+<li>In the list that drops down, tap <strong>Copy Web Recipe</strong> (it has a star next to it).</li>
+<li>Tap <strong>Copy this recipe</strong>, then paste it into Recipe Box (see <em>Pasting the recipe</em> below).</li>
+</ol>
+<aside class="tip">
+<p>Chrome has no bookmarks bar on tablets and phones, and tapping this bookmark from the Bookmarks list will not work. Always start it from the address bar.</p>
+</aside>
+<h3>Pasting the recipe (tablets and phones)</h3>
+<p>After you tap <strong>Copy this recipe</strong>, the button turns green and says <strong>Copied!</strong> Then:</p>
+<ol>
+<li>Open Recipe Box from your Home Screen.</li>
+<li>Tap <strong>Add recipe</strong>.</li>
+<li>Tap the box near the top that says <strong>Have a recipe from a website?</strong></li>
+<li>Press and hold inside the <strong>Recipe text</strong> box and tap <strong>Paste</strong>.</li>
+<li>Tap <strong>Read this recipe</strong>.</li>
+<li>Look it over, fix anything that came through wrong, and tap <strong>Save recipe</strong>.</li>
+</ol>
+<p>You don't need to change the long jumble of letters at the bottom of what you pasted. That's how Recipe Box knows exactly where everything goes.</p>
+<h3>If the bookmark can't find the recipe</h3>
+<p>Most recipe websites include a hidden copy of the recipe that the bookmark reads. A few don't. If that happens, you'll see <strong>Recipe Box could not find a recipe on this page.</strong></p>
+<ol>
+<li>Tap or click <strong>OK</strong> to close the message.</li>
+<li>Select the recipe's text on the page, from the name down through the last step.</li>
+<li>Use the bookmark again.</li>
+</ol>
+<p>Recipe Box will read the text you selected instead.</p><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="printing" aria-labelledby="printing-h"><header class="band b-mint"><h2 id="printing-h">Printing a Recipe</h2></header><div class="body"><p>You can print any recipe on a full sheet of paper, a half sheet, or a recipe card that fits in a recipe box. Recipe Box shows you exactly how it will look before you print.</p>
+<h3>Opening the Print screen</h3>
+<ol>
+<li>Open the recipe you want to print.</li>
+<li>Tap <strong>Print</strong>.</li>
+</ol>
+<p>Your choices are on the left, and a preview of the printed page is on the right. (On a phone, the preview is below the choices.) The preview changes as soon as you change a choice, so you can try things and see what happens. When you're done, tap <strong>Back to recipe</strong> at the top.</p>
+<h3>Step 1: Choose a size</h3>
+<ul>
+<li><strong>Full page, Letter</strong> is a regular sheet of printer paper. This is the best choice for most people.</li>
+<li><strong>Full page, A4</strong> is the standard paper size outside the United States.</li>
+<li><strong>Half page (5½ × 8½)</strong> is half a sheet, a nice size for a recipe binder.</li>
+<li><strong>Recipe card (4 × 6)</strong> is a large index card.</li>
+<li><strong>Recipe card (3 × 5)</strong> is a small index card, the classic recipe box size.</li>
+</ul>
+<h3>Step 2: Choose your paper (half pages and cards only)</h3>
+<ul>
+<li><strong>Index cards</strong> (or <strong>Half-size paper</strong>) is for when you load actual cards or half sheets into your printer. In the print window, choose the matching paper size.</li>
+<li><strong>Regular paper, cut out</strong> prints on a normal sheet of printer paper, with dashed lines to cut along. Two 4 × 6 cards or three 3 × 5 cards fit on one sheet. Half pages print two to a sheet, turned sideways.</li>
+</ul>
+<aside class="tip">
+<p>Not sure? Choose <strong>Regular paper, cut out</strong>. It works with any printer and the paper you already have.</p>
+</aside>
+<h3>Step 3: Adjust anything else (optional)</h3>
+<ul>
+<li><strong>Servings.</strong> Tap <strong>−</strong> or <strong>+</strong> to print the recipe for more or fewer people.</li>
+<li><strong>Include.</strong> Uncheck anything you'd like to leave off, such as <strong>Tips and notes</strong>. Handy for fitting a recipe on a small card.</li>
+<li><strong>Text size.</strong> <strong>Fit to fewest pages</strong> is best for most recipes. If the text is too small to read comfortably, tap <strong>Larger</strong>.</li>
+<li><strong>Look.</strong> <strong>Recipe card colors</strong> prints the colored headings. <strong>Plain, saves ink</strong> prints in black and white.</li>
+</ul>
+<p>Just above the <strong>Print</strong> button, Recipe Box tells you how it will fit, such as <strong>Fits on 1 Letter page</strong> or <strong>Fits on 1 card</strong>.</p>
+<h3>Step 4: Print</h3>
+<ol>
+<li>Tap the red <strong>Print</strong> button.</li>
+<li>Your device's print window opens. Choose your printer.</li>
+<li>Check two settings so your recipe prints at the right size:<ul>
+<li><strong>Scale</strong> should be <strong>100%</strong> (sometimes called <strong>Actual size</strong> or <strong>Default</strong>).</li>
+<li><strong>Headers and footers</strong> should be turned <strong>off</strong>. Otherwise, the date and a web address print across the top and bottom.</li>
+</ul>
+</li>
+<li>Tap <strong>Print</strong>.</li>
+</ol>
+<p>Where to find those settings:</p>
+<ul>
+<li><strong>In Chrome or Edge on a computer</strong>, click <strong>More settings</strong> in the print window.</li>
+<li><strong>On an iPad or iPhone</strong>, tap <strong>Options</strong> if you see it. Most iPads don't add headers and footers.</li>
+<li><strong>On an Android tablet or phone</strong>, tap the small arrow under the printer name.</li>
+</ul>
+<h3>Good to know</h3>
+<ul>
+<li>Recipe Box remembers your choices, so the next recipe you print uses the same size and settings.</li>
+<li>If a recipe is too long for a card, the message above the Print button will say it needs more than one card. Try unchecking <strong>Tips and notes</strong> or <strong>Equipment</strong>, or choose a bigger size.</li>
+</ul><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="meals" aria-labelledby="meals-h"><header class="band b-apricot"><h2 id="meals-h">Meal Plan and Shopping List</h2></header><div class="body"><p>Recipe Box can help you plan what to cook during the week and make a shopping list for it, all in one place.</p>
+<h3>The Meal plan</h3>
+<p>Tap <strong>Meal plan</strong> at the top of the screen. (On a phone, it's at the bottom.) You'll see the days of the week, Sunday through Saturday, with today marked <strong>today</strong>. Each day shows what you've planned: Breakfast, Lunch, Dinner, or Other.</p>
+<p>To see another week, tap the arrows next to the dates at the top. Tap <strong>This week</strong> to come back.</p>
+<h3>Planning a meal</h3>
+<p><strong>From the recipe:</strong></p>
+<ol>
+<li>Open the recipe and tap <strong>Add to Meal plan</strong>.</li>
+<li>Under <strong>Which day?</strong>, tap the day. You can choose any day in the next two weeks.</li>
+<li>Under <strong>Which meal?</strong>, tap <strong>Breakfast</strong>, <strong>Lunch</strong>, <strong>Dinner</strong>, or <strong>Other</strong>.</li>
+<li>Tap <strong>Add to plan</strong>.</li>
+</ol>
+<p><strong>From the Meal plan:</strong></p>
+<ol>
+<li>Under the day you want, tap <strong>Add a recipe</strong>.</li>
+<li>Under <strong>Which meal?</strong>, tap the meal.</li>
+<li>Tap the recipe from the list. If you have a lot of recipes, type part of its name in the <strong>Find a recipe</strong> box.</li>
+</ol>
+<p>To take a recipe off your plan, tap the small <strong>×</strong> next to it. To open a planned recipe, tap its name.</p>
+<h3>The Shopping list</h3>
+<p>The shopping list gathers all the ingredients you need into one list for the store. Tap the <strong>shopping cart</strong> at the top of the screen to see it. A small red number on the cart tells you how many items are left to get.</p>
+<h3>Adding to your shopping list</h3>
+<ul>
+<li><strong>One recipe:</strong> open the recipe and tap <strong>Add to Shopping list</strong>. If you changed the servings first, the list uses your new amounts.</li>
+<li><strong>A whole week:</strong> go to the <strong>Meal plan</strong> and tap <strong>Add this week to the shopping list</strong> at the bottom.</li>
+<li><strong>Anything else:</strong> on the shopping list, type something in the box that says <strong>Add something else, like paper towels</strong>, then tap <strong>Add</strong>.</li>
+</ul>
+<h3>How the list is arranged</h3>
+<ul>
+<li><strong>Items are grouped by where they are in the store</strong>, like Produce or Meat and seafood.</li>
+<li><strong>Amounts are added together.</strong> If two recipes need carrots, you'll see one line with the total, and under it, which recipes it's for.</li>
+<li>Under <strong>For these recipes</strong>, you'll see each recipe on your list and how many servings it's for.</li>
+</ul>
+<h3>At the store</h3>
+<ul>
+<li><strong>Tap the box next to an item</strong> as you put it in your cart. It gets crossed off, and the number on the cart goes down.</li>
+<li><strong>Already have something at home?</strong> Tap the <strong>×</strong> next to it to take it off the list.</li>
+<li><strong>Changed your mind about a recipe?</strong> Tap the <strong>×</strong> next to its name under <strong>For these recipes</strong>.</li>
+</ul>
+<h3>When you're done shopping</h3>
+<p>Tap the <strong>shopping cart</strong> at the top of the screen, then tap <strong>Done shopping</strong>. This clears away everything you checked off. Anything you didn't check off stays on the list.</p>
+<p>To start completely fresh, open the shopping list, scroll to the bottom, and tap <strong>Clear the whole list</strong>. Recipe Box will ask you to confirm first.</p>
+<h3>Taking your list with you</h3>
+<ul>
+<li><strong>Copy list</strong> copies the list so you can paste it into a text message or email.</li>
+<li><strong>Print</strong> prints the list to take to the store.</li>
+</ul><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="sync" aria-labelledby="sync-h"><header class="band b-sky"><h2 id="sync-h">Syncing with Google Drive</h2></header><div class="body"><h3>What syncing does</h3>
+<p>Normally, Recipe Box keeps your recipes on the one device you're using. If you use Recipe Box on more than one device, like a computer and a tablet, <strong>syncing</strong> keeps them all matched up. Add a recipe on your computer, and it shows up on your tablet a few moments later.</p>
+<p>It works by saving your recipes to your own <strong>Google Drive</strong>, in a folder called <strong>Recipe Box</strong>. Recipe Box can only see that one folder. It can't see or change any of your other files.</p>
+<p><strong>Do you need it?</strong> Only if you use Recipe Box on more than one device. If you only use it on one device, you can skip this section. Just remember to make a backup now and then.</p>
+<aside class="tip">
+<p>Your recipes stay private. Each person's Recipe Box syncs only with their own Google account, so your recipes are never mixed with anyone else's.</p>
+</aside>
+<h3>What you'll need</h3>
+<ul>
+<li>A <strong>Google account</strong> (the same one you use for Gmail, if you have Gmail).</li>
+<li>Recipe Box installed on each device you want to sync (see <a href="#getting-started">Getting Started</a>).</li>
+</ul>
+<h3>Turning on sync</h3>
+<p>Do these steps on <strong>each</strong> device you want to keep in step, signing in with the <strong>same Google account</strong> every time.</p>
+<ol>
+<li>Open Recipe Box.</li>
+<li>Tap the <strong>settings button</strong> (three small sliders at the top).</li>
+<li>Find <strong>Sync</strong> and tap <strong>Connect Google Drive</strong>.</li>
+<li>Google's sign-in page opens. Choose your Google account, or sign in if you're asked to.</li>
+<li>Google asks whether Recipe Box can use its own files in your Google Drive. Tap <strong>Continue</strong> or <strong>Allow</strong>.</li>
+<li>You'll be brought back to Recipe Box automatically.</li>
+</ol>
+<p>Settings will now say <strong>Syncing with Google Drive</strong>, and a small <strong>cloud</strong> button appears at the top of the screen. You only sign in once on each device. From then on, syncing happens on its own.</p>
+<h3>The cloud button</h3>
+<p>Tap the cloud button anytime to see when your recipes last synced.</p>
+<ul>
+<li><strong>A plain cloud</strong> means everything is synced.</li>
+<li><strong>A cloud with a small red dot</strong> means Recipe Box needs your help. Tap it to see what's needed.</li>
+</ul>
+<p>If you're not connected to the internet, Recipe Box keeps working normally. Anything you add or change will sync once you're back online.</p>
+<h3>If it asks you to sign in again</h3>
+<p>This shouldn't happen often, but Google may ask you to sign in again if, for example, you change your Google password. The cloud button gets a red dot.</p>
+<ol>
+<li>Tap the <strong>cloud button</strong>.</li>
+<li>Tap <strong>Continue syncing</strong>.</li>
+<li>Choose your Google account on the page that opens.</li>
+</ol>
+<p>Nothing is lost while you wait. Your changes will sync as soon as you sign back in.</p>
+<h3>"Choose which changes to keep"</h3>
+<p>Sometimes the same recipe gets changed on two devices before they've had a chance to sync. Recipe Box doesn't guess which one is right. It asks you.</p>
+<ol>
+<li>Tap the <strong>cloud button</strong> (it will have a red dot), then tap <strong>Choose which changes to keep</strong>.</li>
+<li>For each recipe, you'll see the two versions side by side: <strong>On this device</strong> and <strong>On the other device</strong>.</li>
+<li>Under each one, tap your choice:<ul>
+<li><strong>Keep this device's</strong> keeps the version on the device you're holding.</li>
+<li><strong>Keep the other one</strong> keeps the version from your other device.</li>
+<li><strong>Keep both</strong> saves both versions as separate recipes, so you can compare them and delete the one you don't want.</li>
+</ul>
+</li>
+<li>Tap <strong>Use these choices</strong>.</li>
+</ol>
+<p>Not sure yet? Tap <strong>Decide later</strong>. Recipe Box keeps both versions safe until you choose.</p>
+<h3>Syncing right away</h3>
+<p>Syncing normally happens on its own, but you can tap the <strong>cloud button</strong> and then <strong>Sync now</strong> anytime.</p>
+<h3>Turning off sync</h3>
+<ol>
+<li>Tap the <strong>settings button</strong>.</li>
+<li>Under <strong>Sync</strong>, tap <strong>Turn off sync</strong>.</li>
+<li>Tap <strong>Turn off sync</strong> again to confirm.</li>
+</ol>
+<p>Your recipes stay on this device and in your Google Drive folder. They just stop syncing.</p><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="backups" aria-labelledby="backups-h"><header class="band b-butter"><h2 id="backups-h">Backups and Settings</h2></header><div class="body"><h3>Opening settings</h3>
+<p>Tap the <strong>settings button</strong> at the top of the screen. It looks like three small sliders. Tap <strong>Close</strong> at the bottom when you're done.</p>
+<h3>Why backups matter</h3>
+<p>Your recipes are saved on the device you're using. That's what lets Recipe Box work without the internet. But it also means that if the device is lost, broken, or reset, your recipes go with it. A <strong>backup file</strong> is a copy of your entire recipe box in one small file. Keep it somewhere safe, and you can always get your recipes back.</p>
+<p><strong>How often?</strong> Once a month is plenty for most people. Make one any time you've added a lot of new recipes, and always before you restore a backup or empty the recipe box.</p>
+<aside class="tip">
+<p>Using sync? Your recipes are also kept in your Google Drive. A backup is still a good idea, though. If a recipe gets deleted by mistake, sync deletes it on your other devices too, but your backup file will still have it.</p>
+</aside>
+<h3>Making a backup</h3>
+<ol>
+<li>Open <strong>settings</strong>.</li>
+<li>Tap <strong>Download a backup file</strong>.</li>
+<li>Recipe Box saves a file with a name like <strong>recipe-box-backup-2026-10-03.json</strong>. The numbers are the date you made it.</li>
+</ol>
+<p>Where does it go?</p>
+<ul>
+<li><strong>On a computer</strong>, it goes in your <strong>Downloads</strong> folder.</li>
+<li><strong>On an iPad or iPhone</strong>, it usually goes in the <strong>Files</strong> app, in <strong>Downloads</strong>. If your iPad shows the file with a <strong>Share</strong> button instead, tap <strong>Share</strong>, then <strong>Save to Files</strong>.</li>
+<li><strong>On Android</strong>, it goes in your <strong>Downloads</strong> folder (open the <strong>Files</strong> app to find it).</li>
+</ul>
+<p><strong>Keep a copy somewhere other than the device itself.</strong> Email the file to yourself, or save it in your Google Drive.</p>
+<h3>Restoring from a backup</h3>
+<ol>
+<li>Make sure the backup file is saved on your device.</li>
+<li>Open <strong>settings</strong> and tap <strong>Restore from a backup file</strong>.</li>
+<li>Find the file and tap it.</li>
+<li>Recipe Box tells you how many recipes are in the file and asks <strong>Restore this backup?</strong> Tap <strong>Restore backup</strong>.</li>
+</ol>
+<p><strong>Please read this before you restore:</strong> restoring <strong>replaces everything</strong> in your recipe box with what's in the file. It doesn't add to your recipes. Any recipe you added after that backup was made will be gone. If you're not sure, download a fresh backup first.</p>
+<aside class="tip">
+<p>If you use sync, restoring on one device can change your other devices too, once they sync.</p>
+</aside>
+<h3>Install on this device</h3>
+<p>If Recipe Box isn't installed yet on the device you're using, settings will show steps for installing it. Installing gives Recipe Box its own icon and protects your recipes, since recipes in a regular browser page can be erased if someone clears the browser's history. If you don't see this section, Recipe Box is already installed.</p>
+<h3>Sync</h3>
+<p>This is where you connect Google Drive, sync right away, or turn sync off. See <a href="#sync">Syncing with Google Drive</a>.</p>
+<h3>Invite family</h3>
+<ol>
+<li>Download a backup file to send along with your invitation.</li>
+<li>In settings, find <strong>Invite family</strong>. You'll see a ready-made message with the link to Recipe Box and simple steps for getting started.</li>
+<li>Tap <strong>Copy message</strong>, then paste it into an email or text. (On some devices, you'll also see <strong>Share…</strong>, which sends it straight from Recipe Box.)</li>
+<li>Attach your backup file and send it.</li>
+</ol>
+<p>They'll get their own copy of your recipes. From then on, their recipe box is their own. Changes they make won't affect yours, and yours won't affect theirs.</p>
+<h3>Save recipes from websites</h3>
+<p>This is where you set up <strong>Save to Recipe Box</strong> on a computer, or <strong>Copy Web Recipe</strong> on a tablet or phone. See <a href="#websites">Saving Recipes from Websites</a>.</p>
+<h3>Appearance</h3>
+<ul>
+<li><strong>Light</strong> uses the bright recipe-card colors. This is the standard look.</li>
+<li><strong>Dark</strong> uses dark backgrounds, which some people find easier on the eyes at night.</li>
+<li><strong>Match device</strong> follows your device's own light or dark setting.</li>
+</ul>
+<h3>Start over</h3>
+<p><strong>Empty the recipe box</strong> removes every recipe from this device, so you can start from scratch. Your list of ingredients and categories stays. Recipe Box asks <strong>Empty the recipe box?</strong> first. Tap <strong>Empty the box</strong> only if you're sure.</p>
+<p><strong>Please make a backup first.</strong> Once your recipes are emptied, the only way to get them back is from a backup file. If sync is on, emptying the box on one device empties it on your other devices too.</p>
+<h3>The "Saved" label</h3>
+<p>At the top of the screen, a small green label says <strong>Saved</strong>. That means your recipes are safely stored on your device. If it ever says <strong>Not saved</strong>, your device isn't letting Recipe Box store recipes, which can happen in a private browsing window. Make a backup right away, and use Recipe Box from its installed icon.</p><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="questions" aria-labelledby="questions-h"><header class="band b-slate"><h2 id="questions-h">Common Questions</h2></header><div class="body"><h3>Finding things</h3>
+<p><strong>Some of my recipes are missing!</strong></p>
+<p>Don't worry, they're probably just hidden. On the <strong>Browse</strong> screen, clear the search box, tap <strong>All</strong>, slide both <strong>Difficulty</strong> circles back to the ends, and make sure <strong>Include recipes not rated yet</strong> is checked.</p>
+<p><strong>All my recipes are gone on my iPad or iPhone.</strong></p>
+<p>Make sure you opened Recipe Box from its <strong>icon on your Home Screen</strong>, not from Safari or Chrome. They each keep their own separate recipe box.</p>
+<p><strong>I can't find a recipe under the letter I expected.</strong></p>
+<p>Recipes are filed by the very first word of the name, including "The," "A," and "My." You can also use the search box or the <strong>Index</strong>.</p>
+<p><strong>I added a recipe on my computer, but it's not on my tablet.</strong></p>
+<p>Each device keeps its own recipes unless sync is turned on. If sync is on, tap the <strong>cloud button</strong> and then <strong>Sync now</strong>, and make sure both devices use the <strong>same Google account</strong>.</p>
+<h3>Adding recipes</h3>
+<p><strong>I made changes to a recipe, but they disappeared.</strong></p>
+<p>Changes are only kept when you tap <strong>Save recipe</strong> or <strong>Save changes</strong>. Tapping <strong>Cancel</strong> or the back link leaves without saving.</p>
+<p><strong>A pasted recipe came out jumbled.</strong></p>
+<p>Some websites have extra text mixed in. Look it over before saving and fix anything in the wrong spot. For long paragraph-style steps, tap <strong>Split into separate steps</strong>.</p>
+<p><strong>Copy Web Recipe doesn't do anything when I tap it.</strong></p>
+<p>In <strong>Chrome</strong>, the bookmark won't work from the Bookmarks list. Tap the address bar, type <strong>Copy Web Recipe</strong>, and tap the starred suggestion. In <strong>Safari</strong>, the bookmark's address may not have pasted correctly. Open settings, tap <strong>Set up Copy Web Recipe</strong> again, and redo the paste step.</p>
+<p><strong>It says "Recipe Box could not find a recipe on this page."</strong></p>
+<p>Select the recipe text yourself, from the name through the last step, then use the bookmark again.</p>
+<p><strong>I pasted a recipe and there's a long jumble of letters at the bottom.</strong></p>
+<p>That's normal. Leave it in, and tap <strong>Read this recipe</strong>.</p>
+<h3>Cooking</h3>
+<p><strong>The timer didn't beep.</strong></p>
+<p>Make sure your volume is turned up, and on an iPhone or iPad, that it isn't set to silent. Keep cooking mode open while a timer is running.</p>
+<p><strong>My screen keeps going dark while I cook.</strong></p>
+<p>Use <strong>Start cooking</strong>. In cooking mode, most devices keep the screen on. If yours doesn't, you can change how long your screen stays on in your device's own settings.</p>
+<h3>Printing</h3>
+<p><strong>The date and a web address print at the top and bottom of my recipe.</strong></p>
+<p>In the print window, turn off <strong>Headers and footers</strong>. In Chrome or Edge, it's under <strong>More settings</strong>.</p>
+<p><strong>My printed recipe card is the wrong size.</strong></p>
+<p>In the print window, set <strong>Scale</strong> to <strong>100%</strong> (sometimes called <strong>Actual size</strong>). If you're printing on real index cards, also choose the matching paper size.</p>
+<h3>Sync and backups</h3>
+<p><strong>The cloud button has a red dot.</strong></p>
+<p>Tap it. It will tell you what's needed, usually <strong>Continue syncing</strong> or <strong>Choose which changes to keep</strong>.</p>
+<p><strong>I deleted a recipe by mistake.</strong></p>
+<p>Deleting can't be undone in Recipe Box, but a backup file from before you deleted it has it. Remember that <strong>restoring replaces everything</strong> in your recipe box, so download a fresh backup first if you've added recipes since.</p>
+<p><strong>I got a new phone or tablet. How do I move my recipes?</strong></p>
+<p>Install Recipe Box on the new device. Then either turn on sync with the same Google account, or download a backup file on the old device and restore it on the new one.</p>
+<h3>General</h3>
+<p><strong>Do I need the internet?</strong></p>
+<p>Only the very first time you open Recipe Box, and for syncing or saving recipes from websites. Otherwise, it works without internet.</p>
+<p><strong>How do I get the newest version?</strong></p>
+<p>It updates itself whenever you open Recipe Box while connected to the internet. If something looks out of date, close Recipe Box completely and open it again.</p>
+<p><strong>Does Recipe Box cost anything?</strong></p>
+<p>No. Recipe Box is free, and there are no ads.</p>
+<p><strong>Can anyone else see my recipes?</strong></p>
+<p>No. Your recipes are stored on your own device, and if you turn on sync, in your own Google Drive. Nobody else can see them, including whoever shared Recipe Box with you.</p><p class="totop"><a href="#contents">Back to contents</a></p></div></section>
+  <p class="foot">Recipe Box is free, has no ads, and keeps your recipes private.</p>
+</main>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Recipe Box</title>
-<meta name="app-version" content="0.9.2-copyweb">
+<meta name="app-version" content="1.0-help">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="description" content="A family recipe box: browse, cook, plan meals, and make shopping lists. Works offline.">
@@ -737,6 +737,7 @@ function header(active){return `<header class="top"><div class="wrap">
 <div class="search">${I.search}<label for="q" class="sr">Search recipes and ingredients</label><input id="q" type="search" autocomplete="off" placeholder="Search recipes or ingredients…" value="${esc(S.q)}"></div>
 <span class="save-state" id="saveState" title="Your recipes are saved in this browser on this device">${persistOK?'Saved':'Not saved'}</span>
 <div class="cartwrap syncwrap-outer"><span class="syncwrap">${syncButton()}</span></div><div class="cartwrap">${cartButton(active==='shop')}</div>
+<a class="btn icon-btn ghost" href="./help.html" target="_blank" rel="noopener" aria-label="Help guide" title="Help guide"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.5-2.7 4.1"/><circle cx="12" cy="17.6" r=".6" fill="currentColor"/></svg></a>
 <button class="btn icon-btn ghost" data-act="settings" aria-label="Backup and settings">${I.gear}</button>
 <a class="btn primary" href="#/new">${I.plus}Add recipe</a></div></header>`}
 
@@ -1001,7 +1002,7 @@ function toast(t,act){$$('.toast').forEach(x=>x.remove());const el=document.crea
 function openDlg(html){const w=document.createElement('div');w.className='scrim';w.innerHTML=`<div class="dlg" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(w);w.addEventListener('click',e=>{if(e.target===w||e.target.closest('[data-close]'))w.remove()});const f=w.querySelector('button,input,a');if(f)f.focus();return w}
 function confirmDlg(title,body,ok,fn){const w=openDlg(`<h2>${title}</h2><p>${body}</p><div class="acts"><button class="btn" data-close>Cancel</button><button class="btn primary" data-ok>${esc(ok)}</button></div>`);w.querySelector('[data-ok]').onclick=()=>{w.remove();fn()}}
 let downloads=null;
-function settingsDlg(){const n=S.box.recipes.length;const w=openDlg(`<h2>Backup and settings</h2>
+function settingsDlg(){const n=S.box.recipes.length;const w=openDlg(`<h2>Backup and settings</h2><p style="margin:0">New to Recipe Box or stuck on something? <a href="./help.html" target="_blank" rel="noopener"><b>Open the help guide</b></a>.</p>
 <p>Your ${n} recipes are saved in this browser on this device. A backup file lets you move them to another device or keep a safe copy.</p>
 ${canSave()?`<button class="btn primary" data-s="backup">Download a backup file</button>`:`<p class="subtle">Downloading a backup isn't available in this view.</p>`}
 <label class="btn" for="restoreFile">Restore from a backup file</label><input type="file" id="restoreFile" accept=".json,application/json" class="sr">
@@ -1550,7 +1551,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCar
   else if(a==='planshop'){const ws=S.week||weekStart(new Date());const want={};for(let k=0;k<7;k++)(S.box.plan[dkey(addDays(ws,k))]||[]).forEach(e=>{const r2=byId(e.id);if(r2)want[e.id]=(want[e.id]||0)+(r2.serv||1)});
     let added=0,had=0;Object.entries(want).forEach(([id,sv])=>{const ex=S.box.shop.recipes.find(x=>x.id===id);const r2=byId(id);if(ex){if((ex.serv||0)>=sv&&r2.serv)had++;else{ex.serv=r2.serv?sv:null;added++}}else{S.box.shop.recipes.push({id,serv:r2.serv?sv:null});added++}});persist();
     toast(added?`${added} ${added===1?'recipe':'recipes'} added to your shopping list${had?`, ${had} already there`:''}`:'Everything this week is already on your shopping list');render()}
-  else if(a==='shopcheck'){const k=v;if(b.checked)S.box.shop.checked[k]=true;else delete S.box.shop.checked[k];persist();const cw=$('.cartwrap');if(cw)cw.innerHTML=cartButton(route().name==='shop');const sl=$('#shopLeft');if(sl){const its=shopItems();const vis=its.filter(i=>!S.box.shop.removed[i.key]);sl.textContent=`${vis.filter(i=>!S.box.shop.checked[i.key]).length} of ${vis.length} items left to get.`}return}
+  else if(a==='shopcheck'){const k=v;if(b.checked)S.box.shop.checked[k]=true;else delete S.box.shop.checked[k];persist();const cw=$('.cartwrap:not(.syncwrap-outer)');if(cw)cw.innerHTML=cartButton(route().name==='shop');const sl=$('#shopLeft');if(sl){const its=shopItems();const vis=its.filter(i=>!S.box.shop.removed[i.key]);sl.textContent=`${vis.filter(i=>!S.box.shop.checked[i.key]).length} of ${vis.length} items left to get.`}return}
   else if(a==='shopremove'){S.box.shop.removed[v]=true;delete S.box.shop.checked[v];persist();const it=shopItems().find(i=>i.key===v);toast((it?it.i:'Item')+' removed from the list');render()}
   else if(a==='shopputback'){delete S.box.shop.removed[v];persist();render()}
   else if(a==='shopdelrec'){S.box.shop.recipes=S.box.shop.recipes.filter(e=>e.id!==v);persist();render()}
