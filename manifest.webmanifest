@@ -1,0 +1,51 @@
+{
+  "name": "Recipe Box",
+  "short_name": "Recipe Box",
+  "description": "A family recipe box: browse, cook, plan meals, and make shopping lists.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#DCE5EC",
+  "theme_color": "#FFFFFF",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add a recipe",
+      "url": "./#/new"
+    },
+    {
+      "name": "Meal plan",
+      "url": "./#/plan"
+    },
+    {
+      "name": "Shopping list",
+      "url": "./#/shop"
+    }
+  ]
+}
