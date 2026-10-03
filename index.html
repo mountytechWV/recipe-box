@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Recipe Box</title>
-<meta name="app-version" content="1.0-help">
+<meta name="app-version" content="1.0.1-help">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="description" content="A family recipe box: browse, cook, plan meals, and make shopping lists. Works offline.">
@@ -1288,7 +1288,7 @@ function installBanner(){if(!STANDALONE||isInstalled()||bannerOff()||!S.box)retu
   return `<section class="ibanner" aria-label="Install Recipe Box"><div class="ibtext"><b>Install Recipe Box on this ${isIOS()||isAndroid()?(/iPad|Tablet/.test(navigator.userAgent)||(isIOS()&&navigator.maxTouchPoints>1&&!/iPhone/.test(navigator.userAgent))?'tablet':'phone'):'computer'}</b><span>It gets its own icon, opens in its own window, and works without internet.</span></div>
 <div class="ibacts">${installEvt?`<button class="btn primary" data-act="doinstall">Install</button>`:`<button class="btn" data-act="howinstall" aria-expanded="${!!S.showHow}">${S.showHow?'Hide the steps':'Show me how'}</button>`}<button class="btn ghost icon-btn" data-act="hideinstall" aria-label="Don't show this again">${I.x}</button></div>
 ${S.showHow&&!installEvt?`<div class="ibsteps">${installSteps()}</div>`:''}</section>`}
-function inviteText(){const url=location.origin+location.pathname;return `Hi! I put our family recipes into an app called Recipe Box. It's free and works on computers, iPads, and phones.
+function inviteText(){const url=location.origin+location.pathname;return `Hi! I put our family recipes into an app called Recipe Box. It's free and works on computers, tablets, and phones.
 
 1. Open this link: ${url}
 
