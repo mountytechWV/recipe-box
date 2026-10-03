@@ -340,6 +340,25 @@ textarea.paste{min-height:260px;border:1.5px dashed var(--rule-2);padding:12px;f
 .wtip > b{display:block;font-family:var(--type);color:var(--sky-f);margin-bottom:6px}
 textarea.invite{font-family:var(--body);font-size:14px;min-height:170px;border:1.5px dashed var(--rule-2);padding:10px}
 
+.syncbtn{position:relative;width:48px;height:48px;border:0;border-radius:3px;background:transparent;color:var(--ink-2);cursor:pointer;display:grid;place-items:center}
+.syncbtn:hover{background:var(--sky);color:var(--sky-f)}
+.syncbtn.s-ok{color:var(--sage-f)}.syncbtn.s-syncing svg{animation:spin 1.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.syncbtn.s-syncing svg{animation:none}}
+.syncbtn.s-signin,.syncbtn.s-conflict,.syncbtn.s-error{color:var(--red)}
+.syncbtn.s-offline{color:var(--faint)}
+.sdot{position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 0 2px var(--paper)}
+.syncpop .warn{color:var(--red);font-size:14px}
+.dlg.wide{max-width:860px}
+.cf{border-top:1.5px dashed var(--rule-2);padding-top:12px;display:flex;flex-direction:column;gap:10px}
+.cf h3{font-family:var(--hand);font-size:30px;font-weight:700}
+.cf .seg{align-self:flex-start}
+.cft{display:grid;grid-template-columns:120px 1fr 1fr;gap:4px 14px;font-size:15px}
+.cft > div{padding:6px 0;border-bottom:1px solid var(--rule)}
+.cfh{font-family:var(--type);font-weight:700;color:var(--muted);font-size:13px}
+.cfl{font-family:var(--type);font-weight:700;font-size:13px;color:var(--ink-2)}
+@media (max-width:640px){.cft{grid-template-columns:90px 1fr 1fr;font-size:14px}}
+
 /* index */
 .paper{background:var(--paper);border-radius:4px;padding:0 36px 32px;box-shadow:var(--lift)}
 @media (max-width:640px){.paper{padding:0 18px 22px}}
@@ -527,6 +546,7 @@ textarea.in{min-height:84px;resize:vertical;line-height:1.5}
 <div id="app" aria-live="polite"></div>
 <div id="layer"></div>
 <div id="pmeasure" aria-hidden="true"></div>
+<script src="./config.js"></script>
 <script type="application/json" id="seed">{"v":1,"units":["cup","tsp","Tbsp","fl oz","oz","lb","pint","quart","gallon","liter","ml","g","kg","pinch","dash","splash","clove","head","bunch","can","stick","bottle","slice","package"],"ingredients":["1905 Salad Dressing","Acini Di Pepe","All-Purpose Flour","Allspice","Anaheim Pepper","Andouille Smoked Sausage","Aperol","Apple Juice","Apples","Artichoke Hearts","Asiago Cheese","Asiago Cheese Sauce","Asparagus Spears","Avocado","Avocado Oil","Bacon","Baked Ham","Baking Powder","Baking Soda","Balsamic Vinegar","Banana","Bar-B-Q Sauce","Basil","Bay Leaves","Bay Scallops","Beef Bone","Beef Bone Broth","Beef Bouillon","Beef Broth","Beef Stock","Beer","Bell Pepper","Belvedere Citrus Vodka","Benedictine D.O.M.","Bittersweet Chocolate Chips","Bittersweet Chocolate Discs","Black Beans","Black Pepper","Black Sesame Seeds","Blackberry","Bonito Flakes","Boston Butt","Bourbon","Brandy","Bread Crumbs","Bread Flour","Breakfast Sausage","Brioche Bread","Brown Sugar","Butter","Buttermilk","Cabernet Sauvignon","Caesar Dressing","Cajun Seasoning","Cake Flour","Canadian Club Whiskey","Cane Sugar","Canola Oil","Capellini Pasta","Capers","Caraway Seeds","Cardamom","Carrots","Cayenne Pepper","Celery","Celery Salt","Cellentani","Certo Liquid Pectin","Champagne","Cheddar Cheese","Cheddar Jack","Cherry","Chicken","Chicken Bouillon","Chicken Breast","Chicken Broth","Chicken Stock","Chicken Thigh","Chili Powder","Chili Sauce","Chipotle in Adobo Sauce","Chipotle Pepper","Chives","Chocolate","Chocolate Chips","Chocolate Graham Cracker","Chocolate Syrup","Chorizo","Christmas Sprinkles","Ciabatta Bread","Cider Vinegar","Cilantro","Cinnamon","Clam Juice","Clams","Clarified Butter","Clove","Club Soda","Coarse Salt","Cocoa Powder","Coconut","Coconut Oil","Cognac","Cointreau","Colby Jack Cheese","Cold Water","Cool Whip","Coriander","Coriander Seeds","Corn","Cornflakes","Cornstarch","Crabmeat","Cranberry Juice","Cranberry Vodka","Cream Cheese","Cream of Coconut","Cream Sherry","Crema Fresca","Crisco","Crushed Red Pepper","Crushed Tomatoes in Puree","Crème de Cacao","Crème de Violette","Cucumber","Cumin","Curry Powder","Daikon Radish","Dark Chocolate","Dark Cocoa Powder","Dark Sesame Oil","DeKuyper Razzmatazz Liqueur","Dijon Mustard","Dill Weed","Dream Whip","Dried Apricots","Dried Beef","Dried Guajillo Chilies","Dried New Mexico Chiles","Dried Onion Flakes","Dried Pimentos","Dried Wakame Seaweed","Dry Active Yeast","Dry Rub","Dry Sherry","Egg","Egg Wash","Egg Yolk","Eggnog","Elbow Macaroni","English Cucumber","Evaporated Milk","Extra-Virgin Olive Oil","Feta Cheese","Fish Sauce","Flaky Sea Salt","Flank Steak","Frangelico Liqueur","Frank's RedHot Sauce","Fresno Chili","Frozen Pineapple","Garam Masala","Garbanzo Beans","Garlic","Garlic Butter","Garlic Powder","Ghee","Gin","Ginger","Ginger Beer","Gochugaru","Godiva Chocolate Liqueur","Godiva White Chocolate Liqueur","Golden Graham Cereal","Golden Syrup","Gouda Cheese","Graham Cracker","Grand Marnier","Grape Juice","Greek Yogurt","Greek Yogurt Drink","Green Bell Pepper","Green Food Coloring","Green Olive","Green Onion","Grits","Ground Beef","Ground Italian Sausage","Ground Turkey","Grouper","Gruyere Cheese","Half-and-Half","Ham Bone","Hard Boiled Egg","Heavy Cream","Hershey Kisses Cookies n Cream","Honey","Horseradish","Hot Chili Sauce","Hot Sauce","Ice","Ice Cream","Iceberg Lettuce","Instant Chocolate Pudding","Instant Vanilla Pudding","Irish Cream","Irish Whiskey","Italian Flat-Leaf Parsley","Jack Daniels","Jalapeno","Jasmine Rice","Jumbo Shells","Kalamata Olive","Kelp","Ketchup","Kielbasa","Kosher Salt","Lawry's Salt","Lemon","Lemon Juice","Lemon Sour","Lemon Zest","Lemongrass","Lettuce","Light Brown Sugar","Light Corn Syrup","Lime","Lime Juice","Lime Zest","Linguine","Liquore alla Violette","Maple Syrup","Margarita Mix","Marie Brizard Cassis de Bordeaux","Marshmallow Cream","Mayonnaise","Milk","Miniature Marshmallows","Mint","Mirin","Moet White Star Champagne","Molasses","Monterey Jack Cheese","Mozzarella Cheese","Mustard","Mustard Powder","Napa Cabbage","Nutmeg","Nuts","Olive Oil","Onion","Onion Powder","Orange","Orange Juice","Oregano","Orgeat","Orzo","Oyster Sauce","Panko Bread Crumbs","Paprika","Parmesan Cheese","Parmigiano-Reggiano Cheese","Parsley","Pasta Sauce","Pastry Flour","Peach Liqueur","Peach Schnapps","Peaches","Peanut Butter","Pecans","Pepperoni","Pesto","Pickled Jalapeno Peppers","Pineapple Juice","Piquillo Pepper","Pita Pockets","Plums","Poblano Pepper","Pomegranate","Pomegranate Mango Juice","Pork Roast Shoulder","Pork Tenderloin","Potato","Powdered Sugar","Prime Rib","Pumpkin Puree","Pumpkin Spice","Raisins","Ranch Dressing Powder Mix","Raspberry","Raspberry Vodka","Red Bell Pepper","Red Chili Pepper","Red Grapes","Red Onion","Red Wine Vinegar","Ribeye Steak","Ribs","Rice","Rice Wine Vinegar","Ricotta Cheese","Roasted Red Peppers","Roma Tomato","Romaine Lettuce","Romano Cheese","Roquefort Cheese","Rosemary","Rotini Pasta","Rum","Saffron","Sage Leaves","Sake","Salami","Salmon","Salsa","Salt","Salt Pork","Sangria","Scallop","Sea Salt","Semi-Sweet Chocolate","Serrano Pepper","Sesame Oil","Shallot","Sharp Cheddar Cheese","Sherry","Shiitake Mushroom","Shortening","Shrimp","Simple Syrup","Skirt Steak","Sloe Gin","Smoked Paprika","Soda Water","Sour Cream","Sour Milk","Sour Mix","Sour Orange Juice","Sours","Soy Sauce","Spaghetti","Spanish Olives","Spinach","Spring Roll Wrappers","Sprite","Sriracha","Stone Ground Mustard","Succo d' Ananas","Succo di Limone","Sugar","Summer Squash","Sundried Tomatoes","Sweet Potato","Sweet Relish","Sweetened Condensed Milk","Swiss Cheese","Syrup","Tabasco Sauce","Tahini","Tarragon","Tawny Port Wine","Tequila","Texas Toast","Thai Chili Sauce","Thyme","Tomatillo","Tomato","Tomato Paste","Tomato Puree","Tomato Sauce","Tortellini","Tortilla Chips","Tortillas","Triple Sec","Turmeric","Unsalted Butter","Unsweetened Cocoa Powder","Unsweetened Coconut Milk","Valentina Salsa Picante","Vanilla Extract","Vegetable Oil","Velveeta","Vietnamese Spring Roll Wrapper","Vinegar","Vodka","Walnut","Water","White Balsamic Vinegar","White Bread Cubes","White Cheddar Cheese","White Cranberry Juice","White Pepper","White Rum","White Sesame Seeds","White Vinegar","White Wine","White Wine Vinegar","Whole Canned Tomatoes","Whole Milk","Wild Rice","Wine","Worcestershire Sauce","Yellow Cake Mix","Yellow Food Coloring","Yellow Onion","Yogurt","Zucchini"],"tags":["Appetizers","Beans","Bread and Pastry","Breakfast","Cocktails & Drinks","Dessert","Fish & Seafood","Meat","Pastas","Pork","Poultry","Rice","Salad","Sauces & Dips","Soup","Spring Rolls","Vegetables","Vegetarian"],"recipes":[]}</script>
 <script>
 (function(){
@@ -568,7 +588,7 @@ function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open('recipe
 async function kvGet(k){if(!DB)return null;return new Promise(res=>{try{const t=DB.transaction('kv').objectStore('kv').get(k);t.onsuccess=()=>res(t.result??null);t.onerror=()=>res(null);}catch(e){res(null)}})}
 async function kvSet(k,v){if(!DB)return false;return new Promise(res=>{try{const tx=DB.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res(true);tx.onerror=()=>res(false);}catch(e){res(false)}})}
 let saveTimer=null;
-function persist(){clearTimeout(saveTimer);setSaving('Saving…');saveTimer=setTimeout(async()=>{const ok=await kvSet('box',S.box);persistOK=ok;setSaving(ok?'Saved':'Not saved');},300)}
+function persist(){clearTimeout(saveTimer);setSaving('Saving…');saveTimer=setTimeout(async()=>{const ok=await kvSet('box',S.box);persistOK=ok;setSaving(ok?'Saved':'Not saved');if(typeof scheduleSync==='function'&&!SY.applying)scheduleSync();},300)}
 function setSaving(t){const el=$('#saveState');if(el)el.textContent=t}
 
 /* ---------- state ---------- */
@@ -630,7 +650,7 @@ function header(active){return `<header class="top"><div class="wrap">
 <nav class="nav" aria-label="Main"><a href="#/" ${active==='browse'?'aria-current="page"':''}>Browse</a><a href="#/index" ${active==='index'?'aria-current="page"':''}>Index</a><a href="#/plan" ${active==='plan'?'aria-current="page"':''}>Meal plan</a></nav>
 <div class="search">${I.search}<label for="q" class="sr">Search recipes and ingredients</label><input id="q" type="search" autocomplete="off" placeholder="Search recipes or ingredients…" value="${esc(S.q)}"></div>
 <span class="save-state" id="saveState" title="Your recipes are saved in this browser on this device">${persistOK?'Saved':'Not saved'}</span>
-<div class="cartwrap">${cartButton(active==='shop')}</div>
+<div class="cartwrap syncwrap-outer"><span class="syncwrap">${syncButton()}</span></div><div class="cartwrap">${cartButton(active==='shop')}</div>
 <button class="btn icon-btn ghost" data-act="settings" aria-label="Backup and settings">${I.gear}</button>
 <a class="btn primary" href="#/new">${I.plus}Add recipe</a></div></header>`}
 
@@ -895,6 +915,7 @@ function settingsDlg(){const n=S.box.recipes.length;const w=openDlg(`<h2>Backup 
 <p>Your ${n} recipes are saved in this browser on this device. A backup file lets you move them to another device or keep a safe copy.</p>
 ${canSave()?`<button class="btn primary" data-s="backup">Download a backup file</button>`:`<p class="subtle">Downloading a backup isn't available in this view.</p>`}
 <label class="btn" for="restoreFile">Restore from a backup file</label><input type="file" id="restoreFile" accept=".json,application/json" class="sr">
+${syncSettingsHTML()}
 ${STANDALONE&&!isInstalled()?`<hr><p class="lblp">Install on this device</p>${installEvt?`<button class="btn" data-s="install">Install Recipe Box</button>`:installSteps()}<p class="subtle">Installing gives Recipe Box its own icon and keeps your recipes from being cleared with your browser history.</p>`:''}
 ${STANDALONE?`<hr><p class="lblp">Invite family</p><p>Copy this message and send it along with your recipe backup file.</p><label class="sr" for="invite">Invitation message</label><textarea class="in invite" id="invite" rows="8" readonly>${esc(inviteText())}</textarea><div class="acts" style="justify-content:flex-start;margin:0"><button class="btn" data-s="copyinvite">${I2.copy}Copy message</button>${navigator.share?`<button class="btn" data-s="shareinvite">Share…</button>`:''}</div>`:''}
 ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p>Drag this button to your browser’s bookmarks bar. On any recipe website, click it to send the recipe here.</p><a class="btn bmk" href="${esc(bookmarkletCode())}" onclick="return false" draggable="true">${I2.paste}Save to Recipe Box</a><button class="btn small" data-s="copybm">Copy the button’s code (for iPad)</button>`:''}
@@ -903,6 +924,9 @@ ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p>Drag this but
 <div class="acts"><button class="btn" data-close>Close</button></div>`);
   w.addEventListener('click',async e=>{const b=e.target.closest('[data-s]');if(!b)return;const a=b.dataset.s;
     if(a==='install'&&installEvt){installEvt.prompt();const c=await installEvt.userChoice;installEvt=null;if(c.outcome==='accepted')w.remove();return}
+    if(a==='connect'){const pid=b.dataset.p;w.remove();try{await PROV[pid].connect()}catch(e){toast('Could not connect to '+PROV[pid].name+'. Please try again.')}return}
+    if(a==='syncnow'){w.remove();runSync(true);return}
+    if(a==='syncoff'){w.remove();confirmDlg('Turn off sync?','Your recipes stay on this device and in your cloud folder, but they will stop syncing.','Turn off sync',disconnect);return}
     if(a==='copyinvite'){try{await navigator.clipboard.writeText(inviteText());toast('Message copied')}catch(e){const t=$('#invite',w);t.focus();t.select();toast('Press Ctrl+C or Command+C to copy')}return}
     if(a==='shareinvite'){try{await navigator.share({title:'Recipe Box',text:inviteText()})}catch(e){}return}
     if(a==='copybm'){try{await navigator.clipboard.writeText(bookmarkletCode());toast('Copied. See the Import page for iPad steps.')}catch(e){toast('Copy is not available here')}return}
@@ -1205,10 +1229,160 @@ ${STANDALONE&&isIOS()&&!isInstalled()?`<div class="wtip"><b>On an iPad or iPhone
 <label class="wopt" for="wfile"><b>Restore from a backup file</b><span>${SEED.recipes.length?'Use a backup someone sent you, or one from your other device.':'Got a recipe backup file from family? Choose it here to load all of those recipes.'}</span></label><input type="file" id="wfile" accept=".json,application/json" class="sr"></div></div></div></div>`}
 function startBox(box){S.box=ensureBox(box);S.letter=null;persist();try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}render()}
 
+/* ---------- sync with Google Drive, OneDrive, Dropbox ---------- */
+const CFG=window.RB_CONFIG||{};
+const REDIRECT=location.origin+location.pathname;
+const sj=o=>{if(Array.isArray(o))return '['+o.map(sj).join(',')+']';if(o&&typeof o==='object')return '{'+Object.keys(o).sort().filter(k=>o[k]!==undefined&&!k.startsWith('__')).map(k=>JSON.stringify(k)+':'+sj(o[k])).join(',')+'}';return JSON.stringify(o)};
+function hsh(s){let a=0x811c9dc5,b=5381;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=Math.imul(a^c,16777619)>>>0;b=((b<<5)+b+c)>>>0}return a.toString(16)+b.toString(16)+'-'+s.length}
+const SY={st:null,status:'off',msg:'',busy:false,timer:null,applying:false,conflicts:null};
+async function syncLoad(){SY.st=await kvGet('sync');if(SY.st&&SY.st.prov)SY.status='idle'}
+async function syncSave(){await kvSet('sync',SY.st)}
+async function authGet(p){return (await kvGet('auth-'+p))||null}
+async function authSet(p,v){return kvSet('auth-'+p,v)}
+function b64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function rnd(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return b64url(a)}
+async function pkce(){const v=rnd(48);const c=b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)));return {v,c}}
+class AuthNeeded extends Error{}
+async function jfetch(url,opt){const r=await fetch(url,opt);if(r.status===401)throw new AuthNeeded('auth');if(!r.ok){let t='';try{t=await r.text()}catch(e){}throw new Error(r.status+' '+t.slice(0,200))}return r}
+async function oauthStart(pid){const P=PROV[pid];const {v,c}=await pkce();const state=rnd(16);sessionStorage.setItem('rb-oauth',JSON.stringify({pid,v,state}));location.href=P.authUrl(c,state)}
+async function oauthFinish(){const q=new URLSearchParams(location.search);if(!q.get('code')&&!q.get('error'))return false;let pend=null;try{pend=JSON.parse(sessionStorage.getItem('rb-oauth')||'null')}catch(e){}
+  history.replaceState(null,'',location.pathname+'#/');sessionStorage.removeItem('rb-oauth');
+  if(!pend||q.get('state')!==pend.state){if(q.get('error'))toast('Sign-in was cancelled');return true}
+  try{const P=PROV[pend.pid];const tok=await P.exchange(q.get('code'),pend.v);await authSet(pend.pid,tok);await connectFinish(pend.pid)}catch(e){toast('Could not finish connecting. Please try again.');console.error(e)}return true}
+async function tokenFor(pid,interactive){const P=PROV[pid];let a=await authGet(pid);if(a&&a.access&&a.exp>Date.now()+60000)return a.access;
+  if(a&&a.refresh&&P.refresh){try{a={...a,...await P.refresh(a.refresh)};await authSet(pid,a);return a.access}catch(e){}}
+  if(P.silent){try{const t=await P.silent(interactive);if(t){await authSet(pid,t);return t.access}}catch(e){}}
+  throw new AuthNeeded('auth')}
+async function form(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(body)});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error_description||j.error||'token');return j}
+const tokOut=j=>({access:j.access_token,refresh:j.refresh_token,exp:Date.now()+(j.expires_in||3600)*1000});
+const PROV={
+ google:{name:'Google Drive',on:!!CFG.googleClientId,
+  loadGis(){return new Promise((res,rej)=>{if(window.google&&google.accounts&&google.accounts.oauth2)return res();const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.onload=res;s.onerror=rej;document.head.appendChild(s)})},
+  async silent(interactive){await this.loadGis();return new Promise((res,rej)=>{const c=google.accounts.oauth2.initTokenClient({client_id:CFG.googleClientId,scope:'https://www.googleapis.com/auth/drive.file',callback:t=>{if(t.error)return rej(new Error(t.error));res({access:t.access_token,exp:Date.now()+(t.expires_in||3600)*1000})},error_callback:e=>rej(new Error(e&&e.type||'popup'))});if(!interactive&&!SY.gesture)return rej(new Error('needs click'));c.requestAccessToken({prompt:interactive?'':'none',hint:SY.st&&SY.st.account||undefined})})},
+  async connect(){SY.gesture=true;try{const t=await this.silent(true);await authSet('google',t);await connectFinish('google')}finally{SY.gesture=false}},
+  H:async()=>({Authorization:'Bearer '+await tokenFor('google')}),
+  async account(){const r=await jfetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)',{headers:await this.H()});return (await r.json()).user.emailAddress},
+  async folder(){const h=await this.H();if(SY.st.folder){const r=await fetch(`https://www.googleapis.com/drive/v3/files/${SY.st.folder}?fields=id,trashed`,{headers:h});if(r.ok){const j=await r.json();if(!j.trashed)return SY.st.folder}}
+   const q=encodeURIComponent("name='Recipe Box' and mimeType='application/vnd.google-apps.folder' and trashed=false");const r=await jfetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`,{headers:h});const j=await r.json();
+   if(j.files&&j.files[0])return SY.st.folder=j.files[0].id;const c=await jfetch('https://www.googleapis.com/drive/v3/files?fields=id',{method:'POST',headers:{...h,'Content-Type':'application/json'},body:JSON.stringify({name:'Recipe Box',mimeType:'application/vnd.google-apps.folder'})});return SY.st.folder=(await c.json()).id},
+  async list(){const f=await this.folder();const out={};let pt='';do{const q=encodeURIComponent(`'${f}' in parents and trashed=false`);const r=await jfetch(`https://www.googleapis.com/drive/v3/files?q=${q}&pageSize=1000&fields=nextPageToken,files(id,name,version)${pt?'&pageToken='+pt:''}`,{headers:await this.H()});const j=await r.json();(j.files||[]).forEach(x=>out[x.name]={fid:x.id,ver:String(x.version)});pt=j.nextPageToken}while(pt);return out},
+  async get(e){const r=await jfetch(`https://www.googleapis.com/drive/v3/files/${e.fid}?alt=media`,{headers:await this.H()});return r.text()},
+  async put(name,text,e){const h=await this.H();if(e){const r=await jfetch(`https://www.googleapis.com/upload/drive/v3/files/${e.fid}?uploadType=media&fields=id,version`,{method:'PATCH',headers:{...h,'Content-Type':'application/json'},body:text});const j=await r.json();return {fid:j.id,ver:String(j.version)}}
+   const bd='rb'+rnd(8);const body=`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({name,parents:[await this.folder()],mimeType:'application/json'})}\r\n--${bd}\r\nContent-Type: application/json\r\n\r\n${text}\r\n--${bd}--`;
+   const r=await jfetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,version',{method:'POST',headers:{...h,'Content-Type':'multipart/related; boundary='+bd},body});const j=await r.json();return {fid:j.id,ver:String(j.version)}},
+  async del(e){const r=await fetch(`https://www.googleapis.com/drive/v3/files/${e.fid}`,{method:'DELETE',headers:await this.H()});if(r.status===401)throw new AuthNeeded();}},
+ onedrive:{name:'OneDrive',on:!!CFG.microsoftClientId,
+  authUrl:(c,s)=>'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?'+new URLSearchParams({client_id:CFG.microsoftClientId,response_type:'code',redirect_uri:REDIRECT,scope:'Files.ReadWrite.AppFolder offline_access User.Read',code_challenge:c,code_challenge_method:'S256',state:s,prompt:'select_account'}),
+  async exchange(code,v){return tokOut(await form('https://login.microsoftonline.com/common/oauth2/v2.0/token',{client_id:CFG.microsoftClientId,grant_type:'authorization_code',code,redirect_uri:REDIRECT,code_verifier:v,scope:'Files.ReadWrite.AppFolder offline_access User.Read'}))},
+  async refresh(rt){return tokOut(await form('https://login.microsoftonline.com/common/oauth2/v2.0/token',{client_id:CFG.microsoftClientId,grant_type:'refresh_token',refresh_token:rt,scope:'Files.ReadWrite.AppFolder offline_access User.Read'}))},
+  connect(){return oauthStart('onedrive')},
+  H:async()=>({Authorization:'Bearer '+await tokenFor('onedrive')}),G:'https://graph.microsoft.com/v1.0',
+  async account(){const r=await jfetch(this.G+'/me?$select=mail,userPrincipalName',{headers:await this.H()});const j=await r.json();return j.mail||j.userPrincipalName},
+  async list(){const out={};let u=this.G+'/me/drive/special/approot/children?$select=id,name,cTag&$top=999';while(u){const r=await jfetch(u,{headers:await this.H()});const j=await r.json();(j.value||[]).forEach(x=>out[x.name]={fid:x.id,ver:x.cTag});u=j['@odata.nextLink']}return out},
+  async get(e){const r=await jfetch(`${this.G}/me/drive/items/${e.fid}/content`,{headers:await this.H()});return r.text()},
+  async put(name,text){const r=await jfetch(`${this.G}/me/drive/special/approot:/${encodeURIComponent(name)}:/content`,{method:'PUT',headers:{...await this.H(),'Content-Type':'text/plain'},body:text});const j=await r.json();return {fid:j.id,ver:j.cTag}},
+  async del(e){const r=await fetch(`${this.G}/me/drive/items/${e.fid}`,{method:'DELETE',headers:await this.H()});if(r.status===401)throw new AuthNeeded()}},
+ dropbox:{name:'Dropbox',on:!!CFG.dropboxAppKey,
+  authUrl:(c,s)=>'https://www.dropbox.com/oauth2/authorize?'+new URLSearchParams({client_id:CFG.dropboxAppKey,response_type:'code',redirect_uri:REDIRECT,code_challenge:c,code_challenge_method:'S256',token_access_type:'offline',state:s}),
+  async exchange(code,v){return tokOut(await form('https://api.dropboxapi.com/oauth2/token',{code,grant_type:'authorization_code',client_id:CFG.dropboxAppKey,redirect_uri:REDIRECT,code_verifier:v}))},
+  async refresh(rt){const j=await form('https://api.dropboxapi.com/oauth2/token',{grant_type:'refresh_token',refresh_token:rt,client_id:CFG.dropboxAppKey});return {access:j.access_token,exp:Date.now()+(j.expires_in||14400)*1000}},
+  connect(){return oauthStart('dropbox')},
+  H:async()=>({Authorization:'Bearer '+await tokenFor('dropbox')}),
+  async rpc(ep,body){const r=await jfetch('https://api.dropboxapi.com/2/'+ep,{method:'POST',headers:{...await this.H(),'Content-Type':'application/json'},body:body==null?'null':JSON.stringify(body)});return r.json()},
+  async account(){const j=await this.rpc('users/get_current_account',null);return j.email},
+  async list(){const out={};let j=await this.rpc('files/list_folder',{path:''});for(;;){(j.entries||[]).forEach(x=>{if(x['.tag']==='file')out[x.name]={fid:x.id,ver:x.rev}});if(!j.has_more)break;j=await this.rpc('files/list_folder/continue',{cursor:j.cursor})}return out},
+  async get(e){const r=await jfetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{...await this.H(),'Dropbox-API-Arg':JSON.stringify({path:e.fid})}});return r.text()},
+  async put(name,text){const r=await jfetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{...await this.H(),'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:'/'+name,mode:'overwrite',mute:true})},body:new TextEncoder().encode(text)});const j=await r.json();return {fid:j.id,ver:j.rev}},
+  async del(e){await this.rpc('files/delete_v2',{path:e.fid})}},
+ mock:{name:'Test cloud',on:!!CFG.mockUrl,
+  async connect(){await authSet('mock',{access:'x',exp:Date.now()+864e5});await connectFinish('mock')},
+  async account(){return 'tester@example.com'},
+  async list(){const r=await jfetch(CFG.mockUrl+'/list');return r.json()},
+  async get(e){return (await jfetch(CFG.mockUrl+'/file/'+encodeURIComponent(e.fid))).text()},
+  async put(name,text){return (await jfetch(CFG.mockUrl+'/file/'+encodeURIComponent(name),{method:'PUT',body:text})).json()},
+  async del(e){await jfetch(CFG.mockUrl+'/file/'+encodeURIComponent(e.fid),{method:'DELETE'})}}};
+const provList=()=>Object.entries(PROV).filter(([k,p])=>p.on).map(([k,p])=>({k,name:p.name}));
+async function connectFinish(pid){SY.st={prov:pid,docs:{},folder:null,account:''};try{SY.st.account=await PROV[pid].account()}catch(e){}await syncSave();SY.status='idle';toast('Connected to '+PROV[pid].name+'. Syncing your recipes now.');render();runSync(true)}
+async function disconnect(){const pid=SY.st&&SY.st.prov;await kvSet('sync',null);if(pid)await authSet(pid,null);SY.st=null;SY.status='off';SY.conflicts=null;render();toast('Sync turned off. Your recipes are still on this device.')}
+/* documents */
+function localDocs(){const m={};const add=(id,kind,data,label)=>{m[id]={kind,data,label,hash:hsh(sj(data))}};
+  S.box.recipes.forEach(r=>add('r-'+r.id,'recipe',r,r.name));add('lists','lists',{ingredients:S.box.ingredients,units:S.box.units,tags:S.box.tags},'Ingredient, unit, and category lists');
+  add('plan','plan',S.box.plan,'Meal plan');add('shop','shop',S.box.shop,'Shopping list');return m}
+const unionCI=(a,b)=>{const seen=new Map();[...(a||[]),...(b||[])].forEach(x=>{const k=String(x).toLowerCase();if(!seen.has(k))seen.set(k,x)});return [...seen.values()].sort(collator.compare)};
+function applyDoc(id,data){if(id.startsWith('r-')){const rid=id.slice(2);const i=S.box.recipes.findIndex(r=>r.id===rid);if(data==null){if(i>=0)S.box.recipes.splice(i,1)}else if(i>=0)S.box.recipes[i]=data;else S.box.recipes.push(data);return}
+  if(id==='lists'){if(!data)return;S.box.ingredients=unionCI(S.box.ingredients,data.ingredients);S.box.units=unionCI(S.box.units,data.units);S.box.tags=unionCI(S.box.tags,data.tags);return}
+  if(id==='plan')S.box.plan=data||{};if(id==='shop'){S.box.shop=data||{};ensureBox(S.box)}}
+const fname=id=>id+'.json';
+function scheduleSync(ms){if(!SY.st||SY.applying)return;clearTimeout(SY.timer);SY.timer=setTimeout(()=>runSync(false),ms??4000)}
+function setSync(status,msg){SY.status=status;SY.msg=msg||'';const w=$('.syncwrap');if(w)w.innerHTML=syncButton()}
+async function runSync(interactive){if(!SY.st||SY.busy)return;if(!navigator.onLine){setSync('offline');return}const P=PROV[SY.st.prov];if(!P||!P.on){setSync('error','This copy of Recipe Box is missing its '+(P?P.name:'sync')+' settings.');return}
+  SY.busy=true;setSync('syncing');if(interactive)SY.gesture=true;
+  try{if(interactive)await tokenFor(SY.st.prov,true);
+    const remote=await P.list();const local=localDocs();const st=SY.st.docs;const conflicts=[];let changed=false;
+    const ids=new Set([...Object.keys(local),...Object.keys(st),...Object.keys(remote).filter(n=>n.endsWith('.json')).map(n=>n.slice(0,-5))]);
+    const jobs=[];
+    for(const id of ids){const L=local[id]||null,s=st[id]||null,R=remote[fname(id)]||null;const base=s?s.base:null;
+      const lChanged=(L?L.hash:null)!==base;const rChanged=R?(!s||R.ver!==s.ver):!!(s&&s.ver);
+      if(!lChanged&&!rChanged)continue;
+      jobs.push(async()=>{
+        if(lChanged&&!rChanged){if(L){const res=await P.put(fname(id),JSON.stringify({v:1,id,data:L.data}),R||s&&s.fid&&{fid:s.fid});st[id]={base:L.hash,ver:res.ver,fid:res.fid}}else{if(R)await P.del(R);delete st[id]}return}
+        let rdata=null,rhash=null;if(R){const txt=await P.get(R);rdata=JSON.parse(txt).data;rhash=hsh(sj(rdata))}
+        if(!lChanged&&rChanged){if(R){applyDoc(id,rdata);st[id]={base:rhash,ver:R.ver,fid:R.fid}}else{applyDoc(id,null);delete st[id]}changed=true;return}
+        if(L&&R&&rhash===L.hash){st[id]={base:L.hash,ver:R.ver,fid:R.fid};return}
+        if(!L&&!R){delete st[id];return}
+        if(id==='lists'&&L&&R){applyDoc(id,rdata);changed=true;const m=localDocs().lists;const res=await P.put(fname(id),JSON.stringify({v:1,id,data:m.data}),R);st[id]={base:m.hash,ver:res.ver,fid:res.fid};return}
+        conflicts.push({id,kind:L?L.kind:(id.startsWith('r-')?'recipe':id),label:(L&&L.label)||(rdata&&rdata.name)||id,local:L?L.data:null,remote:rdata,R})})}
+    for(let i=0;i<jobs.length;i+=4)await Promise.all(jobs.slice(i,i+4).map(f=>f()));
+    if(changed){SY.applying=true;persist();SY.applying=false}
+    SY.st.last=nowISO();await syncSave();
+    if(conflicts.length){SY.conflicts=conflicts;setSync('conflict');conflictDlg()}else{setSync('ok')}
+    if(changed&&!['edit','new','print'].includes(route().name)){const y=window.scrollY;render();window.scrollTo(0,y)}
+  }catch(e){if(e instanceof AuthNeeded||String(e.message).includes('needs click')||String(e.message).includes('popup'))setSync('signin');else{setSync('error','Sync ran into a problem: '+String(e.message||e).slice(0,140));console.error(e)}}
+  finally{SY.busy=false;SY.gesture=false}}
+/* conflicts */
+function diffRows(c){const a=c.local,b=c.remote;if(c.kind!=='recipe'){const cnt=d=>c.kind==='plan'?Object.values(d||{}).reduce((n,x)=>n+x.length,0)+' planned meals':((d&&d.recipes||[]).length+' recipes, '+((d&&d.extra)||[]).length+' extra items');return [['Contents',a?cnt(a):'Deleted',b?cnt(b):'Deleted']]}
+  if(!a||!b)return [['Recipe',a?'Still here, with changes':'Deleted on this device',b?'Still there, with changes':'Deleted on the other device']];
+  const rows=[];const f=(lab,x,y)=>{if(sj(x)!==sj(y))rows.push([lab,x==null||x===''?'(empty)':x,y==null||y===''?'(empty)':y])};
+  f('Name',a.name,b.name);f('Description',a.desc,b.desc);f('Servings',a.serv,b.serv);f('Total time',a.min?fmtMin(a.min):'',b.min?fmtMin(b.min):'');f('Difficulty',a.diff?DIFF[a.diff-1]:'',b.diff?DIFF[b.diff-1]:'');f('Categories',(a.tags||[]).join(', '),(b.tags||[]).join(', '));f('From',a.src,b.src);f('Favorite',a.fav?'Yes':'No',b.fav?'Yes':'No');
+  const il=r=>(r.ing||[]).map(l=>l.h?'['+l.h+']':(amountText(l,1)+' '+l.i+(l.n?', '+l.n:'')).trim());const ia=il(a),ib=il(b);if(sj(ia)!==sj(ib)){const onlyA=ia.filter(x=>!ib.includes(x)),onlyB=ib.filter(x=>!ia.includes(x));rows.push(['Ingredients',onlyA.length?onlyA.slice(0,4).join('; ')+(onlyA.length>4?'; …':''):'(same lines, different order)',onlyB.length?onlyB.slice(0,4).join('; ')+(onlyB.length>4?'; …':''):'(same lines, different order)'])}
+  const sa=(a.steps||[]).map(s=>s.t||s.h),sb=(b.steps||[]).map(s=>s.t||s.h);if(sj(sa)!==sj(sb))rows.push(['Steps',sa.length+' steps'+(sa.length===sb.length?', worded differently':''),sb.length+' steps'+(sa.length===sb.length?', worded differently':'')]);
+  f('Notes',a.notes,b.notes);f('Equipment',a.ut,b.ut);if(sj(a.photo||'')!==sj(b.photo||''))rows.push(['Photo',a.photo?'A photo':'No photo',b.photo?'A different photo':'No photo']);
+  return rows.length?rows:[['Details','Small changes','Small changes']]}
+function conflictDlg(){const cs=SY.conflicts;if(!cs||!cs.length||$('.cdlg'))return;const pick={};cs.forEach((c,i)=>pick[i]='local');
+  const w=openDlg(`<div class="cdlg"><h2>Choose which changes to keep</h2><p>${cs.length===1?'This was':'These were'} changed on this device and on another device since the last sync. Pick the version to keep for each one.</p>
+${cs.map((c,i)=>`<section class="cf"><h3>${esc(c.label)}</h3><div class="cft"><div class="cfh"></div><div class="cfh">On this device</div><div class="cfh">On the other device</div>${diffRows(c).map(r=>`<div class="cfl">${esc(r[0])}</div><div>${esc(String(r[1]))}</div><div>${esc(String(r[2]))}</div>`).join('')}</div>
+<div class="seg wrap" role="radiogroup" aria-label="Keep which version of ${esc(c.label)}"><button type="button" role="radio" data-c="${i}" data-v="local" aria-checked="true" aria-pressed="true">Keep this device’s</button><button type="button" role="radio" data-c="${i}" data-v="remote" aria-checked="false" aria-pressed="false">Keep the other one</button>${c.kind==='recipe'&&c.local&&c.remote?`<button type="button" role="radio" data-c="${i}" data-v="both" aria-checked="false" aria-pressed="false">Keep both</button>`:''}</div></section>`).join('')}
+<div class="acts"><button class="btn" data-close>Decide later</button><button class="btn primary" data-ok>Use these choices</button></div></div>`);
+  w.querySelector('.dlg').classList.add('wide');
+  w.addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(b){pick[b.dataset.c]=b.dataset.v;$$(`[data-c="${b.dataset.c}"]`,w).forEach(x=>{const on=x===b;x.setAttribute('aria-pressed',on);x.setAttribute('aria-checked',on)})}});
+  w.querySelector('[data-ok]').onclick=async()=>{w.remove();await resolveConflicts(pick)}}
+async function resolveConflicts(pick){const P=PROV[SY.st.prov];const st=SY.st.docs;setSync('syncing');SY.busy=true;
+  try{for(const [i,c] of SY.conflicts.entries()){const ch=pick[i];const id=c.id;
+      if(ch==='remote'){applyDoc(id,c.remote);if(c.R){st[id]={base:hsh(sj(c.remote)),ver:c.R.ver,fid:c.R.fid}}else delete st[id]}
+      else if(ch==='local'){if(c.local){const res=await P.put(fname(id),JSON.stringify({v:1,id,data:c.local}),c.R);st[id]={base:hsh(sj(c.local)),ver:res.ver,fid:res.fid}}else{if(c.R)await P.del(c.R);delete st[id]}}
+      else if(ch==='both'){const copy={...clone(c.local),id:uid(),name:c.local.name+' (this device’s copy)',updated:nowISO()};S.box.recipes.push(copy);applyDoc(id,c.remote);st[id]={base:hsh(sj(c.remote)),ver:c.R.ver,fid:c.R.fid}}}
+    SY.conflicts=null;SY.applying=true;persist();SY.applying=false;await syncSave();render();toast('Your choices are saved')}
+  catch(e){setSync('error','Could not finish: '+String(e.message||e).slice(0,120));SY.busy=false;return}
+  SY.busy=false;await runSync(false)}
+/* ui */
+const CLOUD={off:'',ok:'<path d="M9.5 13.5l2 2 3.5-3.5"/>',syncing:'<path d="M9 13.5a3 3 0 0 1 5.2-2M15 13.5a3 3 0 0 1-5.2 2"/><path d="M14.4 9.6v2h-2M9.6 17.4v-2h2"/>',signin:'<path d="M12 10.5v3M12 16h.01"/>',conflict:'<path d="M12 10.5v3M12 16h.01"/>',error:'<path d="M10 11l4 4M14 11l-4 4"/>',offline:'<path d="M4 4l16 16"/>',idle:''};
+function syncButton(){if(!SY.st)return '';const s=SY.status;const lbl={ok:'Synced with '+PROV[SY.st.prov].name,syncing:'Syncing…',signin:'Sync needs you to sign in again',conflict:'Sync needs your choice on some changes',error:'Sync problem',offline:'Offline. Changes will sync when you’re back online',idle:'Sync is on'}[s]||'Sync';
+  return `<button class="syncbtn s-${s}" data-act="syncpop" aria-label="${lbl}" title="${lbl}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 19a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 17.9 9.5 4.25 4.25 0 0 1 17.5 19z"/>${CLOUD[s]||''}</svg>${['signin','conflict','error'].includes(s)?'<span class="sdot"></span>':''}</button>`}
+function ago(iso){if(!iso)return 'not yet';const s=(Date.now()-new Date(iso))/1000;if(s<60)return 'just now';if(s<3600)return Math.round(s/60)+' min ago';if(s<86400)return Math.round(s/3600)+' hr ago';return new Date(iso).toLocaleDateString()}
+function openSyncPop(btn){const ex=$('.syncpop');if(ex){ex.remove();return}const P=PROV[SY.st.prov];const p=document.createElement('div');p.className='cartpop syncpop';p.setAttribute('role','dialog');p.setAttribute('aria-label','Sync');
+  const s=SY.status;p.innerHTML=`<h2>Sync</h2><p>Connected to <b>${esc(P.name)}</b>${SY.st.account?` as ${esc(SY.st.account)}`:''}.</p><p class="subtle">Last synced ${ago(SY.st.last)}.</p>
+${s==='signin'?`<p>Sync needs you to sign in again to keep going.</p><button class="btn primary" data-act="syncnow">Continue syncing</button>`:s==='conflict'?`<button class="btn primary" data-act="syncfix">Choose which changes to keep</button>`:`<button class="btn primary" data-act="syncnow">Sync now</button>`}
+${s==='error'?`<p class="warn">${esc(SY.msg)}</p>`:''}${s==='offline'?'<p>You’re offline. Recipe Box keeps working, and changes sync once you’re connected.</p>':''}
+<button class="btn" data-act="settings">Sync settings</button>`;btn.parentElement.appendChild(p)}
+function syncSettingsHTML(){if(!STANDALONE)return '';const ps=provList();
+  if(SY.st){const P=PROV[SY.st.prov];return `<hr><p class="lblp">Sync</p><p>Syncing with <b>${esc(P?P.name:'?')}</b>${SY.st.account?` as ${esc(SY.st.account)}`:''}. Last synced ${ago(SY.st.last)}.</p><p class="subtle">Your recipes are kept in a “Recipe Box” folder there, one small file per recipe, and stay in step on every device you connect to the same account.</p><div class="acts" style="justify-content:flex-start;margin:0"><button class="btn" data-s="syncnow">Sync now</button><button class="btn danger" data-s="syncoff">Turn off sync</button></div>`}
+  if(!ps.length)return `<hr><p class="lblp">Sync</p><p class="subtle">Sync isn’t set up for this copy of Recipe Box yet.</p>`;
+  return `<hr><p class="lblp">Sync</p><p>Keep your recipes in step on your computer, tablet, and phone by connecting your own cloud storage. Recipe Box only sees its own folder, not your other files.</p><div class="acts" style="justify-content:flex-start;margin:0">${ps.map(p=>`<button class="btn" data-s="connect" data-p="${p.k}">Connect ${esc(p.name)}</button>`).join('')}</div>`}
+
 /* ---------- events ---------- */
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='dmin'||t.id==='dmax'){let a=+$('#dmin').value,b=+$('#dmax').value;if(a>b){if(t.id==='dmin'){b=a;$('#dmax').value=b}else{a=b;$('#dmin').value=a}}S.dmin=a;S.dmax=b;const du=$('.dual');du.style.setProperty('--a',String((a-1)/4));du.style.setProperty('--b',String((b-1)/4));$('#dsum').textContent=diffSummary();t.setAttribute('aria-valuetext',DIFF[+t.value-1]);return}
   if(e.target.id==='q'){S.q=e.target.value;if(route().name!=='browse'){location.hash='/';return}render()}});
-document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCart();if(route().name==='print'&&e.target.closest('[data-pf]')&&e.target.closest('[data-pf]').type!=='checkbox'){printEvents(byId(route().id),e);return}const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,v=b.dataset.v;const r=byId(route().id);
+document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCart();if(!e.target.closest('.syncwrap-outer')){const sp=$('.syncpop');sp&&sp.remove()}if(route().name==='print'&&e.target.closest('[data-pf]')&&e.target.closest('[data-pf]').type!=='checkbox'){printEvents(byId(route().id),e);return}const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,v=b.dataset.v;const r=byId(route().id);
   if(a==='tag'){S.tag=v;S.letter=null;render()}
   else if(a==='letter'){S.letter=v;S.q='';render()}
   else if(a==='clearq'){S.q='';render()}
@@ -1221,6 +1395,9 @@ document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCar
   else if(a==='doinstall'&&installEvt){installEvt.prompt();installEvt.userChoice.then(()=>{installEvt=null;render()})}
   else if(a==='howinstall'){S.showHow=!S.showHow;render()}
   else if(a==='hideinstall'){try{localStorage.setItem('rb-install-hide','1')}catch(e){}render();toast('You can still find install steps in the settings menu')}
+  else if(a==='syncpop'){openSyncPop(b)}
+  else if(a==='syncnow'){const p=$('.syncpop');p&&p.remove();runSync(true)}
+  else if(a==='syncfix'){const p=$('.syncpop');p&&p.remove();conflictDlg()}
   else if(a==='cart'){openCart(b)}
   else if(a==='doneshop'){const before=JSON.stringify(S.box.shop);const n=shopStats().done;clearChecked();persist();closeCart();render();toast(`Cleared ${n} checked ${n===1?'item':'items'}`,{label:'Undo',fn:()=>{S.box.shop=JSON.parse(before);persist();render()}})}
   else if(a==='addshop'&&r){addToShop(r.id,S.servings[r.id]??r.serv);toast('Added to your shopping list');render()}
@@ -1272,6 +1449,9 @@ applyTheme(getTheme());
   render();
   try{if(window.claude&&claude.use){downloads=await claude.use('downloads')}}catch(e){downloads=null}
   if(STANDALONE&&'serviceWorker' in navigator){try{await navigator.serviceWorker.register('./sw.js')}catch(e){}}
+  if(STANDALONE&&S.box){await syncLoad();const back=await oauthFinish();if(SY.st){render();if(!back)runSync(false)}}
+  window.addEventListener('online',()=>scheduleSync(500));window.addEventListener('offline',()=>{if(SY.st)setSync('offline')});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&SY.st)scheduleSync(800)});
 })();
 })();
 
