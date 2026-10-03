@@ -4,7 +4,7 @@
 window.RB_CONFIG = {
   googleClientId: '306866499128-dqbqa5r34ej7vt1jih8qo409nifqhjnr.apps.googleusercontent.com',
   // Optional: address of your Google sign-in helper, so Google Drive sync renews on its own (see SYNC-SETUP.md).
-  googleHelperUrl: '',
+  googleHelperUrl: 'https://recipe-box-helper.mountytech.workers.dev',
   microsoftClientId: '',
   dropboxAppKey: ''
 };
