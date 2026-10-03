@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Recipe Box</title>
-<meta name="app-version" content="0.9-print">
+<meta name="app-version" content="0.9.1-copyweb">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="description" content="A family recipe box: browse, cook, plan meals, and make shopping lists. Works offline.">
@@ -839,7 +839,7 @@ function editor(r){if(!S.draft||S.draft.__for!==(r?r.id:'new')){S.draft=r?clone(
   const d=S.draft;
   return `<a class="back" href="${r?'#/r/'+encodeURIComponent(r.id):'#/'}">${I.back}${r?'Back to recipe':'Back to recipes'}</a>
 <form class="form" id="ed" novalidate><h1>${r?'Edit recipe':'Add a recipe'}</h1>
-${!r&&d.__imported?`<div class="callout" style="margin:0">${I.bulb}<span>Imported from pasted text. Check the amounts, units, and steps below, then save.</span></div>`:''}
+${!r&&d.__imported?`<div class="callout" style="margin:0">${I.bulb}<span>${d.__web?'Filled in from the website.':'Filled in from the text you pasted.'} Check the amounts, units, and steps below, then save.</span></div>`:''}
 ${!r&&!d.__imported?`<a class="importcta" href="#/import">${I2.paste}<span><b>Have a recipe from a website?</b> Paste it in and the app fills out this form for you.</span></a>`:''}
 <div class="sheet">
 <div class="field"><label for="f-name">Recipe name</label><input class="in" id="f-name" value="${esc(d.name)}" required autocomplete="off" style="font-family:var(--hand);font-size:32px;font-weight:700"><span class="help" id="nameHelp">Filed under the first letter or number of the name.</span></div>
@@ -1008,7 +1008,7 @@ ${canSave()?`<button class="btn primary" data-s="backup">Download a backup file<
 ${syncSettingsHTML()}
 ${STANDALONE&&!isInstalled()?`<hr><p class="lblp">Install on this device</p>${installEvt?`<button class="btn" data-s="install">Install Recipe Box</button>`:installSteps()}<p class="subtle">Installing gives Recipe Box its own icon and keeps your recipes from being cleared with your browser history.</p>`:''}
 ${STANDALONE?`<hr><p class="lblp">Invite family</p><p>Copy this message and send it along with your recipe backup file.</p><label class="sr" for="invite">Invitation message</label><textarea class="in invite" id="invite" rows="8" readonly>${esc(inviteText())}</textarea><div class="acts" style="justify-content:flex-start;margin:0"><button class="btn" data-s="copyinvite">${I2.copy}Copy message</button>${navigator.share?`<button class="btn" data-s="shareinvite">Share…</button>`:''}</div>`:''}
-${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p>Drag this button to your browser’s bookmarks bar. On any recipe website, click it to send the recipe here.</p><a class="btn bmk" href="${esc(bookmarkletCode())}" onclick="return false" draggable="true">${I2.paste}Save to Recipe Box</a><button class="btn small" data-s="copybm">Copy the button’s code (for iPad)</button>`:''}
+${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p><b>On a computer:</b> drag this button to your browser’s bookmarks bar. On any recipe website, click it to send the recipe here.</p><a class="btn bmk" href="${esc(bookmarkletCode())}" onclick="return false" draggable="true">${I2.paste}Save to Recipe Box</a><p><b>On a tablet or phone:</b> add a <b>Copy Web Recipe</b> bookmark to your browser. On any recipe website, tap it to copy the recipe, then paste it into Recipe Box.</p><button class="btn small" data-s="copybm" style="align-self:flex-start">Set up Copy Web Recipe</button><div id="bmSteps" hidden></div>`:''}
 <hr><p class="lblp">Appearance</p><div class="seg" role="group" aria-label="Appearance" style="align-self:flex-start">${['light','dark','auto'].map(t=>`<button data-s="theme" data-t="${t}" aria-pressed="${getTheme()===t}">${t==='light'?'Light':t==='dark'?'Dark':'Match device'}</button>`).join('')}</div>
 <hr><p class="lblp">Start over</p><div class="acts" style="justify-content:flex-start">${SEED.recipes.length?`<button class="btn" data-s="seed">Reload the starting recipes</button>`:''}<button class="btn danger" data-s="empty">Empty the recipe box</button></div>
 <div class="acts"><button class="btn" data-close>Close</button></div>`);
@@ -1019,7 +1019,8 @@ ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p>Drag this but
     if(a==='syncoff'){w.remove();confirmDlg('Turn off sync?','Your recipes stay on this device and in your cloud folder, but they will stop syncing.','Turn off sync',disconnect);return}
     if(a==='copyinvite'){try{await navigator.clipboard.writeText(inviteText());toast('Message copied')}catch(e){const t=$('#invite',w);t.focus();t.select();toast('Press Ctrl+C or Command+C to copy')}return}
     if(a==='shareinvite'){try{await navigator.share({title:'Recipe Box',text:inviteText()})}catch(e){}return}
-    if(a==='copybm'){try{await navigator.clipboard.writeText(bookmarkletCode());toast('Copied. See the Import page for iPad steps.')}catch(e){toast('Copy is not available here')}return}
+    if(a==='copybm'){const box=$('#bmSteps',w);let copied=false;try{await navigator.clipboard.writeText(bookmarkletCode());copied=true}catch(e){}
+      box.innerHTML=(copied?`<p><b>The bookmark’s code is copied.</b> Now make the bookmark in your web browser:</p>`:`<p><b>Copy this code first:</b> press and hold in the box, tap <b>Select All</b>, then tap <b>Copy</b>. Then make the bookmark in your web browser:</p><textarea class="in" readonly rows="3" style="font-size:13px">${esc(bookmarkletCode())}</textarea>`)+bmStepsHtml();box.hidden=false;if(copied)toast('Code copied');return}
     if(a==='theme'){applyTheme(b.dataset.t);$$('[data-s=theme]',w).forEach(x=>x.setAttribute('aria-pressed',x===b));return}
     if(a==='backup'){try{const stamp=new Date().toISOString().slice(0,10);await saveFile(`recipe-box-backup-${stamp}.json`,JSON.stringify({app:'recipe-box',version:1,exported:nowISO(),box:S.box}),'application/json');toast('Backup saved')}catch(err){const code=err&&err.code;toast(code==='declined'?'Backup not saved':code==='rate_limited'?'A save is already open. Try again in a moment.':'Backup could not be saved here')}}
     if(a==='seed'){w.remove();confirmDlg('Reload the starting recipes?','This replaces everything in your box with the original 154 recipes. Recipes you added or changed will be lost unless you have a backup.','Reload recipes',()=>{S.box=ensureBox(freshBox(true));S.letter=null;persist();toast('Starting recipes loaded');go('/')})}
@@ -1185,8 +1186,8 @@ function viewImport(){return `<a class="back" href="#/new">${I.back}Back to addi
 <div class="field"><label for="impText">Recipe text</label><textarea class="in paste" id="impText" rows="14" placeholder="Paste the recipe here"></textarea></div>
 <div class="field"><label for="impLink">Web link (optional)</label><input class="in" id="impLink" type="url" placeholder="https://" autocomplete="off"><span class="help">Saved with the recipe so you can always find the original.</span></div>
 <p class="subtle" id="impMsg" role="status"></p>
-${STANDALONE?`<div class="callout" style="margin:0">${I.bulb}<span><b>Faster:</b> add the “Save to Recipe Box” button to your browser (see the settings menu). Then one click on any recipe website brings the recipe here, no copying needed.
-On an iPad: copy the button’s code from settings, bookmark any page in Safari, then edit that bookmark and paste the code in place of its address.</span></div>`:''}
+${STANDALONE?`<div class="callout" style="margin:0">${I.bulb}<span><b>Faster:</b> on a computer, use the “Save to Recipe Box” button. One click on any recipe website brings the recipe here.
+On a tablet or phone, use the “Copy Web Recipe” bookmark to copy a recipe in one tap, then paste it here. Both are set up in the settings menu.</span></div>`:''}
 <div class="actions"><button class="btn primary" data-act="doimport">${I2.paste}Read this recipe</button><a class="btn" href="#/new">Type it in myself</a></div></div></div>`}
 
 /* ---------- printing ---------- */
@@ -1297,12 +1298,46 @@ function inviteText(){const url=location.origin+location.pathname;return `Hi! I 
 3. Load the recipes: save the file I've attached (on an iPad or iPhone, tap it and choose "Save to Files"). In Recipe Box, choose "Restore from a backup file" and pick that file.
 
 That's it. Your recipes stay on your own device, and you can add your own too.`}
+function bmStepsHtml(){const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),and=/Android/.test(navigator.userAgent);
+  const ap=`<p class="lblp" style="margin-top:10px">iPad or iPhone (Safari)</p><ol class="howto"><li>Open <b>Safari</b> and go to any website.</li><li>Tap the <b>Share</b> button, then <b>Add Bookmark</b>. Change the name to <b>Copy Web Recipe</b>, choose <b>Favorites</b>, and tap <b>Save</b>.</li><li>Tap the sidebar button at the top left, then <b>Bookmarks</b>, then <b>Favorites</b>. Tap <b>Edit</b>, then tap <b>Copy Web Recipe</b>.</li><li>Clear the address, press and hold in it, tap <b>Paste</b>, then tap <b>Done</b>.</li></ol>`;
+  const an=`<p class="lblp" style="margin-top:10px">Android (Chrome)</p><ol class="howto"><li>Open <b>Chrome</b> and go to any website. Tap <b>⋮</b>, then the <b>star</b> to bookmark the page.</li><li>Tap <b>⋮</b>, then <b>Bookmarks</b>. Tap <b>⋮</b> next to the new bookmark, then <b>Edit</b>.</li><li>Change the name to <b>Copy Web Recipe</b>. Clear the address, press and hold in it, and tap <b>Paste</b>. Tap the back arrow to save.</li><li>To use it, on a recipe page tap the address bar, type <b>Copy Web Recipe</b>, and tap the bookmark that appears.</li></ol>`;
+  return ios?ap:and?an:ap+an}
+function rbGrab(A){
+var r=null,d,i;
+var W=function(o){if(!o||r)return;if(Array.isArray(o)){o.forEach(W);return}if(typeof o!=='object')return;var t=o['@type'];if(t==='Recipe'||(Array.isArray(t)&&t.indexOf('Recipe')>-1)){r=o;return}if(o['@graph'])W(o['@graph']);if(o.mainEntity)W(o.mainEntity)};
+document.querySelectorAll('script[type="application/ld+json"]').forEach(function(s){try{W(JSON.parse(s.textContent))}catch(e){}});
+var T=function(x){return x==null?'':String(x).replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim()};
+if(r){var S=[];var st=function(i){if(!i)return;if(typeof i==='string'){S.push({t:T(i)});return}if(Array.isArray(i)){i.forEach(st);return}if(i['@type']==='HowToSection'){S.push({h:T(i.name)});st(i.itemListElement);return}if(i.itemListElement){st(i.itemListElement);return}if(i.text||i.name)S.push({t:T(i.text||i.name)})};st(r.recipeInstructions);
+var im=r.image;if(Array.isArray(im))im=im[0];if(im&&typeof im==='object')im=im.url;var au=Array.isArray(r.author)?r.author[0]:r.author;var sn=document.querySelector('meta[property="og:site_name"]');
+d={k:'ld',name:T(r.name),desc:T(r.description),ing:[].concat(r.recipeIngredient||[]).map(T),steps:S,y:[].concat(r.recipeYield||[]).map(T),tt:r.totalTime||'',pt:r.prepTime||'',ct:r.cookTime||'',img:im||'',url:location.href,src:T(sn?sn.content:location.hostname.replace(/^www\./,'')),by:T(au&&au.name)}}
+else{var sel=String(getSelection());if(!sel.trim()){alert('Recipe Box could not find a recipe on this page. Select the recipe text with your mouse or finger, then try again.');return}d={k:'txt',text:sel,url:location.href}}
+var b=btoa(unescape(encodeURIComponent(JSON.stringify(d)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+var M=/iPad|iPhone|iPod|Android/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+if(!M){window.open(A+'#/import/'+b,'_blank');return}
+var L=[];if(d.k==='ld'){L.push(d.name,'','Ingredients');d.ing.forEach(function(x){L.push(x)});L.push('','Instructions');d.steps.forEach(function(x){L.push(x.h?x.h+':':x.t)})}else L.push(d.text);
+L.push('',d.url,'','(Recipe Box code: RBX1.'+b+'.)');var txt=L.join('\n');
+var old=document.getElementById('rbx-ov');if(old)old.remove();
+var E=function(tag,css,text){var e=document.createElement(tag);e.style.cssText='all:initial;box-sizing:border-box;display:block;font-family:-apple-system,system-ui,sans-serif;color:#222;line-height:1.4;'+(css||'');if(text)e.textContent=text;return e};
+var ov=E('div','position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px');ov.id='rbx-ov';
+var bx=E('div','background:#fffdf6;border-radius:10px;border-top:10px solid #c8372d;max-width:460px;width:100%;padding:22px;box-shadow:0 10px 40px rgba(0,0,0,.35);max-height:90vh;overflow:auto');
+bx.appendChild(E('div','font-size:26px;font-weight:700;margin-bottom:6px','Copy Web Recipe'));
+bx.appendChild(E('div','font-size:19px;margin-bottom:18px',d.k==='ld'?'Found: '+(d.name||'a recipe'):'Your selected text is ready to copy.'));
+var btn=E('button','width:100%;text-align:center;background:#c8372d;color:#fff;font-size:22px;font-weight:700;padding:16px;border-radius:8px;cursor:pointer','Copy this recipe');
+var msg=E('div','font-size:18px;margin-top:16px');msg.style.display='none';
+var cls=E('button','width:100%;text-align:center;background:#eee;color:#222;font-size:18px;padding:12px;border-radius:8px;margin-top:16px;cursor:pointer','Close');
+bx.appendChild(btn);bx.appendChild(msg);bx.appendChild(cls);ov.appendChild(bx);document.body.appendChild(ov);
+cls.onclick=function(){ov.remove()};
+var ok=function(){btn.textContent='Copied!';btn.style.background='#3d7a46';msg.innerHTML='';msg.appendChild(E('div','font-size:18px;font-weight:700;margin-bottom:6px','Now, in Recipe Box:'));['Open Recipe Box from your Home Screen.','Tap Add recipe.','Tap Have a recipe from a website?','Press and hold in the box, tap Paste, then tap Read this recipe.'].forEach(function(s,n){msg.appendChild(E('div','font-size:18px;margin:6px 0',(n+1)+'. '+s))});msg.style.display='block'};
+var fail=function(){msg.innerHTML='';msg.appendChild(E('div','font-size:18px;margin-bottom:8px','Copying did not work on this page. Press and hold the text below, tap Select All, then tap Copy.'));var ta=E('textarea','width:100%;height:160px;font-size:16px;border:1px solid #999;padding:8px;background:#fff');ta.value=txt;msg.appendChild(ta);msg.style.display='block'};
+var fb=function(){var t=document.createElement('textarea');t.value=txt;t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();try{t.setSelectionRange(0,txt.length)}catch(e){}var s=false;try{s=document.execCommand('copy')}catch(e){}t.remove();if(s)ok();else fail()};
+btn.onclick=function(){if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(ok,fb);else fb()};
+}
 function bookmarkletCode(){const A=location.origin+location.pathname;
-  return "javascript:(()=>{const A="+JSON.stringify(A)+";let r=null;const W=o=>{if(!o||r)return;if(Array.isArray(o))return o.forEach(W);if(typeof o!=='object')return;const t=o['@type'];if(t==='Recipe'||(Array.isArray(t)&&t.includes('Recipe'))){r=o;return}if(o['@graph'])W(o['@graph']);if(o.mainEntity)W(o.mainEntity)};document.querySelectorAll('script[type=\"application/ld+json\"]').forEach(s=>{try{W(JSON.parse(s.textContent))}catch(e){}});const T=x=>x==null?'':String(x).replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/\\s+/g,' ').trim();let d;if(r){const S=[];const st=i=>{if(!i)return;if(typeof i==='string'){S.push({t:T(i)});return}if(Array.isArray(i))return i.forEach(st);if(i['@type']==='HowToSection'){S.push({h:T(i.name)});st(i.itemListElement);return}if(i.itemListElement)return st(i.itemListElement);if(i.text||i.name)S.push({t:T(i.text||i.name)})};st(r.recipeInstructions);let im=r.image;if(Array.isArray(im))im=im[0];if(im&&typeof im==='object')im=im.url;const au=Array.isArray(r.author)?r.author[0]:r.author;const sn=document.querySelector('meta[property=\"og:site_name\"]');d={k:'ld',name:T(r.name),desc:T(r.description),ing:[].concat(r.recipeIngredient||[]).map(T),steps:S,y:[].concat(r.recipeYield||[]).map(T),tt:r.totalTime||'',pt:r.prepTime||'',ct:r.cookTime||'',img:im||'',url:location.href,src:T(sn?sn.content:location.hostname.replace(/^www\\./,'')),by:T(au&&au.name)}}else{const s=String(getSelection());if(!s.trim()){alert('Recipe Box could not find a recipe on this page. Select the recipe text with your mouse or finger, then try again.');return}d={k:'txt',text:s,url:location.href}}const b=btoa(unescape(encodeURIComponent(JSON.stringify(d)))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'');window.open(A+'#/import/'+b,'_blank')})()"}
+  return 'javascript:'+('('+rbGrab.toString()+')('+JSON.stringify(A)+')').replace(/\n/g,'').replace(/%/g,'%25')}
 function isoMin(s){const m=String(s||'').match(/P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?)?/i);if(!m)return 0;return (+(m[1]||0))*1440+(+(m[2]||0))*60+(+(m[3]||0))}
 function draftFromPayload(p){let d;try{const j=JSON.parse(decodeURIComponent(escape(atob(p.replace(/-/g,'+').replace(/_/g,'/')))));
   if(j.k==='txt')return parseRecipeText(j.text,j.url);
-  d={id:uid(),name:j.name||'',desc:j.desc||'',tags:[],__imported:true,link:j.url||'',src:j.src||''};
+  d={id:uid(),name:j.name||'',desc:j.desc||'',tags:[],__imported:true,__web:true,link:j.url||'',src:j.src||''};
   if(j.by&&j.src&&!j.src.toLowerCase().includes(j.by.toLowerCase()))d.src=j.by+', '+j.src;
   const ys=[].concat(j.y||[]).map(String);const sv=ys.find(v=>/^\s*\d+\s*$/.test(v)||/serv/i.test(v))||ys[0]||'';const ym=sv.match(/(\d+)/);if(ym)d.serv=+ym[1];const yl=ys.find(v=>/[a-z]/i.test(v)&&!/serv/i.test(v));if(yl)d.yld=yl;
   d.min=isoMin(j.tt)||(isoMin(j.pt)+isoMin(j.ct))||'';
@@ -1520,6 +1555,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCar
   else if(a==='shopclear'){confirmDlg('Clear the whole list?','Every item and recipe on the shopping list will be removed.','Clear list',()=>{S.box.shop={recipes:[],extra:[],checked:{},removed:{}};persist();render()})}
   else if(a==='shopcopy'){const t=shopText();(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Shopping list copied')).catch(async()=>{if(canSave()){try{await saveFile('shopping-list.txt',t,'text/plain');toast('Shopping list saved')}catch(e){toast('Copy is not available here. Try Print instead.')}}else toast('Copy is not available here. Try Print instead.')})}
   else if(a==='doimport'){const t=$('#impText').value;if(!t.trim()){$('#impMsg').textContent='Paste a recipe into the box first.';$('#impText').focus();return}
+    const mm=t.match(/RBX1\.([A-Za-z0-9_-]+)\./);const pd=mm?draftFromPayload(mm[1]):null;if(pd){if($('#impLink').value.trim())pd.link=$('#impLink').value.trim();pd.__for='new';S.draft=pd;tryGrabPhoto(pd.__img);toast(`Found ${pd.ing.filter(l=>l.i).length} ingredients and ${pd.steps.filter(s=>s.t).length} steps`);go('/new');return}
     const d=parseRecipeText(t,$('#impLink').value);d.__for='new';S.draft=d;const ni=d.ing.filter(l=>l.i).length,ns=d.steps.filter(s=>s.t).length;toast(`Found ${ni} ingredients and ${ns} steps`);go('/new')}
   else if(a==='doprint'){window.print()}
   else if(a==='print')window.print();
