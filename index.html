@@ -359,6 +359,14 @@ textarea.invite{font-family:var(--body);font-size:14px;min-height:170px;border:1
 .cfl{font-family:var(--type);font-weight:700;font-size:13px;color:var(--ink-2)}
 @media (max-width:640px){.cft{grid-template-columns:90px 1fr 1fr;font-size:14px}}
 
+.unitcell{position:relative}
+.diffbox summary{list-style:none;display:flex;align-items:center;gap:14px;cursor:default}
+.diffbox summary::-webkit-details-marker{display:none}
+.diffbox .dbody{display:contents}
+.diffbox .dsumm{display:none}
+.botnav{display:none}
+
+
 /* index */
 .paper{background:var(--paper);border-radius:4px;padding:0 36px 32px;box-shadow:var(--lift)}
 @media (max-width:640px){.paper{padding:0 18px 22px}}
@@ -540,6 +548,83 @@ textarea.in{min-height:84px;resize:vertical;line-height:1.5}
   .photo.has{max-height:200pt;max-width:300pt}
   a{color:#000;text-decoration:none}
 }
+/* ---------- phones ---------- */
+@media (max-width:640px){
+  body{font-size:16px}
+  .top .wrap{gap:4px 6px;padding-top:6px;padding-bottom:8px}
+  .brand{font-size:30px;flex:1;padding:0}
+  .top .nav,.top .wrap > .btn.primary{display:none}
+  .top .search{min-height:42px}
+  main{padding:18px 0 calc(env(safe-area-inset-bottom,0px) + 96px)}
+  .botnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--paper);border-top:2px solid var(--red);box-shadow:0 -6px 18px rgba(31,41,51,.10);padding:4px 6px calc(env(safe-area-inset-bottom,0px) + 4px)}
+  .botnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:54px;justify-content:center;text-decoration:none;color:var(--muted);font-family:var(--type);font-size:12px;font-weight:700;border-radius:3px}
+  .botnav a[aria-current="page"]{color:var(--red);background:var(--peach)}
+  .hello{margin-bottom:12px}.hello h1{font-size:36px}.hello p{display:none}
+  .sidecol{margin-bottom:12px}
+  .cat{min-height:40px;font-size:14px}
+  .diffbox{display:block;padding:8px 14px;margin-bottom:16px}
+  .diffbox summary{cursor:pointer;min-height:40px}
+  .diffbox summary h2{font-size:26px}
+  .diffbox .dsumm{display:block;font-family:var(--type);font-weight:700;font-size:14px;color:var(--ink-2);flex:1}
+  .diffbox summary::after{content:"";width:9px;height:9px;border-right:2.5px solid var(--ink-2);border-bottom:2.5px solid var(--ink-2);transform:rotate(45deg);margin:-4px 6px 0 0;transition:transform .15s}
+  .diffbox[open] summary::after{transform:rotate(-135deg);margin-top:4px}
+  .diffbox[open] .dsumm{visibility:hidden}
+  .diffbox .dbody{display:flex;flex-direction:column;gap:8px;padding-bottom:8px}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:0 4px;scroll-behavior:smooth}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 40px;max-width:none;min-height:50px}
+  .drawer{padding:14px 10px 16px}
+  .drawer-head{margin-bottom:12px}.drawer-head h2{font-size:52px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .card{min-height:140px}
+  .card-title{font-size:21px;min-height:52px;padding:6px 10px}
+  .card-body{font-size:12.5px;line-height:24px;padding:2px 10px 8px;background-image:repeating-linear-gradient(transparent 0 23px,var(--rule) 23px 24px)}
+  .card-photo{height:84px}
+  .hero{gap:16px;margin-bottom:18px}
+  .hero h1{font-size:40px}
+  .desc{font-size:17px}
+  .facts{display:grid;grid-template-columns:1fr 1fr;align-self:stretch}
+  .fact{border-left:0;border-top:1px solid var(--rule);padding:8px 14px}
+  .fact:nth-child(-n+2){border-top:0}.fact:nth-child(2n){border-left:1px solid var(--rule)}
+  .fact.serv,.fact.dfact{grid-column:1/-1;border-left:0!important}
+  .hero .actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+  .hero .actions .btn{flex-direction:column;gap:3px;min-height:58px;padding:6px 2px;font-size:12px;white-space:normal;text-align:center;line-height:1.15;border-width:1.5px}
+  .hero .actions .btn.primary{grid-column:1/-1;flex-direction:row;font-size:17px;min-height:52px}
+  .hero .actions .dt{display:none}
+  .photo:not(.has){display:none}
+  .photo.has{transform:none;max-height:260px}
+  .cols2{gap:16px}
+  .erow{grid-template-columns:78px minmax(0,1fr) auto;grid-template-areas:"q u u" "i i i" "n n t";gap:6px 8px}
+  .erow.h{grid-template-columns:1fr auto;grid-template-areas:none}
+  .erow .qcell{grid-area:q}.erow .unitcell{grid-area:u}.erow .ingname{grid-area:i}.erow .noteIn{grid-area:n}.erow .tools{grid-area:t;grid-column:auto}
+  .erow .tools .btn{width:36px;height:40px}
+  .erow .hint{grid-column:1/-1}
+  .srow{grid-template-columns:30px 1fr;gap:8px}
+  .srow .num{width:30px;height:30px;font-size:22px}
+  .srow .tools{grid-column:2;justify-content:flex-end}
+  .form > h1,.plan-head h1{font-size:42px}
+  .savebar{bottom:calc(env(safe-area-inset-bottom,0px) + 76px)}
+  .cook{padding:calc(env(safe-area-inset-top,0px) + 10px) 12px calc(env(safe-area-inset-bottom,0px) + 10px);gap:10px}
+  .cook-top .btn{min-height:44px;padding:0 12px}
+  .cook-top .ttl div:last-child{font-size:26px}
+  .cook-body{flex-direction:column;flex-wrap:nowrap}
+  .cook-step{flex:none}
+  .cook-step .band{padding:10px 16px 6px}.cook-step .band h2{font-size:30px}
+  .cook-inner{padding:14px 16px 0}
+  .cook-step p{font-size:21px;line-height:1.5;margin-bottom:14px}
+  .cook-nav{position:fixed;left:0;right:0;bottom:0;z-index:3;background:var(--paper);padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 10px);border-top:2px solid var(--red);box-shadow:0 -6px 18px rgba(31,41,51,.12)}
+  .cook{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
+  .cook-nav .btn{min-height:56px;font-size:18px}
+  .cook-side{flex:none}
+  .timer-btn{font-size:16px;min-height:48px}
+  .paper-head h1{font-size:42px}
+  .cols{columns:1}
+  .toast{bottom:calc(env(safe-area-inset-bottom,0px) + 84px)}
+  .dlg{padding:18px}
+  .cartpop{bottom:calc(env(safe-area-inset-bottom,0px) + 80px)}
+}
+@media (max-width:900px){.sidecol{position:static;width:auto;max-height:none;overflow:visible;padding:0;gap:14px;margin-bottom:22px}}
+@media print{.botnav{display:none!important}}
 </style>
 </head>
 <body>
@@ -642,6 +727,7 @@ const DIFF=['Very easy','Easy','Medium','Challenging','Advanced'];
 const HAT='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17.5h10V21H7z"/><path d="M7 17.5C4.5 17 3 14.9 3 12.6a4 4 0 0 1 5-3.9A4.5 4.5 0 0 1 12 5.5a4.5 4.5 0 0 1 4 3.2 4 4 0 0 1 5 3.9c0 2.3-1.5 4.4-4 4.9"/></svg>';
 function hats(n,cls){let s='';for(let k=1;k<=5;k++)s+=`<span class="hat ${k<=n?'on':''}">${HAT}</span>`;return `<span class="hats ${cls||''}" aria-hidden="true">${s}</span>`}
 function hatPicker(n,act){return `<div class="hatpick" role="radiogroup" aria-label="Difficulty">${DIFF.map((w,k)=>`<button type="button" role="radio" aria-checked="${n===k+1}" class="hat ${n&&k<n?'on':''}" ${act}="diff" data-v="${k+1}" aria-label="${w}" title="${w}">${HAT}</button>`).join('')}<b class="hatword">${n?DIFF[n-1]:'Not rated yet'}</b></div>`}
+const isPhone=()=>matchMedia('(max-width:640px)').matches;
 /* ---------- shell ---------- */
 function route(){const h=location.hash.slice(1)||'/';const p=h.split('/').filter(Boolean);return {name:p[0]||'browse',id:p[1]?decodeURIComponent(p[1]):null}}
 function go(h){if(location.hash==='#'+h)render();else location.hash=h}
@@ -654,6 +740,8 @@ function header(active){return `<header class="top"><div class="wrap">
 <button class="btn icon-btn ghost" data-act="settings" aria-label="Backup and settings">${I.gear}</button>
 <a class="btn primary" href="#/new">${I.plus}Add recipe</a></div></header>`}
 
+function botnav(active,rn){const it=(h,ic,l,on)=>`<a href="${h}" ${on?'aria-current="page"':''}>${ic}<span>${l}</span></a>`;
+  return `<nav class="botnav" aria-label="Main">${it('#/',I.box,'Browse',active==='browse')}${it('#/index','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>','Index',active==='index')}${it('#/plan',I2.cal.replace('width="18" height="18"','width="22" height="22"'),'Meal plan',active==='plan')}${it('#/new','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>','Add',rn==='new')}</nav>`}
 function render(){const r=route();const app=$('#app');if(!S.box){app.innerHTML=viewWelcome();return}
   if(r.name==='import'&&r.id){const d=draftFromPayload(r.id);if(d){d.__for='new';S.draft=d;S.keepDraft=true;location.replace('#/new');tryGrabPhoto(d.__img);toast(`Found ${d.ing.filter(l=>l.i).length} ingredients and ${d.steps.filter(s=>s.t).length} steps`);return}toast('That link did not include a recipe');location.replace('#/import');return}const keepFocus=document.activeElement&&document.activeElement.id==='q';const caret=keepFocus?document.activeElement.selectionStart:null;
   let body='';
@@ -666,9 +754,10 @@ function render(){const r=route();const app=$('#app');if(!S.box){app.innerHTML=v
   else if(r.name==='print'){const rec=byId(r.id);body=rec?viewPrint(rec):notFound();}
   else body=viewBrowse();
   const active=['index','browse','plan','shop'].includes(r.name)?r.name:'';
-  app.innerHTML=header(active)+'<main><div class="wrap">'+(['browse','index','plan','shop'].includes(r.name)?installBanner():'')+body+'</div></main>';
+  app.innerHTML=header(active)+'<main><div class="wrap">'+(['browse','index','plan','shop'].includes(r.name)?installBanner():'')+body+'</div></main>'+botnav(active,r.name);
   if(keepFocus){const q=$('#q');q.focus();try{q.setSelectionRange(caret,caret)}catch(e){}}
   if(r.name==='edit'||r.name==='new')bindEditor();
+  if(r.name==='browse'&&isPhone()){const t=$('.tab[aria-pressed="true"]');if(t){const tb=t.parentElement;tb.scrollLeft=t.offsetLeft-tb.clientWidth/2+t.clientWidth/2}}
   if(r.name==='print'&&byId(r.id))drawPrint(byId(r.id));
   document.body.classList.toggle('printing-recipe',r.name==='print');
   document.title=(r.name==='r'&&byId(r.id)?byId(r.id).name+' – ':'')+'Recipe Box';
@@ -685,12 +774,13 @@ function card(rec,via){const t=mainTag(rec);const cls=tagClass(t);const bits=[re
 <div class="card-body">${via?`<span class="hit">Has ${esc(via)}</span>`:''}${t?`<span class="ctag">${esc(t)}</span>`:''}${dl}${bits.map(b=>`<span>${esc(b)}</span>`).join('')}</div></a>`}
 function diffSummary(){if(S.dmin===1&&S.dmax===5)return 'Any difficulty';return S.dmin===S.dmax?DIFF[S.dmin-1]+' only':DIFF[S.dmin-1]+' to '+DIFF[S.dmax-1]}
 function diffBox(all){const unr=all.filter(r=>!r.diff).length;const pct=v=>String((v-1)/4);
-  return `<section class="diffbox" aria-labelledby="dh"><h2 id="dh">Difficulty</h2><div class="dslide">
+  const open=!isPhone()||S.diffOpen||S.dmin>1||S.dmax<5||!S.dunr;
+  return `<details class="diffbox" ${open?'open':''} id="diffdet"><summary><h2 id="dh">Difficulty</h2><span class="dsumm">${diffSummary()}</span></summary><div class="dbody"><div class="dslide">
 <div class="dual" style="--a:${pct(S.dmin)};--b:${pct(S.dmax)}"><label class="sr" for="dmin">Easiest level to show</label><input type="range" id="dmin" min="1" max="5" step="1" value="${S.dmin}" aria-valuetext="${DIFF[S.dmin-1]}"><label class="sr" for="dmax">Hardest level to show</label><input type="range" id="dmax" min="1" max="5" step="1" value="${S.dmax}" aria-valuetext="${DIFF[S.dmax-1]}"></div>
 <div class="dends" aria-hidden="true"><span>Very easy</span><span>Advanced</span></div></div>
 <p class="dsum" id="dsum">${diffSummary()}</p>
 <label class="dunr"><input type="checkbox" id="dunr" ${S.dunr?'checked':''}> Include recipes not rated yet${unr?` (${unr})`:''}</label>
-${(S.dmin>1||S.dmax<5||!S.dunr)?`<button class="btn small" data-act="dreset">Show all difficulties</button>`:''}</section>`}
+${(S.dmin>1||S.dmax<5||!S.dunr)?`<button class="btn small" data-act="dreset">Show all difficulties</button>`:''}</div></details>`}
 function viewBrowse(){const all=S.box.recipes;const q=S.q.trim().toLowerCase();
   const tagsUsed=[...new Set(all.flatMap(r=>r.tags||[]))].sort(collator.compare);
   const dOn=S.dmin>1||S.dmax<5||!S.dunr;const passD=r=>!dOn||(r.diff?(r.diff>=S.dmin&&r.diff<=S.dmax):S.dunr);
@@ -735,8 +825,8 @@ ${base?`<div class="fact serv"><div style="display:flex;flex-direction:column;ga
 ${r.yld?`<div class="fact"><span>Makes</span><b>${esc(r.yld)}</b></div>`:''}
 ${r.src?`<div class="fact"><span>From</span><b>${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.src)}</a>`:esc(r.src)}</b></div>`:(r.link?`<div class="fact"><span>From</span><b><a href="${esc(r.link)}" target="_blank" rel="noopener">Original recipe</a></b></div>`:'')}</div>`:''}
 <div class="actions">${(r.steps||[]).some(x=>x.t)?`<button class="btn primary" data-act="cook">${I.pot}Start cooking</button>`:''}
-<button class="btn fav" data-act="fav" aria-pressed="${!!r.fav}">${I.heart}${r.fav?'Favorite':'Add to favorites'}</button>
-<button class="btn" data-act="addshop">${I2.cart}${S.box.shop.recipes.some(e=>e.id===r.id)?'Add again to shopping list':'Add to shopping list'}</button><button class="btn" data-act="addplan">${I2.cal}Add to meal plan</button>
+<button class="btn fav" data-act="fav" aria-pressed="${!!r.fav}">${I.heart}<span>${r.fav?'Favorite':'<span class="dt">Add to </span>Favorites'}</span></button>
+<button class="btn" data-act="addshop">${I2.cart}<span><span class="dt">${S.box.shop.recipes.some(e=>e.id===r.id)?'Add again to ':'Add to '}</span>Shopping list</span></button><button class="btn" data-act="addplan">${I2.cal}<span><span class="dt">Add to </span>Meal plan</span></button>
 <a class="btn" href="#/print/${encodeURIComponent(r.id)}">${I.print}Print</a><a class="btn" href="#/edit/${encodeURIComponent(r.id)}">${I.edit}Edit</a></div></div>
 ${r.photo?`<div class="photo has"><img src="${r.photo}" alt="Photo of ${esc(r.name)}"></div>`:`<a class="photo" href="#/edit/${encodeURIComponent(r.id)}">${I.cam}<strong>Add a photo</strong><span>Opens the editor</span></a>`}</div>
 <div class="cols2"><section class="panel ing-panel tg5" aria-labelledby="ih"><div class="band"><h2 id="ih">Ingredients</h2>${base&&s!==base?`<span>scaled for ${fmt(s)} servings</span>`:''}</div><div class="panel-body">${ing||'<p class="subtle">No ingredients yet.</p>'}
@@ -777,8 +867,8 @@ function tagboxInner(){const d=S.draft;return d.tags.map(t=>`<span class="tchip 
 `<input id="tagIn" class="addpill" role="combobox" aria-expanded="false" aria-controls="tagMenu" aria-autocomplete="list" autocomplete="off" aria-label="Add a category" placeholder="+ Add category">`}
 function ingRow(l,i,n){const tools=`<div class="tools"><button type="button" class="btn small icon-btn" data-ed="ingup" data-i="${i}" aria-label="Move up" ${i?'':'disabled'}>${I.up}</button><button type="button" class="btn small icon-btn" data-ed="ingdown" data-i="${i}" aria-label="Move down" ${i<n-1?'':'disabled'}>${I.down}</button><button type="button" class="btn small icon-btn" data-ed="ingdel" data-i="${i}" aria-label="Remove">${I.trash}</button></div>`;
   if(l.h!=null)return `<div class="erow h" data-i="${i}"><label class="sr" for="h${i}">Section heading</label><input class="in" id="h${i}" data-f="h" value="${esc(l.h)}" placeholder="Section heading, like For the sauce" style="font-weight:700">${tools}</div>`;
-  return `<div class="erow" data-i="${i}"><div><label class="sr" for="q${i}">Amount</label><input class="in" id="q${i}" data-f="qt" value="${esc(l.qt??'')}" placeholder="Amount"></div>
-<div class="ingname unitcell"><label class="sr" for="u${i}">Unit</label><input class="in" id="u${i}" data-f="u" value="${esc(l.u||'')}" placeholder="unit" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="um${i}" aria-autocomplete="list"><div class="tagmenu" id="um${i}" role="listbox" aria-label="Unit suggestions" hidden></div></div>
+  return `<div class="erow" data-i="${i}"><div class="qcell"><label class="sr" for="q${i}">Amount</label><input class="in" id="q${i}" data-f="qt" value="${esc(l.qt??'')}" placeholder="Amount"></div>
+<div class="unitcell"><label class="sr" for="u${i}">Unit</label><input class="in" id="u${i}" data-f="u" value="${esc(l.u||'')}" placeholder="unit" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="um${i}" aria-autocomplete="list"><div class="tagmenu" id="um${i}" role="listbox" aria-label="Unit suggestions" hidden></div></div>
 <div class="ingname"><label class="sr" for="i${i}">Ingredient</label><input class="in" id="i${i}" data-f="i" value="${esc(l.i||'')}" placeholder="Ingredient" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="im${i}" aria-autocomplete="list"><div class="tagmenu" id="im${i}" role="listbox" aria-label="Ingredient suggestions" hidden></div></div>
 <div class="noteIn"><label class="sr" for="n${i}">Note</label><input class="in" id="n${i}" data-f="n" value="${esc(l.n||'')}" placeholder="Note, like chopped"></div>${tools}<div class="hint" id="hint${i}" hidden></div></div>`}
 function stepRows(d){let k=0;return d.steps.map((s,i)=>{const isH=s.h!=null;const sent=!isH&&splitSentences(s.t||'').length>1;
@@ -1435,6 +1525,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.cartpop')){clos
 let tx=null;document.addEventListener('touchstart',e=>{if(S.cook)tx=e.touches[0].clientX},{passive:true});
 document.addEventListener('touchend',e=>{if(!S.cook||tx==null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)<70)return;if(dx<0&&S.cook.i<S.cook.flat.length-1){S.cook.i++;drawCook()}else if(dx>0&&S.cook.i>0){S.cook.i--;drawCook()}},{passive:true});
 document.addEventListener('visibilitychange',()=>{if(S.cook&&document.visibilityState==='visible'&&wake===null)tryWake()});
+document.addEventListener('toggle',e=>{if(e.target.id==='diffdet')S.diffOpen=e.target.open},true);
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.pf==='field'){printEvents(byId(route().id),e);return}if(t.id==='dmin'||t.id==='dmax'){S.letter=null;render();const el=$('#'+t.id);if(el)el.focus()}else if(t.id==='dunr'){S.dunr=t.checked;S.letter=null;render();const el=$('#dunr');if(el)el.focus()}});
 window.addEventListener('pagehide',()=>{if(saveTimer){clearTimeout(saveTimer);kvSet('box',S.box)}});
 let rsz=null;window.addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(()=>{if(route().name==='print'&&byId(route().id))drawPrint(byId(route().id))},150)});
