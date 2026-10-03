@@ -65,13 +65,49 @@ Dropbox keeps the recipes in **Apps › (your app name)** in each person's Dropb
 
 Wait a minute or two, then open the app. The settings menu (the sliders icon) now shows **Connect Google Drive** (and any others you set up).
 
+## Keep Google Drive signed in (sign-in helper)
+
+Without this, Google sign-ins last about an hour and people have to tap **Continue syncing** to keep going. The sign-in helper fixes that: everyone signs in to Google once per device, and sync renews itself quietly from then on. You set it up once and it works for everyone who uses your app. It's free, stores nothing, and never sees anyone's password or recipes.
+
+**A. Get your Google Client secret and add the return address**
+
+1. Go to **console.cloud.google.com**, make sure the **Recipe Box** project is selected, and open **Google Auth Platform** > **Clients** > **Recipe Box**.
+2. Under **Authorized redirect URIs**, click **Add URI** and enter `https://mountytechwv.github.io/recipe-box/` (with the slash at the end). Add a second one: `https://mountytechwv.github.io/recipe-box/index.html`. Click **Save**.
+3. On the same page, find **Client secrets**. If you can't see one you can copy, click **Add secret**. Copy it somewhere safe for a few minutes. It starts with `GOCSPX-`. Never paste it into GitHub.
+
+**B. Create the helper on Cloudflare**
+
+1. Go to **dash.cloudflare.com** and sign up for a free account (or sign in).
+2. Open **Workers & Pages** (in the left menu, sometimes under **Compute**) and click **Create** > **Create Worker** (pick the **Hello World** starter if asked).
+3. Name it `recipe-box-helper` and click **Deploy**.
+4. Click **Edit code**. Delete everything in the editor, paste in the whole contents of **helper/worker.js** from this folder, and click **Deploy**.
+5. Go back to the Worker and open **Settings** > **Variables and Secrets**. Click **Add** three times:
+   - Type **Text**, name `GOOGLE_CLIENT_ID`, value: your Client ID (ends in `.apps.googleusercontent.com`).
+   - Type **Secret**, name `GOOGLE_CLIENT_SECRET`, value: the `GOCSPX-` secret from step A.
+   - Type **Text**, name `ALLOWED_ORIGIN`, value: `https://mountytechwv.github.io` (no slash at the end).
+   Click **Deploy** (or **Save**).
+6. Copy the Worker's address, shown near the top. It looks like `https://recipe-box-helper.yourname.workers.dev`.
+
+**C. Point the app at the helper**
+
+1. In your GitHub repository, edit **config.js** and paste the Worker's address on the helper line:
+
+   ```
+   googleHelperUrl: 'https://recipe-box-helper.yourname.workers.dev',
+   ```
+
+2. Click **Commit changes**, wait a minute or two, then open the app and refresh it twice.
+3. On each device, sign in to Google one more time (tap the cloud icon and **Continue syncing**, or **Connect Google Drive**). From then on it stays signed in.
+
+To stop the helper at any time, delete the Worker in Cloudflare and clear the `googleHelperUrl` line. The app goes back to hourly sign-ins.
+
 ## Using sync
 
 - **Connecting:** settings menu, then **Connect** your service and sign in. The first sync copies your recipes up to a "Recipe Box" folder. On your other devices, connect the **same** account and the recipes come down.
 - **The cloud icon** in the header shows how things stand: a check mark when everything's synced, spinning arrows while syncing, a crossed-out cloud when offline, and a red dot when something needs you. Tap it for details and **Sync now**.
 - **It syncs on its own** a few seconds after you make a change, when you open the app, and when you get back online. Changes made offline wait and sync later.
 - **When the same recipe was changed on two devices**, Recipe Box shows both versions side by side so you can keep this device's, keep the other one, or keep both.
-- **Google Drive** sign-ins last about an hour at a time. If the cloud icon shows a red dot, tap it and choose **Continue syncing**. OneDrive and Dropbox stay signed in.
+- **Staying signed in:** OneDrive and Dropbox stay signed in on their own. Google Drive does too once the sign-in helper above is set up; without it, Google sign-ins last about an hour, and you tap the cloud icon and choose **Continue syncing** when it shows a red dot.
 - **Turning sync off** (settings menu) leaves all your recipes on the device and in the cloud folder. It just stops syncing.
 
 Keep downloading a backup file now and then anyway. It's your safety net.

@@ -1015,7 +1015,7 @@ ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p>Drag this but
   w.addEventListener('click',async e=>{const b=e.target.closest('[data-s]');if(!b)return;const a=b.dataset.s;
     if(a==='install'&&installEvt){installEvt.prompt();const c=await installEvt.userChoice;installEvt=null;if(c.outcome==='accepted')w.remove();return}
     if(a==='connect'){const pid=b.dataset.p;w.remove();try{await PROV[pid].connect()}catch(e){toast('Could not connect to '+PROV[pid].name+'. Please try again.')}return}
-    if(a==='syncnow'){w.remove();runSync(true);return}
+    if(a==='syncnow'){w.remove();syncTap();return}
     if(a==='syncoff'){w.remove();confirmDlg('Turn off sync?','Your recipes stay on this device and in your cloud folder, but they will stop syncing.','Turn off sync',disconnect);return}
     if(a==='copyinvite'){try{await navigator.clipboard.writeText(inviteText());toast('Message copied')}catch(e){const t=$('#invite',w);t.focus();t.select();toast('Press Ctrl+C or Command+C to copy')}return}
     if(a==='shareinvite'){try{await navigator.share({title:'Recipe Box',text:inviteText()})}catch(e){}return}
@@ -1325,7 +1325,7 @@ const REDIRECT=location.origin+location.pathname;
 const sj=o=>{if(Array.isArray(o))return '['+o.map(sj).join(',')+']';if(o&&typeof o==='object')return '{'+Object.keys(o).sort().filter(k=>o[k]!==undefined&&!k.startsWith('__')).map(k=>JSON.stringify(k)+':'+sj(o[k])).join(',')+'}';return JSON.stringify(o)};
 function hsh(s){let a=0x811c9dc5,b=5381;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=Math.imul(a^c,16777619)>>>0;b=((b<<5)+b+c)>>>0}return a.toString(16)+b.toString(16)+'-'+s.length}
 const SY={st:null,status:'off',msg:'',busy:false,timer:null,applying:false,conflicts:null};
-async function syncLoad(){SY.st=await kvGet('sync');if(SY.st&&SY.st.prov)SY.status='idle'}
+async function syncLoad(){SY.st=await kvGet('sync');if(SY.st&&SY.st.prov)SY.status='idle';if(CFG.googleClientId&&!CFG.googleHelperUrl)PROV.google.loadGis().then(()=>PROV.google.prep()).catch(()=>{})}
 async function syncSave(){await kvSet('sync',SY.st)}
 async function authGet(p){return (await kvGet('auth-'+p))||null}
 async function authSet(p,v){return kvSet('auth-'+p,v)}
@@ -1340,7 +1340,7 @@ async function oauthFinish(){const q=new URLSearchParams(location.search);if(!q.
   if(!pend||q.get('state')!==pend.state){if(q.get('error'))toast('Sign-in was cancelled');return true}
   try{const P=PROV[pend.pid];const tok=await P.exchange(q.get('code'),pend.v);await authSet(pend.pid,tok);await connectFinish(pend.pid)}catch(e){toast('Could not finish connecting. Please try again.');console.error(e)}return true}
 async function tokenFor(pid,interactive){const P=PROV[pid];let a=await authGet(pid);if(a&&a.access&&a.exp>Date.now()+60000)return a.access;
-  if(a&&a.refresh&&P.refresh){try{a={...a,...await P.refresh(a.refresh)};await authSet(pid,a);return a.access}catch(e){}}
+  if(a&&a.refresh&&P.refresh&&!(pid==='google'&&!P.helper())){try{a={...a,...await P.refresh(a.refresh)};await authSet(pid,a);return a.access}catch(e){}}
   if(P.silent){try{const t=await P.silent(interactive);if(t){await authSet(pid,t);return t.access}}catch(e){}}
   throw new AuthNeeded('auth')}
 async function form(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(body)});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error_description||j.error||'token');return j}
@@ -1348,8 +1348,18 @@ const tokOut=j=>({access:j.access_token,refresh:j.refresh_token,exp:Date.now()+(
 const PROV={
  google:{name:'Google Drive',on:!!CFG.googleClientId,
   loadGis(){return new Promise((res,rej)=>{if(window.google&&google.accounts&&google.accounts.oauth2)return res();const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.onload=res;s.onerror=rej;document.head.appendChild(s)})},
-  async silent(interactive){await this.loadGis();return new Promise((res,rej)=>{const c=google.accounts.oauth2.initTokenClient({client_id:CFG.googleClientId,scope:'https://www.googleapis.com/auth/drive.file',callback:t=>{if(t.error)return rej(new Error(t.error));res({access:t.access_token,exp:Date.now()+(t.expires_in||3600)*1000})},error_callback:e=>rej(new Error(e&&e.type||'popup'))});if(!interactive&&!SY.gesture)return rej(new Error('needs click'));c.requestAccessToken({prompt:interactive?'':'none',hint:SY.st&&SY.st.account||undefined})})},
-  async connect(){SY.gesture=true;try{const t=await this.silent(true);await authSet('google',t);await connectFinish('google')}finally{SY.gesture=false}},
+  async silent(interactive){if(this.helper())throw new Error('auth');await this.loadGis();return new Promise((res,rej)=>{const c=google.accounts.oauth2.initTokenClient({client_id:CFG.googleClientId,scope:'https://www.googleapis.com/auth/drive.file',callback:t=>{if(t.error)return rej(new Error(t.error));res({access:t.access_token,exp:Date.now()+(t.expires_in||3600)*1000})},error_callback:e=>rej(new Error(e&&e.type||'popup'))});if(!interactive&&!SY.gesture)return rej(new Error('needs click'));c.requestAccessToken({prompt:interactive?'':'none',hint:SY.st&&SY.st.account||undefined})})},
+  client:null,_res:null,_rej:null,
+  prep(){if(this.client||!(window.google&&google.accounts&&google.accounts.oauth2))return;this.client=google.accounts.oauth2.initTokenClient({client_id:CFG.googleClientId,scope:'https://www.googleapis.com/auth/drive.file',callback:t=>{const r=this._res,j=this._rej;this._res=this._rej=null;if(t.error)j&&j(new Error(t.error));else r&&r({access:t.access_token,exp:Date.now()+(t.expires_in||3600)*1000})},error_callback:e=>{const j=this._rej;this._res=this._rej=null;j&&j(new Error(e&&e.type||'popup'))}})},
+  /* Must run straight from a tap, with no waiting first, or iPhone/iPad Safari silently blocks the Google window. */
+  tapSignIn(){this.prep();if(!this.client)return Promise.reject(new Error('popup_not_ready'));const p=new Promise((res,rej)=>{this._res=res;this._rej=rej});this.client.requestAccessToken({prompt:'',hint:SY.st&&SY.st.account||undefined});return p},
+  async connect(){if(this.helper())return oauthStart('google');SY.gesture=true;try{const t=this.client?await this.tapSignIn():await this.silent(true);await authSet('google',t);await connectFinish('google')}finally{SY.gesture=false}},
+  /* With the sign-in helper set up (googleHelperUrl in config.js), Google sign-in happens once and then renews quietly in the background. */
+  helper:()=>(CFG.googleHelperUrl||'').replace(/\/+$/,''),
+  authUrl:(c,s)=>'https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:CFG.googleClientId,response_type:'code',redirect_uri:REDIRECT,scope:'https://www.googleapis.com/auth/drive.file',access_type:'offline',prompt:'consent',include_granted_scopes:'true',code_challenge:c,code_challenge_method:'S256',state:s,...(SY.st&&SY.st.account?{login_hint:SY.st.account}:{})}),
+  async helperCall(path,body){const r=await fetch(this.helper()+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.error)throw new Error(j.error||('helper '+r.status));return j},
+  async exchange(code,v){const j=await this.helperCall('/token',{code,code_verifier:v,redirect_uri:REDIRECT});return {access:j.access_token,refresh:j.refresh_token,exp:Date.now()+(j.expires_in||3600)*1000}},
+  async refresh(rt){const j=await this.helperCall('/refresh',{refresh_token:rt});return {access:j.access_token,exp:Date.now()+(j.expires_in||3600)*1000}},
   H:async()=>({Authorization:'Bearer '+await tokenFor('google')}),
   async account(){const r=await jfetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)',{headers:await this.H()});return (await r.json()).user.emailAddress},
   async folder(){const h=await this.H();if(SY.st.folder){const r=await fetch(`https://www.googleapis.com/drive/v3/files/${SY.st.folder}?fields=id,trashed`,{headers:h});if(r.ok){const j=await r.json();if(!j.trashed)return SY.st.folder}}
@@ -1392,7 +1402,9 @@ const PROV={
   async put(name,text){return (await jfetch(CFG.mockUrl+'/file/'+encodeURIComponent(name),{method:'PUT',body:text})).json()},
   async del(e){await jfetch(CFG.mockUrl+'/file/'+encodeURIComponent(e.fid),{method:'DELETE'})}}};
 const provList=()=>Object.entries(PROV).filter(([k,p])=>p.on).map(([k,p])=>({k,name:p.name}));
-async function connectFinish(pid){SY.st={prov:pid,docs:{},folder:null,account:''};try{SY.st.account=await PROV[pid].account()}catch(e){}await syncSave();SY.status='idle';toast('Connected to '+PROV[pid].name+'. Syncing your recipes now.');render();runSync(true)}
+async function connectFinish(pid){const old=SY.st;SY.st={prov:pid,docs:{},folder:null,account:''};try{SY.st.account=await PROV[pid].account()}catch(e){}
+  const same=old&&old.prov===pid&&old.account&&old.account===SY.st.account;if(same){SY.st.docs=old.docs||{};SY.st.folder=old.folder||null}
+  await syncSave();SY.status='idle';toast(same?'Signed back in. Syncing your recipes now.':'Connected to '+PROV[pid].name+'. Syncing your recipes now.');render();runSync(true)}
 async function disconnect(){const pid=SY.st&&SY.st.prov;await kvSet('sync',null);if(pid)await authSet(pid,null);SY.st=null;SY.status='off';SY.conflicts=null;render();toast('Sync turned off. Your recipes are still on this device.')}
 /* documents */
 function localDocs(){const m={};const add=(id,kind,data,label)=>{m[id]={kind,data,label,hash:hsh(sj(data))}};
@@ -1405,6 +1417,7 @@ function applyDoc(id,data){if(id.startsWith('r-')){const rid=id.slice(2);const i
 const fname=id=>id+'.json';
 function scheduleSync(ms){if(!SY.st||SY.applying)return;clearTimeout(SY.timer);SY.timer=setTimeout(()=>runSync(false),ms??4000)}
 function setSync(status,msg){SY.status=status;SY.msg=msg||'';const w=$('.syncwrap');if(w)w.innerHTML=syncButton()}
+function syncTap(){if(SY.st&&SY.st.prov==='google'&&SY.status==='signin'&&PROV.google.helper()){oauthStart('google');return}if(SY.st&&SY.st.prov==='google'&&SY.status==='signin'){PROV.google.tapSignIn().then(t=>authSet('google',t)).then(()=>runSync(true)).catch(e=>{const m=String(e&&e.message||e);toast(m.includes('popup')?'The Google sign-in window could not open. Allow pop-ups for this site, or open Recipe Box in Safari instead of from the home screen, then try again.':'Sign-in did not finish. Please try again.');setSync('signin')});return}runSync(true)}
 async function runSync(interactive){if(!SY.st||SY.busy)return;if(!navigator.onLine){setSync('offline');return}const P=PROV[SY.st.prov];if(!P||!P.on){setSync('error','This copy of Recipe Box is missing its '+(P?P.name:'sync')+' settings.');return}
   SY.busy=true;setSync('syncing');if(interactive)SY.gesture=true;
   try{if(interactive)await tokenFor(SY.st.prov,true);
@@ -1486,7 +1499,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCar
   else if(a==='howinstall'){S.showHow=!S.showHow;render()}
   else if(a==='hideinstall'){try{localStorage.setItem('rb-install-hide','1')}catch(e){}render();toast('You can still find install steps in the settings menu')}
   else if(a==='syncpop'){openSyncPop(b)}
-  else if(a==='syncnow'){const p=$('.syncpop');p&&p.remove();runSync(true)}
+  else if(a==='syncnow'){const p=$('.syncpop');p&&p.remove();syncTap()}
   else if(a==='syncfix'){const p=$('.syncpop');p&&p.remove();conflictDlg()}
   else if(a==='cart'){openCart(b)}
   else if(a==='doneshop'){const before=JSON.stringify(S.box.shop);const n=shopStats().done;clearChecked();persist();closeCart();render();toast(`Cleared ${n} checked ${n===1?'item':'items'}`,{label:'Undo',fn:()=>{S.box.shop=JSON.parse(before);persist();render()}})}
