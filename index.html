@@ -236,6 +236,11 @@ main{padding:30px 0 72px}
 .importcta:hover{color:var(--sky-f);background:var(--paper)}
 .importcta.alt{background:var(--paper);color:var(--muted);border-color:var(--edge);margin-top:-10px;cursor:pointer}
 .importcta.alt:hover{color:var(--ink);border-color:var(--muted)}
+.importcta.book{background:var(--sage);color:var(--sage-f);border-color:var(--sage-f);margin-top:-10px}
+.importcta.book:hover{color:var(--sage-f);background:var(--paper)}
+.scanhow{margin:0;padding:14px 18px;background:var(--sage);color:var(--sage-f);border-radius:3px}
+.scanhow .howto{color:inherit;margin-top:8px}
+.scanbox{min-height:180px;border:1.5px dashed var(--rule-2);padding:12px;font-size:16px;font-family:var(--type)}
 .sharecard{border:1px solid var(--edge);border-radius:3px;background:var(--paper);box-shadow:0 3px 0 var(--edge);transform:rotate(-.6deg);overflow:hidden}
 .sharecard .band h3{margin:0;font-size:1.25rem}
 .sharecard .sc-body{display:flex;gap:14px;padding:10px 16px 14px;align-items:flex-start;background-image:repeating-linear-gradient(transparent 0 27px,var(--edge) 27px 28px);background-position:0 10px}
@@ -763,6 +768,7 @@ function render(){const r=route();const app=$('#app');if(!S.box){app.innerHTML=v
   else if(r.name==='plan'){body=viewPlan();}
   else if(r.name==='shop'){body=viewShop();}
   else if(r.name==='import'){body=viewImport();}
+  else if(r.name==='scan'){body=viewScan();}
   else if(r.name==='print'){const rec=byId(r.id);body=rec?viewPrint(rec):notFound();}
   else body=viewBrowse();
   const active=['index','browse','plan','shop'].includes(r.name)?r.name:'';
@@ -851,8 +857,8 @@ function editor(r){if(!S.draft||S.draft.__for!==(r?r.id:'new')){S.draft=r?clone(
   const d=S.draft;
   return `<a class="back" href="${r?'#/r/'+encodeURIComponent(r.id):'#/'}">${I.back}${r?'Back to recipe':'Back to recipes'}</a>
 <form class="form" id="ed" novalidate><h1>${r?'Edit recipe':'Add a recipe'}</h1>
-${!r&&d.__imported?`<div class="callout" style="margin:0">${I.bulb}<span>${d.__web?'Filled in from the website.':'Filled in from the text you pasted.'} Check the amounts, units, and steps below, then save.</span></div>`:''}
-${!r&&!d.__imported?`<a class="importcta" href="#/import">${I2.paste}<span><b>Have a recipe from a website?</b> Paste it in and the app fills out this form for you.</span></a><label class="importcta alt" for="shareFile">${I2.share}<span><b>Did someone send you a recipe file?</b> Choose it here to add their recipe.</span></label>`:''}
+${!r&&d.__imported?`<div class="callout" style="margin:0">${I.bulb}<span>${d.__web?'Filled in from the website.':d.__scan?'Filled in from your cookbook.':'Filled in from the text you pasted.'} Check the amounts, units, and steps below, then save.</span></div>`:''}
+${!r&&!d.__imported?`<a class="importcta" href="#/import">${I2.paste}<span><b>Have a recipe from a website?</b> Paste it in and the app fills out this form for you.</span></a><a class="importcta book" href="#/scan">${I2.book}<span><b>Copying a recipe from a cookbook?</b> ${isIOS()||isAndroid()?'Scan the page with your camera and the app fills out this form.':'Type or paste each part and the app sorts it into this form.'}</span></a><label class="importcta alt" for="shareFile">${I2.share}<span><b>Did someone send you a recipe file?</b> Choose it here to add their recipe.</span></label>`:''}
 <div class="sheet">
 <div class="field"><label for="f-name">Recipe name</label><input class="in" id="f-name" value="${esc(d.name)}" required autocomplete="off" style="font-family:var(--hand);font-size:32px;font-weight:700"><span class="help" id="nameHelp">Filed under the first letter or number of the name.</span></div>
 <div class="field"><label for="f-desc">Short description</label><textarea class="in" id="f-desc" rows="2">${esc(d.desc||'')}</textarea></div>
@@ -1090,6 +1096,7 @@ document.addEventListener('change',e=>{if(e.target.id!=='shareFile')return;const
 /* ---------- shared box parts ---------- */
 function ensureBox(b){b.plan=b.plan||{};b.shop=b.shop||{};b.shop.recipes=b.shop.recipes||[];b.shop.extra=b.shop.extra||[];b.shop.checked=b.shop.checked||{};b.shop.removed=b.shop.removed||{};b.units=b.units||SEED.units.slice();b.ingredients=b.ingredients||[];b.tags=b.tags||[];return b}
 const I2={
+ book:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v14c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5zM12 6.5v14"/></svg>',
  share:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 9H6a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10a1 1 0 0 0-1-1h-2"/><path d="M12 15V3M8.5 6.5 12 3l3.5 3.5"/></svg>',
  cart:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11h10.2L20 8H6.2"/><circle cx="9" cy="19.5" r="1.5"/><circle cx="17" cy="19.5" r="1.5"/></svg>',
  cal:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
@@ -1239,6 +1246,32 @@ function parseRecipeText(text,link){const lines=text.replace(/\r/g,'').split('\n
   d.min=tot||(prep+cook)||'';
   if(!d.ing.length)d.ing=[{i:''}];if(!d.steps.length)d.steps=[{t:''}];
   d.ing.forEach(l=>{if(!l.h&&l.qt==null)l.qt=''});return d}
+/* ---------- add from a cookbook (device text scanning) ---------- */
+function scanHowHtml(){
+  if(isIOS())return `<b>How to scan with your iPad or iPhone</b><ol class="howto"><li>Tap in one of the boxes below, then tap it again so a small menu pops up.</li><li>Tap <b>Scan Text</b>. If you don't see it, tap the arrow at the end of the menu. On some devices it's an icon of a page inside a frame.</li><li>Hold the camera over that part of the recipe. When the words are outlined, tap <b>Insert</b>.</li></ol>`;
+  if(isAndroid())return `<b>How to scan with your Android device</b><ol class="howto"><li>Tap in one of the boxes below. If your keyboard has a scan or camera button in the row above the keys (Samsung keyboards call it <b>Extract text</b>), tap it and point the camera at that part of the recipe.</li><li>No scan button? Open <b>Google Lens</b>, point it at the page, tap <b>Text</b>, select the words, and tap <b>Copy</b>. Then come back and paste into the box.</li></ol>`;
+  return `<b>Scanning works on a tablet or phone</b><p style="margin:6px 0 0">On an iPad, iPhone, or Android device, you can scan each part of the recipe with the camera. On a computer, type or paste each part into its box, and Recipe Box sorts it into the recipe form.</p>`}
+function viewScan(){return `<a class="back" href="#/new">${I.back}Back to adding a recipe</a>
+<div class="form"><h1>Add from a cookbook</h1>
+<div class="sheet"><p style="margin:0">Fill each box with that part of the recipe. You can scan a little at a time, scan more than once into the same box, and fix any mistakes right in the box. Nothing is photographed or saved except the words.</p>
+<div class="scanhow">${scanHowHtml()}</div>
+<div class="field"><label for="scName">Recipe name</label><input class="in" id="scName" autocomplete="off" style="font-family:var(--hand);font-size:28px;font-weight:700"></div>
+<div class="field"><label for="scIng">Ingredients</label><textarea class="in scanbox" id="scIng" rows="8" placeholder="Scan or type the ingredient list"></textarea><span class="help">If the list is split into columns or runs onto the next page, scan each part. It all goes in this box.</span></div>
+<div class="field"><label for="scSteps">Steps</label><textarea class="in scanbox" id="scSteps" rows="10" placeholder="Scan or type the directions"></textarea><span class="help">Servings or cooking times printed with the recipe can go in here too. The app will find them.</span></div>
+<div class="field"><label for="scBook">Which cookbook? (optional)</label><input class="in" id="scBook" autocomplete="off" placeholder="Like: Grandma's church cookbook, page 112"><span class="help">Saved with the recipe so you can always find the original.</span></div>
+<p class="subtle" id="scMsg" role="status"></p>
+<div class="actions"><button class="btn primary" data-act="doscan">${I2.book}Fill out the recipe</button><a class="btn" href="#/new">Type it in myself</a></div></div></div>`}
+function scanLines(text){return (text||'').replace(/\r/g,'').replace(/\u2044/g,'/').replace(/[\u00A0\t]+/g,' ').split('\n').map(l=>l.replace(/\s+/g,' ').trim())}
+function joinWrap(prev,l){return /[a-z]-$/.test(prev)&&/^[a-z]/.test(l)?prev.slice(0,-1)+l:prev+' '+l}
+const SCAN_INFO=/^(serves|servings|yield|yields|makes|prep(aration)?( time)?|cook(ing)?( time)?|total( time)?)\b/i;
+function joinIngredients(text){const out=[];const qty=/^([\d½⅓⅔¼¾⅛⅜⅝⅞]|(a|an|one|two|three|four|five|six|half|pinch|dash)\b)/i;
+  scanLines(text).forEach(l=>{if(!l)return;if(/[A-Z]{2}/.test(l)&&!/[a-z]/.test(l))l=l.toLowerCase();const prev=out[out.length-1];
+    if(prev&&!qty.test(l)&&!SCAN_INFO.test(l)&&!/:$/.test(prev)&&(/(,|\(|-|\band|\bor|\bplus)$/i.test(prev)||/^[)]/.test(l)))out[out.length-1]=joinWrap(prev,l);else out.push(l)});return out.join('\n')}
+function joinSteps(text){const lines=scanLines(text);const num=/^(step\s*)?\d+\s*[.):]\s*\S/i;const numbered=lines.filter(l=>num.test(l)).length>=2;const out=[];let gap=true;
+  lines.forEach(l=>{if(!l){gap=true;return}const prev=out[out.length-1];
+    const fresh=gap||!prev||SCAN_INFO.test(l)||SCAN_INFO.test(prev)||(numbered?num.test(l):(/[.!?)"”]$/.test(prev)&&/^[A-Z0-9"“]/.test(l)))||/:$/.test(prev);
+    if(fresh)out.push(l);else out[out.length-1]=joinWrap(prev,l);gap=false});return out.join('\n')}
+function scanName(n){n=(n||'').replace(/\s+/g,' ').trim();if(/[A-Z]/.test(n)&&!/[a-z]/.test(n))n=titleCase(n.toLowerCase());return n}
 function viewImport(){return `<a class="back" href="#/new">${I.back}Back to adding a recipe</a>
 <div class="form"><h1>Paste a recipe</h1>
 <div class="sheet"><p style="margin:0">Copy a recipe from a website, an email, or a document, and paste it below. The app finds the name, ingredients, steps, servings, and time, then opens everything in the editor so you can check it before saving.</p>
@@ -1620,6 +1653,10 @@ document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCar
   else if(a==='shopclearchecked'){clearChecked();persist();render()}
   else if(a==='shopclear'){confirmDlg('Clear the whole list?','Every item and recipe on the shopping list will be removed.','Clear list',()=>{S.box.shop={recipes:[],extra:[],checked:{},removed:{}};persist();render()})}
   else if(a==='shopcopy'){const t=shopText();(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Shopping list copied')).catch(async()=>{if(canSave()){try{await saveFile('shopping-list.txt',t,'text/plain');toast('Shopping list saved')}catch(e){toast('Copy is not available here. Try Print instead.')}}else toast('Copy is not available here. Try Print instead.')})}
+  else if(a==='doscan'){const ing=joinIngredients($('#scIng').value),st=joinSteps($('#scSteps').value);
+    if(!ing.trim()&&!st.trim()){$('#scMsg').textContent='Scan or type the ingredients and steps first.';$('#scIng').focus();return}
+    const d=parseRecipeText(['Ingredients',ing,'Instructions',st].join('\n'));d.name=scanName($('#scName').value);const bk=$('#scBook').value.trim();if(bk)d.src=bk;
+    d.ing.forEach(l=>{const m=l.i&&l.i.match(/^\(([^)]+)\)\s*(.+)$/);if(m){l.i=m[2];l.n=[m[1].toLowerCase(),l.n].filter(Boolean).join(', ')}});d.__scan=true;d.__for='new';S.draft=d;toast(`Found ${d.ing.filter(l=>l.i).length} ingredients and ${d.steps.filter(x=>x.t).length} steps`);go('/new')}
   else if(a==='doimport'){const t=$('#impText').value;if(!t.trim()){$('#impMsg').textContent='Paste a recipe into the box first.';$('#impText').focus();return}
     const mm=t.match(/RBX1\.([A-Za-z0-9_-]+)\./);const pd=mm?draftFromPayload(mm[1]):null;if(pd){if($('#impLink').value.trim())pd.link=$('#impLink').value.trim();pd.__for='new';S.draft=pd;tryGrabPhoto(pd.__img);toast(`Found ${pd.ing.filter(l=>l.i).length} ingredients and ${pd.steps.filter(s=>s.t).length} steps`);go('/new');return}
     const d=parseRecipeText(t,$('#impLink').value);d.__for='new';S.draft=d;const ni=d.ing.filter(l=>l.i).length,ns=d.steps.filter(s=>s.t).length;toast(`Found ${ni} ingredients and ${ns} steps`);go('/new')}
