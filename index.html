@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Recipe Box</title>
-<meta name="app-version" content="1.0.1-help">
+<meta name="app-version" content="1.0.2">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="description" content="A family recipe box: browse, cook, plan meals, and make shopping lists. Works offline.">
@@ -337,6 +337,7 @@ textarea.paste{min-height:260px;border:1.5px dashed var(--rule-2);padding:12px;f
 .ihint{margin:8px 0 0;font-size:15px;color:var(--ink-2)}
 .wtip{background:var(--sky);color:var(--ink);border:1.5px dashed var(--sky-f);border-radius:3px;padding:12px 16px;margin:0 0 14px}
 .winstall{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}.winstall > div{flex:1 1 260px;display:flex;flex-direction:column}.winstall b{font-family:var(--type);color:var(--sky-f)}.winstall span{font-size:15px;color:var(--ink-2)}
+.whelp{margin:16px 0 0;text-align:center;font-size:16px}.whelp a{color:var(--red-dk)}
 .wtip > b{display:block;font-family:var(--type);color:var(--sky-f);margin-bottom:6px}
 textarea.invite{font-family:var(--body);font-size:14px;min-height:170px;border:1.5px dashed var(--rule-2);padding:10px}
 
@@ -1284,7 +1285,10 @@ const isIOS=()=>{const ua=navigator.userAgent;return /iPad|iPhone|iPod/.test(ua)
 const isAndroid=()=>/Android/.test(navigator.userAgent);
 function installSteps(){if(isIOS())return `<ol class="isteps"><li>Tap the Share button ${SHARE_ICO} ${/CriOS|EdgiOS/.test(navigator.userAgent)?'next to the address bar':/iPhone|iPod/.test(navigator.userAgent)?'at the bottom of Safari (it may be under the ••• button)':'at the top of Safari'}.</li><li>In the menu that opens, scroll down the list of actions (below Copy and Add to Bookmarks) and tap <b>Add to Home Screen</b>, then <b>Add</b>. If it isn’t there, scroll to the very bottom, tap <b>Edit Actions</b>, and add it.</li><li>Close this page and open <b>Recipe Box</b> from the new icon on your Home Screen.</li></ol><p class="ihint">The Home Screen app keeps its own copy of your recipes, separate from this browser page. Restore your recipe backup inside the Home Screen app.</p>`;
   if(isAndroid())return `<ol class="isteps"><li>Tap the <b>⋮</b> menu at the top right of Chrome.</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>, then confirm.</li><li>Open Recipe Box from its new icon.</li></ol>`;
-  return `<p class="ihint">${installHelp()}</p>`}
+  const ua=navigator.userAgent,mac=/Macintosh/.test(ua),safari=/Safari/.test(ua)&&!/Chrome|CriOS|Edg|Firefox|FxiOS/.test(ua);
+  if(mac&&safari)return `<ol class="isteps"><li>Click the <b>File</b> menu at the top of your screen.</li><li>Choose <b>Add to Dock</b>, then click <b>Add</b>.</li><li>Close this page and open <b>Recipe Box</b> from its new icon in the Dock.</li></ol><p class="ihint">The Dock app keeps its own copy of your recipes, separate from this browser page. Restore your recipe backup inside the Dock app.</p>`;
+  if(/Firefox|FxiOS/.test(ua))return `<p class="ihint">${installHelp()}</p>`;
+  return `<ol class="isteps"><li>Look at the right end of the address bar at the top of the screen for the <b>install icon</b>. In Chrome, it looks like a small computer screen with a down arrow. In Edge, it looks like three small squares and a plus sign.</li><li>Click it, then click <b>Install</b>. Recipe Box opens in its own window.</li><li>No icon? Open the browser menu (<b>⋮</b> or <b>…</b> at the top right) and choose <b>Install Recipe Box</b>. In Chrome, it may be under <b>Cast, save, and share</b>. In Edge, it may be under <b>Apps</b>.</li></ol>`}
 const bannerOff=()=>{try{return localStorage.getItem('rb-install-hide')==='1'}catch(e){return false}};
 function installBanner(){if(!STANDALONE||isInstalled()||bannerOff()||!S.box)return '';
   return `<section class="ibanner" aria-label="Install Recipe Box"><div class="ibtext"><b>Install Recipe Box on this ${isIOS()||isAndroid()?(/iPad|Tablet/.test(navigator.userAgent)||(isIOS()&&navigator.maxTouchPoints>1&&!/iPhone/.test(navigator.userAgent))?'tablet':'phone'):'computer'}</b><span>It gets its own icon, opens in its own window, and works without internet.</span></div>
@@ -1354,11 +1358,10 @@ function draftFromPayload(p){let d;try{const j=JSON.parse(decodeURIComponent(esc
 function tryGrabPhoto(url){if(!url)return;const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{try{const max=1200,sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);const data=c.toDataURL('image/jpeg',.82);if(S.draft&&S.draft.__img===url){S.draft.photo=data;if(route().name==='new'){const y=window.scrollY;render();window.scrollTo(0,y)}}}catch(e){}};img.src=url}
 function viewWelcome(){return `<div class="welcome"><div class="welcome-card"><div class="band tg5"><h1>Welcome to Recipe Box</h1></div><div class="panel-body">
 <p>Recipe Box keeps your recipes on this device, works without internet, and lets you plan meals and build shopping lists. How would you like to start?</p>
-${STANDALONE&&installEvt&&!isInstalled()?`<div class="wtip winstall"><div><b>Install Recipe Box on this device</b><span>Gives it its own icon and window, and it works without internet. You can do this now or anytime later.</span></div><button class="btn primary" data-act="doinstall">Install</button></div>`:''}
-${STANDALONE&&isIOS()&&!isInstalled()?`<div class="wtip"><b>On an iPad or iPhone? Add Recipe Box to your Home Screen first.</b>${installSteps()}</div>`:''}
+${STANDALONE&&!isInstalled()?(installEvt&&!isIOS()?`<div class="wtip winstall"><div><b>First, install Recipe Box</b><span>Gives it its own icon and window, and it works without internet. Choose Install, then follow the prompt.</span></div><button class="btn primary" data-act="doinstall">Install</button></div>`:`<div class="wtip"><b>${isIOS()?'On an iPad or iPhone? Add Recipe Box to your Home Screen first.':isAndroid()?'First, add Recipe Box to your home screen':'First, install Recipe Box on this computer'}</b>${installSteps()}</div>`):''}
 <div class="welcome-opts">${SEED.recipes.length?`<button class="wopt" data-w="seed"><b>Start with the family recipes</b><span>${SEED.recipes.length} recipes, ready to cook from. You can change or delete any of them.</span></button>`:''}
 <button class="wopt" data-w="empty"><b>Start with an empty recipe box</b><span>Add your own recipes, or paste them in from websites.</span></button>
-<label class="wopt" for="wfile"><b>Restore from a backup file</b><span>${SEED.recipes.length?'Use a backup someone sent you, or one from your other device.':'Got a recipe backup file from family? Choose it here to load all of those recipes.'}</span></label><input type="file" id="wfile" accept=".json,application/json" class="sr"></div></div></div></div>`}
+<label class="wopt" for="wfile"><b>Restore from a backup file</b><span>${SEED.recipes.length?'Use a backup someone sent you, or one from your other device.':'Got a recipe backup file from family? Choose it here to load all of those recipes.'}</span></label><input type="file" id="wfile" accept=".json,application/json" class="sr"></div><p class="whelp">Need help getting started? <a href="./help.html#getting-started" target="_blank" rel="noopener"><b>Open the help guide</b></a></p></div></div></div>`}
 function startBox(box){S.box=ensureBox(box);S.letter=null;persist();try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}render()}
 
 /* ---------- sync with Google Drive, OneDrive, Dropbox ---------- */
