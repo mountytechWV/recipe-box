@@ -850,6 +850,7 @@ ${!r&&!d.__imported?`<a class="importcta" href="#/import">${I2.paste}<span><b>Ha
 <div class="field"><label for="f-yld">Makes (optional)</label><input class="in" id="f-yld" placeholder="2 dozen cookies" value="${esc(d.yld||'')}"></div></div>
 <div class="row"><div class="field"><label for="f-src">From</label><input class="in" id="f-src" placeholder="Grandma, a cookbook, a website" value="${esc(d.src||'')}"></div>
 <div class="field"><label for="f-link">Web link (optional)</label><input class="in" id="f-link" type="url" placeholder="https://" value="${esc(d.link||'')}"></div></div>
+<div class="field"><span class="lbl">Favorite</span><div><button type="button" class="btn fav" data-ed="fav" aria-pressed="${!!d.fav}">${I.heart}${d.fav?'Favorite':'Mark as a favorite'}</button></div></div>
 <div class="field"><span class="lbl" id="dlbl">Difficulty</span>${hatPicker(d.diff||0,'data-ed')}<span class="help">Very easy, Easy, Medium, Challenging, or Advanced. Tap the selected level again to clear it.</span></div>
 <div class="field"><label for="tagIn">Category</label><div class="tagbox" id="tagbox">${tagboxInner()}</div><div class="tagmenu" id="tagMenu" role="listbox" aria-label="Category suggestions" hidden></div><span class="help">A recipe can be in more than one category. Click “Add category” to pick one or make your own.</span></div>
 <div class="field"><span class="lbl">Photo</span><div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:4px">${d.photo?`<img src="${d.photo}" alt="Current photo" style="width:140px;height:96px;object-fit:cover;border-radius:3px">`:''}
@@ -896,6 +897,7 @@ function bindEditor(){const f=$('#ed');if(!f)return;
     if(a==='stup')mv(d.steps,i,i-1);if(a==='stdown')mv(d.steps,i,i+1);if(a==='stdel')d.steps.splice(i,1);
     if(a==='split'){const parts=splitSentences(d.steps[i].t);d.steps.splice(i,1,...parts.map(t=>({t})))}
     if(a==='usehint'){d.ing[i].i=b.dataset.v;rerenderRows();return}
+    if(a==='fav'){d.fav=!d.fav;b.setAttribute('aria-pressed',d.fav);b.innerHTML=I.heart+(d.fav?'Favorite':'Mark as a favorite');return}
     if(a==='diff'){const v=+b.dataset.v;d.diff=d.diff===v?0:v;const hp=b.closest('.hatpick');hp.outerHTML=hatPicker(d.diff,'data-ed');return}
     if(a==='untag'){d.tags=d.tags.filter(x=>x!==b.dataset.v);refreshTagbox(true);return}
     if(a==='nophoto'){delete d.photo;render();return}
@@ -908,8 +910,8 @@ let tagSel=0;
 function tagOptions(q){const d=S.draft;const ql=q.trim().toLowerCase();const used=new Set(d.tags.map(t=>t.toLowerCase()));
   const count=t=>S.box.recipes.filter(r=>(r.tags||[]).includes(t)).length;
   let opts=S.box.tags.filter(t=>!used.has(t.toLowerCase())&&(!ql||t.toLowerCase().includes(ql)));
-  opts.sort((a,b)=>ql?((b.toLowerCase().startsWith(ql))-(a.toLowerCase().startsWith(ql))||collator.compare(a,b)):(count(b)-count(a)));
-  opts=opts.slice(0,8).map(t=>({t}));
+  opts.sort((a,b)=>ql?((b.toLowerCase().startsWith(ql))-(a.toLowerCase().startsWith(ql))||collator.compare(a,b)):collator.compare(a,b));
+  opts=opts.map(t=>({t}));
   if(ql&&!S.box.tags.some(t=>t.toLowerCase()===ql)&&!used.has(ql))opts.push({t:q.trim(),isNew:true});return opts}
 function drawTagMenu(){const inp=$('#tagIn'),menu=$('#tagMenu');if(!inp||!menu)return;const opts=tagOptions(inp.value);
   if(!opts.length||document.activeElement!==inp){menu.hidden=true;inp.setAttribute('aria-expanded','false');return}
