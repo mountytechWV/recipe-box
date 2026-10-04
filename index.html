@@ -1238,11 +1238,17 @@ const saveHave=()=>lsSet('rb-have',JSON.stringify(haveList()));
 const haveBasics=()=>lsGet('rb-have-basics')!=='0';
 const normIng=s=>' '+fold(String(s)).toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(Boolean).map(w=>w.length>3&&/[^s]s$/.test(w)?w.replace(/(ches|shes|oes|ies|s)$/,m=>m==='ies'?'y':m==='s'?'':m.slice(0,-2)):w).join(' ')+' ';
 let BASIC=null;const basicSet=()=>BASIC||(BASIC=new Set(['salt','kosher salt','sea salt','table salt','pepper','black pepper','ground black pepper','water','cold water','warm water','hot water','boiling water','ice','oil','olive oil','extra virgin olive oil','vegetable oil','canola oil','cooking oil','cooking spray','nonstick cooking spray'].map(x=>normIng(x).trim())));
+/* "chicken" matches Chicken Breast and Whole Chicken; "rice" matches Brown Rice but not Rice Vinegar or Rice Flour.
+   The rule: what you typed has to be the main word at the end of the ingredient's name (or the whole name). */
+const HAVE_TAIL=new Set(['breast','breasts','thigh','thighs','leg','legs','wing','wings','drumstick','drumsticks','tender','tenders','fillet','fillets','filet','filets','steak','steaks','chop','chops','loin','tenderloin','roast','shoulder','ground','clove','cloves','head','bunch','stalk','stalks','sprig','sprigs','leaf','leaves','slice','slices','piece','pieces','chunk','chunks','juice','zest','half','halves','whole','large','small','medium','fresh','frozen','dried','canned','raw','cooked','boneless','skinless']);
+function haveMatch(t,n){if(n===t)return true;if(!n.includes(t))return false;
+  const after=n.slice(n.indexOf(t)+t.length).trim();if(!after)return true;
+  return after.split(' ').every(w=>HAVE_TAIL.has(w))}
 function addHave(){const el=$('#haveIn');if(!el)return;const parts=el.value.split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean);if(!parts.length){el.focus();return}
   const h=haveList();parts.forEach(p=>{if(!h.some(x=>x.toLowerCase()===p.toLowerCase()))h.push(p)});saveHave();render();const n=$('#haveIn');if(n)n.focus()}
 function makeResults(){const have=haveList().map(normIng).filter(x=>x.trim());if(!have.length)return null;const bas=haveBasics(),B=basicSet();
   return S.box.recipes.map(r=>{const used=[],need=[],seen=new Set();(r.ing||[]).forEach(l=>{if(!l.i)return;const n=normIng(l.i);if(seen.has(n))return;seen.add(n);
-      if(have.some(t=>n.includes(t)||t.includes(n)))used.push(l.i);else if(!(bas&&B.has(n.trim())))need.push(l.i)});return {r,used,need}})
+      if(have.some(t=>haveMatch(t,n)||haveMatch(n,t)))used.push(l.i);else if(!(bas&&B.has(n.trim())))need.push(l.i)});return {r,used,need}})
     .filter(x=>x.used.length).sort((a,b)=>a.need.length-b.need.length||b.used.length-a.used.length||collator.compare(a.r.name,b.r.name))}
 function makeCard(x){const rec=x.r;const t=mainTag(rec);const cls=tagClass(t);const more=x.need.length>4?` and ${x.need.length-4} more`:'';
   return `<a class="card ${cls}" href="#/r/${encodeURIComponent(rec.id)}">${rec.photo?`<div class="card-photo"><img src="${esc(rec.photo)}" alt=""></div>`:''}<div class="card-title"><span>${esc(rec.name)}</span>${rec.fav?`<span class="sr">Favorite</span>${I.heartF}`:''}</div>
@@ -1373,9 +1379,9 @@ function shopText(){const items=shopItems().filter(i=>!S.box.shop.checked[i.key]
 
 /* ---------- meal plan ---------- */
 function viewPlan(){const ws=S.week||weekStart(new Date());S.week=ws;const today=dkey(new Date());const days=[...Array(7)].map((_,k)=>addDays(ws,k));
-  const weekIds=[];days.forEach(d=>(S.box.plan[dkey(d)]||[]).forEach(e=>weekIds.push(e)));
+  const weekIds=[];days.forEach(d=>(S.box.plan[dkey(d)]||[]).forEach(e=>{if(byId(e.id))weekIds.push(e)}));
   return `<div class="plan-head"><h1>Meal plan</h1><div class="actions"><button class="btn icon-btn" data-act="wk" data-v="-7" aria-label="Previous week">${I.prev}</button><div class="wkname"><b>${short(days[0])} to ${short(days[6])}</b>${dkey(ws)===dkey(weekStart(new Date()))?'<span>This week</span>':`<button class="linkbtn" data-act="wk" data-v="0">Back to this week</button>`}</div><button class="btn icon-btn" data-act="wk" data-v="7" aria-label="Next week">${I.next}</button></div></div>
-<div class="week">${days.map(d=>{const k=dkey(d);const ents=(S.box.plan[k]||[]).map((e,ix)=>({...e,ix})).sort((a,b)=>MEALS.indexOf(a.meal)-MEALS.indexOf(b.meal));
+<div class="week">${days.map(d=>{const k=dkey(d);const ents=(S.box.plan[k]||[]).map((e,ix)=>({...e,ix})).filter(e=>byId(e.id)).sort((a,b)=>MEALS.indexOf(a.meal)-MEALS.indexOf(b.meal));
   return `<section class="day ${k===today?'today':''}" aria-label="${DOW[d.getDay()]} ${short(d)}"><div class="band"><h2>${DOW[d.getDay()]}</h2><span>${short(d)}${k===today?', today':''}</span></div><div class="day-body">
 ${ents.length?`<ul>${ents.map(e=>{const r=byId(e.id);if(!r)return '';return `<li class="meal ${tagClass(mainTag(r))}"><span class="mlabel">${esc(e.meal)}</span><a href="#/r/${encodeURIComponent(r.id)}">${esc(r.name)}</a><button type="button" data-act="plandel" data-v="${k}|${e.ix}" aria-label="Remove ${esc(r.name)} from ${DOW[d.getDay()]}">×</button></li>`}).join('')}</ul>`:'<p class="subtle nothing">Nothing planned</p>'}
 <button class="btn small addmeal" data-act="planadd" data-v="${k}">${I.plus}Add a recipe</button></div></section>`}).join('')}</div>
@@ -1775,6 +1781,10 @@ async function runSync(interactive){if(!SY.st||SY.busy)return;if(!navigator.onLi
         if(L&&R&&rhash===L.hash){st[id]={base:L.hash,ver:R.ver,fid:R.fid};return}
         if(!L&&!R){delete st[id];return}
         if(id==='lists'&&L&&R){applyDoc(id,rdata);changed=true;const m=localDocs().lists;const res=await P.put(fname(id),JSON.stringify({v:1,id,data:m.data}),R);st[id]={base:m.hash,ver:res.ver,fid:res.fid};return}
+        if(id.startsWith('r-')&&L&&rdata){const rfix=fixRecipe(JSON.parse(JSON.stringify(rdata)));const strip=o=>{const c={...o};delete c.made;delete c.updated;return sj(c)};
+          if(rfix&&strip(L.data)===strip(rfix)){const seen=new Set();const mm=[...(L.data.made||[]),...(rfix.made||[])].filter(e=>{const k=e.d+'|'+(e.n||'');if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>String(b.d).localeCompare(String(a.d)));
+            const merged={...L.data};if(mm.length)merged.made=mm;else delete merged.made;const lu=L.data.updated||'',ru=rfix.updated||'';merged.updated=lu>ru?lu:ru;
+            applyDoc(id,merged);changed=true;const res=await P.put(fname(id),JSON.stringify({v:1,id,data:merged}),R);st[id]={base:hsh(sj(merged)),ver:res.ver,fid:res.fid};return}}
         conflicts.push({id,kind:L?L.kind:(id.startsWith('r-')?'recipe':id),label:(L&&L.label)||(rdata&&rdata.name)||id,local:L?L.data:null,remote:rdata,R})})}
     for(let i=0;i<jobs.length;i+=4)await Promise.all(jobs.slice(i,i+4).map(f=>f()));
     if(changed){SY.applying=true;persist();SY.applying=false}
