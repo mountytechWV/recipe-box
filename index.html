@@ -234,6 +234,16 @@ main{padding:30px 0 72px}
 .from{display:block;font-size:13px;color:var(--faint);font-family:var(--type)}
 .importcta{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--sky);color:var(--sky-f);border:1.5px dashed var(--sky-f);border-radius:3px;text-decoration:none}
 .importcta:hover{color:var(--sky-f);background:var(--paper)}
+.importcta.alt{background:var(--paper);color:var(--muted);border-color:var(--edge);margin-top:-10px;cursor:pointer}
+.importcta.alt:hover{color:var(--ink);border-color:var(--muted)}
+.sharecard{border:1px solid var(--edge);border-radius:3px;background:var(--paper);box-shadow:0 3px 0 var(--edge);transform:rotate(-.6deg);overflow:hidden}
+.sharecard .band h3{margin:0;font-size:1.25rem}
+.sharecard .sc-body{display:flex;gap:14px;padding:10px 16px 14px;align-items:flex-start;background-image:repeating-linear-gradient(transparent 0 27px,var(--edge) 27px 28px);background-position:0 10px}
+.sharecard .sc-body p{margin:0;line-height:28px}
+.sharecard img{width:84px;height:84px;object-fit:cover;border-radius:2px;flex:none}
+.sharecard .sc-meta{color:var(--muted)}
+.dupnote{margin:0;padding:10px 14px;background:var(--butter);color:var(--butter-f);border-radius:2px}
+@media (prefers-reduced-motion:reduce){.sharecard{transform:none}}
 .howto{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;color:var(--ink-2)}
 textarea.paste{min-height:260px;border:1.5px dashed var(--rule-2);padding:12px;font-size:16px;font-family:var(--type)}
 @media (max-width:640px){.nav{gap:10px;flex-wrap:wrap}.plan-head h1{font-size:44px}}
@@ -829,7 +839,7 @@ ${r.src?`<div class="fact"><span>From</span><b>${r.link?`<a href="${esc(r.link)}
 <div class="actions">${(r.steps||[]).some(x=>x.t)?`<button class="btn primary" data-act="cook">${I.pot}Start cooking</button>`:''}
 <button class="btn fav" data-act="fav" aria-pressed="${!!r.fav}">${I.heart}<span>${r.fav?'Favorite':'<span class="dt">Add to </span>Favorites'}</span></button>
 <button class="btn" data-act="addshop">${I2.cart}<span><span class="dt">${S.box.shop.recipes.some(e=>e.id===r.id)?'Add again to ':'Add to '}</span>Shopping list</span></button><button class="btn" data-act="addplan">${I2.cal}<span><span class="dt">Add to </span>Meal plan</span></button>
-<a class="btn" href="#/print/${encodeURIComponent(r.id)}">${I.print}Print</a><a class="btn" href="#/edit/${encodeURIComponent(r.id)}">${I.edit}Edit</a></div></div>
+<button class="btn" data-act="sharerecipe">${I2.share}Share</button><a class="btn" href="#/print/${encodeURIComponent(r.id)}">${I.print}Print</a><a class="btn" href="#/edit/${encodeURIComponent(r.id)}">${I.edit}Edit</a></div></div>
 ${r.photo?`<div class="photo has"><img src="${r.photo}" alt="Photo of ${esc(r.name)}"></div>`:`<a class="photo" href="#/edit/${encodeURIComponent(r.id)}">${I.cam}<strong>Add a photo</strong><span>Opens the editor</span></a>`}</div>
 <div class="cols2"><section class="panel ing-panel tg5" aria-labelledby="ih"><div class="band"><h2 id="ih">Ingredients</h2>${base&&s!==base?`<span>scaled for ${fmt(s)} servings</span>`:''}</div><div class="panel-body">${ing||'<p class="subtle">No ingredients yet.</p>'}
 ${r.ut?`<h3 class="grp">You'll need</h3><p class="ut">${esc(r.ut)}</p>`:''}</div></section>
@@ -842,7 +852,7 @@ function editor(r){if(!S.draft||S.draft.__for!==(r?r.id:'new')){S.draft=r?clone(
   return `<a class="back" href="${r?'#/r/'+encodeURIComponent(r.id):'#/'}">${I.back}${r?'Back to recipe':'Back to recipes'}</a>
 <form class="form" id="ed" novalidate><h1>${r?'Edit recipe':'Add a recipe'}</h1>
 ${!r&&d.__imported?`<div class="callout" style="margin:0">${I.bulb}<span>${d.__web?'Filled in from the website.':'Filled in from the text you pasted.'} Check the amounts, units, and steps below, then save.</span></div>`:''}
-${!r&&!d.__imported?`<a class="importcta" href="#/import">${I2.paste}<span><b>Have a recipe from a website?</b> Paste it in and the app fills out this form for you.</span></a>`:''}
+${!r&&!d.__imported?`<a class="importcta" href="#/import">${I2.paste}<span><b>Have a recipe from a website?</b> Paste it in and the app fills out this form for you.</span></a><label class="importcta alt" for="shareFile">${I2.share}<span><b>Did someone send you a recipe file?</b> Choose it here to add their recipe.</span></label>`:''}
 <div class="sheet">
 <div class="field"><label for="f-name">Recipe name</label><input class="in" id="f-name" value="${esc(d.name)}" required autocomplete="off" style="font-family:var(--hand);font-size:32px;font-weight:700"><span class="help" id="nameHelp">Filed under the first letter or number of the name.</span></div>
 <div class="field"><label for="f-desc">Short description</label><textarea class="in" id="f-desc" rows="2">${esc(d.desc||'')}</textarea></div>
@@ -1008,7 +1018,8 @@ let downloads=null;
 function settingsDlg(){const n=S.box.recipes.length;const w=openDlg(`<h2>Backup and settings</h2><p style="margin:0">New to Recipe Box or stuck on something? <a href="./help.html" target="_blank" rel="noopener"><b>Open the help guide</b></a>.</p>
 <p>Your ${n} recipes are saved in this browser on this device. A backup file lets you move them to another device or keep a safe copy.</p>
 ${canSave()?`<button class="btn primary" data-s="backup">Download a backup file</button>`:`<p class="subtle">Downloading a backup isn't available in this view.</p>`}
-<label class="btn" for="restoreFile">Restore from a backup file</label><input type="file" id="restoreFile" accept=".json,application/json" class="sr">
+<label class="btn" for="restoreFile">Restore from a backup file</label>
+<label class="btn" for="shareFile">Add a shared recipe</label><input type="file" id="restoreFile" accept=".json,application/json" class="sr">
 ${syncSettingsHTML()}
 ${STANDALONE&&!isInstalled()?`<hr><p class="lblp">Install on this device</p>${installEvt?`<button class="btn" data-s="install">Install Recipe Box</button>`:installSteps()}<p class="subtle">Installing gives Recipe Box its own icon and keeps your recipes from being cleared with your browser history.</p>`:''}
 ${STANDALONE?`<hr><p class="lblp">Invite family</p><p>Copy this message and send it along with your recipe backup file.</p><label class="sr" for="invite">Invitation message</label><textarea class="in invite" id="invite" rows="8" readonly>${esc(inviteText())}</textarea><div class="acts" style="justify-content:flex-start;margin:0"><button class="btn" data-s="copyinvite">${I2.copy}Copy message</button>${navigator.share?`<button class="btn" data-s="shareinvite">Share…</button>`:''}</div>`:''}
@@ -1030,12 +1041,56 @@ ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p><b>On a compu
     if(a==='backup'){try{const stamp=new Date().toISOString().slice(0,10);await saveFile(`recipe-box-backup-${stamp}.json`,JSON.stringify({app:'recipe-box',version:1,exported:nowISO(),box:S.box}),'application/json');toast('Backup saved')}catch(err){const code=err&&err.code;toast(code==='declined'?'Backup not saved':code==='rate_limited'?'A save is already open. Try again in a moment.':'Backup could not be saved here')}}
     if(a==='seed'){w.remove();confirmDlg('Reload the starting recipes?','This replaces everything in your box with the original 154 recipes. Recipes you added or changed will be lost unless you have a backup.','Reload recipes',()=>{S.box=ensureBox(freshBox(true));S.letter=null;persist();toast('Starting recipes loaded');go('/')})}
     if(a==='empty'){w.remove();confirmDlg('Empty the recipe box?','Every recipe on this device will be removed. Your ingredient list and tags stay so you can start fresh.','Empty the box',()=>{S.box.recipes=[];persist();toast('Recipe box emptied');go('/')})}});
-  w.querySelector('#restoreFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const fr=new FileReader();fr.onload=()=>{try{const j=JSON.parse(fr.result);const box=j.box||j;if(!box||!Array.isArray(box.recipes))throw 0;w.remove();
+  w.querySelector('#restoreFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const fr=new FileReader();fr.onload=()=>{try{const j=JSON.parse(fr.result);if(j&&j.kind==='recipe'&&j.recipe){w.remove();e.target.value='';sharedPreview(j.recipe,true);return}const box=j.box||j;if(!box||!Array.isArray(box.recipes))throw 0;w.remove();
     confirmDlg('Restore this backup?',`The file has ${box.recipes.length} recipes. Restoring replaces what's on this device now.`,'Restore backup',()=>{S.box=ensureBox(box);S.letter=null;persist();toast('Backup restored');go('/')})}catch(err){toast("That file isn't a Recipe Box backup")}};fr.readAsText(file)})}
+
+/* ---------- share one recipe ---------- */
+const SHARE_HINT='Open Recipe Box and choose “Add a shared recipe” in the settings menu, or on the Add recipe screen.';
+function cleanShared(rc){rc=rc&&typeof rc==='object'?rc:{};const s=v=>typeof v==='string'?v.trim():'';const n=v=>typeof v==='number'&&isFinite(v)?v:null;
+  const o={name:s(rc.name)||'Untitled recipe',tags:[...new Set((Array.isArray(rc.tags)?rc.tags:[]).map(s).filter(Boolean))]};
+  ['desc','src','yld','ut','notes'].forEach(k=>{const v=s(rc[k]);if(v)o[k]=v});
+  const ln=s(rc.link);if(/^https?:\/\//i.test(ln))o.link=ln;
+  if(typeof rc.photo==='string'&&/^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(rc.photo))o.photo=rc.photo;
+  const mi=n(rc.min);if(mi>0)o.min=Math.round(mi);const sv=n(rc.serv);if(sv>0)o.serv=sv;const df=n(rc.diff);if(df>=1&&df<=DIFF.length)o.diff=Math.round(df);
+  o.ing=(Array.isArray(rc.ing)?rc.ing:[]).map(l=>{if(!l||typeof l!=='object')return null;if(s(l.h))return {h:s(l.h)};const i=s(l.i);if(!i)return null;const x={i};['a','b'].forEach(k=>{const v=n(l[k]);if(v!=null)x[k]=v});['q','u','n'].forEach(k=>{const v=s(l[k]);if(v)x[k]=v});return x}).filter(Boolean);
+  o.steps=(Array.isArray(rc.steps)?rc.steps:[]).map(st=>{if(!st||typeof st!=='object')return null;if(s(st.h))return {h:s(st.h)};return s(st.t)?{t:s(st.t)}:null}).filter(Boolean);
+  return o}
+function shareFileName(r){return ((r.name||'').replace(/[\\/:*?"<>|#%]+/g,'').replace(/\s+/g,' ').trim().slice(0,60)||'Recipe')+'.recipe.json'}
+async function shareRecipe(r){const name=shareFileName(r);const text=JSON.stringify({app:'recipe-box',kind:'recipe',version:1,exported:nowISO(),recipe:cleanShared(r)});
+  const touch=isIOS()||isAndroid()||matchMedia('(pointer:coarse)').matches;
+  if(touch&&navigator.share&&navigator.canShare&&typeof File==='function'){try{const f=new File([text],name,{type:'application/json'});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:r.name});return}}catch(e){if(e&&e.name==='AbortError')return}}
+  if(!canSave()){toast("Sharing isn't available in this view");return}
+  try{await saveFile(name,text,'application/json');openDlg(`<h2>Recipe file saved</h2><p>“${esc(r.name)}” was saved as <b>${esc(name)}</b>, probably in your Downloads folder.</p><p>Attach that file to an email or message. The person who gets it can add it to their own Recipe Box. ${SHARE_HINT}</p><div class="acts"><button class="btn primary" data-close>Got it</button></div>`)}
+  catch(err){const code=err&&err.code;toast(code==='declined'?'Recipe file not saved':'The recipe file could not be saved here')}}
+const sameName=(a,b)=>a.trim().toLowerCase()===b.trim().toLowerCase();
+function sharedCopyName(name){let n=name+' (shared)',k=2;while(S.box.recipes.some(x=>sameName(x.name,n)))n=`${name} (shared ${k++})`;return n}
+function readSharedFile(file){const fr=new FileReader();fr.onload=()=>{let j;try{j=JSON.parse(fr.result)}catch(e){j=null}
+    if(j&&j.kind==='recipe'&&j.recipe){sharedPreview(j.recipe);return}
+    if(j&&(Array.isArray(j.recipes)||(j.box&&Array.isArray(j.box.recipes)))){openDlg(`<h2>That's a full backup file</h2><p>This file holds a whole recipe box, not a single shared recipe. To load it, open the settings menu and choose <b>Restore from a backup file</b>.</p><p>Restoring a backup replaces the recipes on this device, so only do that if you mean to.</p><div class="acts"><button class="btn primary" data-close>OK</button></div>`);return}
+    toast("That file isn't a shared recipe")};fr.onerror=()=>toast('That file could not be opened');fr.readAsText(file)}
+function sharedPreview(raw){const rc=cleanShared(raw);const ex=S.box.recipes.find(x=>sameName(x.name,rc.name));
+  const ni=rc.ing.filter(l=>l.i).length,ns=rc.steps.filter(x=>x.t).length;
+  const meta=[`${ni} ${ni===1?'ingredient':'ingredients'}`,`${ns} ${ns===1?'step':'steps'}`].concat(rc.min?[fmtMin(rc.min)]:[]).join(', ');
+  const tg=rc.tags[0]?tagClass(rc.tags[0]):'tg5';
+  const w=openDlg(`<h2>Add this recipe?</h2>
+<div class="sharecard ${tg}"><div class="band"><h3>${esc(rc.name)}</h3></div><div class="sc-body">${rc.photo?`<img src="${rc.photo}" alt="">`:''}<div>${rc.desc?`<p>${esc(rc.desc)}</p>`:''}<p class="sc-meta">${esc(meta)}${rc.diff?`. Difficulty: ${esc(DIFF[rc.diff-1])}`:''}</p>${rc.tags.length?`<p class="sc-meta">${rc.tags.map(esc).join(', ')}</p>`:''}</div></div></div>
+${ex?`<p class="dupnote">You already have a recipe called “${esc(ex.name)}.” What would you like to do?</p><div class="acts"><button class="btn" data-close>Skip it</button><button class="btn" data-sh="replace">Replace mine</button><button class="btn primary" data-sh="both">Keep both</button></div>`
+  :`<div class="acts"><button class="btn" data-close>Cancel</button><button class="btn primary" data-sh="add">Add to my box</button></div>`}`);
+  w.addEventListener('click',e=>{const b=e.target.closest('[data-sh]');if(!b)return;const mode=b.dataset.sh;
+    if(mode==='replace'){w.remove();confirmDlg('Replace your recipe?',`Your “${esc(ex.name)}” will be swapped for the one you were sent. Your favorite mark stays, but your other changes to it will be gone.`,'Replace mine',()=>addShared(rc,'replace',ex));return}
+    w.remove();addShared(rc,mode,ex)})}
+function addShared(rc,mode,ex){const out={...rc};const now=nowISO();
+  if(mode==='replace'&&ex){out.id=ex.id;out.name=ex.name;out.created=ex.created||now;if(ex.fav)out.fav=true;out.updated=now;const i=S.box.recipes.indexOf(ex);S.box.recipes[i]=out;delete S.servings[out.id]}
+  else{if(mode==='both')out.name=sharedCopyName(rc.name);out.id=uid();out.created=now;out.updated=now;S.box.recipes.push(out)}
+  S.box.tags=unionCI(S.box.tags,out.tags);S.box.units=unionCI(S.box.units,out.ing.map(l=>l.u).filter(Boolean));S.box.ingredients=unionCI(S.box.ingredients,out.ing.map(l=>l.i).filter(Boolean));
+  S.letter=null;persist();toast(mode==='replace'?'Recipe replaced':mode==='both'?`Added as “${out.name}”`:'Recipe added');go('/r/'+encodeURIComponent(out.id))}
+document.body.insertAdjacentHTML('beforeend','<input type="file" id="shareFile" accept=".json,application/json" class="sr" tabindex="-1" aria-hidden="true">');
+document.addEventListener('change',e=>{if(e.target.id!=='shareFile')return;const f=e.target.files[0];e.target.value='';if(!f)return;$$('.scrim').forEach(x=>x.remove());readSharedFile(f)});
 
 /* ---------- shared box parts ---------- */
 function ensureBox(b){b.plan=b.plan||{};b.shop=b.shop||{};b.shop.recipes=b.shop.recipes||[];b.shop.extra=b.shop.extra||[];b.shop.checked=b.shop.checked||{};b.shop.removed=b.shop.removed||{};b.units=b.units||SEED.units.slice();b.ingredients=b.ingredients||[];b.tags=b.tags||[];return b}
 const I2={
+ share:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 9H6a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10a1 1 0 0 0-1-1h-2"/><path d="M12 15V3M8.5 6.5 12 3l3.5 3.5"/></svg>',
  cart:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11h10.2L20 8H6.2"/><circle cx="9" cy="19.5" r="1.5"/><circle cx="17" cy="19.5" r="1.5"/></svg>',
  cal:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
  paste:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4.5V3h6v1.5M9 10h6M9 14h6M9 18h3"/></svg>',
@@ -1537,6 +1592,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCar
   else if(a==='imode'){S.indexMode=v;render()}
   else if(a==='jump'){e.preventDefault();const el=document.getElementById(v);if(el)el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
   else if(a==='serv'&&r){const cur=S.servings[r.id]??r.serv;S.servings[r.id]=Math.max(1,Math.min(200,Math.round(cur)+ +v));render()}
+  else if(a==='sharerecipe'&&r){shareRecipe(r)}
   else if(a==='fav'&&r){r.fav=!r.fav;if(!r.fav)delete r.fav;r.updated=nowISO();persist();render()}
   else if(a==='diff'&&r){const v2=+v;r.diff=r.diff===v2?undefined:v2;if(!r.diff)delete r.diff;r.updated=nowISO();persist();render();toast(r.diff?'Difficulty set to '+DIFF[r.diff-1]:'Difficulty cleared')}
   else if(a==='dreset'){S.dmin=1;S.dmax=5;S.dunr=true;render()}
@@ -1578,7 +1634,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCar
   else if(a==='settings')settingsDlg();});
 document.addEventListener('submit',e=>{const f=e.target;if(f.dataset.form==='shopadd'){e.preventDefault();const v=$('#shopNew').value.trim();if(v){S.box.shop.extra.push({t:v});persist();render();$('#shopNew').focus()}}});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-w]');if(!b)return;if(b.dataset.w==='seed')startBox(freshBox(true));if(b.dataset.w==='empty')startBox(freshBox(false))});
-document.addEventListener('change',e=>{if(e.target.id!=='wfile')return;const f=e.target.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{try{const j=JSON.parse(fr.result);const box=j.box||j;if(!Array.isArray(box.recipes))throw 0;startBox(box);toast('Backup restored')}catch(err){toast("That file isn't a Recipe Box backup")}};fr.readAsText(f)});
+document.addEventListener('change',e=>{if(e.target.id!=='wfile')return;const f=e.target.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{try{const j=JSON.parse(fr.result);if(j&&j.kind==='recipe'&&j.recipe){startBox(freshBox(false));sharedPreview(j.recipe,true);return}const box=j.box||j;if(!Array.isArray(box.recipes))throw 0;startBox(box);toast('Backup restored')}catch(err){toast("That file isn't a Recipe Box backup")}};fr.readAsText(f)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.cartpop')){closeCart();const cb=$('.cartbtn');cb&&cb.focus();return}if(e.key==='Escape'){const sc=$('.scrim');if(sc){sc.remove();return}}if(!S.cook)return;
   if(e.key==='ArrowRight'&&S.cook.i<S.cook.flat.length-1){S.cook.i++;drawCook()}else if(e.key==='ArrowLeft'&&S.cook.i>0){S.cook.i--;drawCook()}else if(e.key==='Escape')stopCook()});
 let tx=null;document.addEventListener('touchstart',e=>{if(S.cook)tx=e.touches[0].clientX},{passive:true});
