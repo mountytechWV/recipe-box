@@ -570,6 +570,60 @@ textarea.in{min-height:84px;resize:vertical;line-height:1.5}
   .photo.has{max-height:200pt;max-width:300pt}
   a{color:#000;text-decoration:none}
 }
+.inlinelink{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--red);text-decoration:underline;cursor:pointer}
+/* ---------- text size ---------- */
+html[data-text="l"] body:not(.printing-recipe){zoom:1.15}
+html[data-text="xl"] body:not(.printing-recipe){zoom:1.3}
+@media (max-width:640px){html[data-text="l"] body:not(.printing-recipe){zoom:1.1}html[data-text="xl"] body:not(.printing-recipe){zoom:1.2}}
+/* ---------- browse extras ---------- */
+.hello{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 18px}
+.makebtn{flex:none}
+.bkbanner{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;background:var(--butter);color:var(--butter-f);border:1.5px dashed var(--butter-f);border-radius:3px;padding:12px 12px 12px 18px;margin-bottom:22px}
+.bkbanner .ibtext b{font-family:var(--type);font-size:16px}
+/* ---------- story and made log ---------- */
+.memo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:24px;align-items:start}
+.memo.one{grid-template-columns:minmax(0,1fr)}
+.story-text{font-family:var(--hand);font-size:25px;line-height:1.35;white-space:pre-line;margin:10px 0 0;color:var(--ink)}
+.madelist{list-style:none;margin:8px 0 0;padding:0}
+.madelist li{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--rule)}
+.madelist .md{flex:1;display:flex;flex-direction:column;gap:2px}
+.madelist .md b{font-family:var(--type);font-size:15px}
+.madelist .md span{white-space:pre-line;color:var(--ink-2)}
+.madelist .btn{flex:none}
+.madeempty{margin:10px 0 0;color:var(--muted)}
+.madeacts{margin-top:14px}
+.madeall summary{cursor:pointer;font-family:var(--type);font-weight:700;padding:10px 0;color:var(--ink-2)}
+@media (max-width:640px){.memo{grid-template-columns:minmax(0,1fr);gap:16px}.story-text{font-size:23px}}
+/* ---------- recently deleted ---------- */
+.trashlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.trashlist li{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;background:var(--paper);border:1px solid var(--edge);border-left:5px solid var(--tf);border-radius:3px;padding:12px 14px}
+.trashlist .tn{flex:1 1 220px;display:flex;flex-direction:column;gap:2px}
+.trashlist .tn b{font-family:var(--hand);font-size:26px;line-height:1.1}
+.trashlist .tn span{color:var(--muted);font-size:14px}
+.trashlist .ta{display:flex;flex-wrap:wrap;gap:8px}
+/* ---------- what can I make ---------- */
+.haverow{display:flex;gap:8px;flex-wrap:wrap}
+.haverow .in{flex:1 1 220px}
+.havechips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.havechip{display:inline-flex;align-items:center;gap:4px;background:var(--sage);color:var(--sage-f);border-radius:999px;padding:4px 4px 4px 14px;font-weight:600}
+.havechip button{border:0;background:transparent;color:inherit;width:32px;height:32px;border-radius:50%;cursor:pointer;display:grid;place-items:center}
+.havechip button:hover{background:var(--paper)}
+.makegrp{margin-top:26px}
+.makegrp h2{font-family:var(--hand);font-size:32px;font-weight:700;margin-bottom:4px}
+.makegrp > p{margin:0 0 12px;color:var(--muted)}
+.need{color:var(--muted)}
+/* ---------- tour ---------- */
+.tour .tico{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--tb);color:var(--tf)}
+.tour .tico svg{width:28px;height:28px}
+.tour h2{font-family:var(--hand);font-size:34px}
+.tour p{margin:0;font-size:17px;line-height:1.5}
+.tour .tdots{display:flex;gap:6px;align-items:center}
+.tour .tdots span{width:9px;height:9px;border-radius:50%;background:var(--edge)}
+.tour .tdots span.on{background:var(--red)}
+.tour .tfoot{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px}
+.speakrow{display:flex;flex-wrap:wrap;gap:8px}
+.speakrow [aria-pressed=true]{background:var(--sage);color:var(--sage-f);border-color:var(--sage-f)}
+@media print{.memo,.bkbanner{display:none}}
 /* ---------- phones ---------- */
 @media (max-width:640px){
   body{font-size:16px}
@@ -699,7 +753,7 @@ function persist(){clearTimeout(saveTimer);setSaving('Saving…');saveTimer=setT
 function setSaving(t){const el=$('#saveState');if(el)el.textContent=t}
 
 /* ---------- state ---------- */
-const S={box:null,letter:null,tag:'All',q:'',dmin:1,dmax:5,dunr:true,indexMode:'az',servings:{},cook:null,draft:null};
+const S={trash:[],box:null,letter:null,tag:'All',q:'',dmin:1,dmax:5,dunr:true,indexMode:'az',servings:{},cook:null,draft:null};
 function freshBox(withRecipes){const b=clone(SEED);if(!withRecipes){b.recipes=[]}b.recipes.forEach(r=>{r.created=r.created||nowISO();r.updated=r.updated||r.created;});return b}
 const byId=id=>S.box?S.box.recipes.find(r=>r.id===id):null;
 
@@ -775,16 +829,19 @@ function render(){const r=route();const app=$('#app');if(!S.box){app.innerHTML=v
   else if(r.name==='shop'){body=viewShop();}
   else if(r.name==='import'){body=viewImport();}
   else if(r.name==='scan'){body=viewScan();}
+  else if(r.name==='make'){body=viewMake();}
+  else if(r.name==='trash'){body=viewTrash();}
   else if(r.name==='print'){const rec=byId(r.id);body=rec?viewPrint(rec):notFound();}
   else body=viewBrowse();
   const active=['index','browse','plan','shop'].includes(r.name)?r.name:'';
-  app.innerHTML=header(active)+'<main><div class="wrap">'+(['browse','index','plan','shop'].includes(r.name)?installBanner():'')+body+'</div></main>'+botnav(active,r.name);
+  app.innerHTML=header(active)+'<main><div class="wrap">'+(['browse','index','plan','shop'].includes(r.name)?installBanner():'')+(r.name==='browse'?backupBanner():'')+body+'</div></main>'+botnav(active,r.name);
   if(keepFocus){const q=$('#q');q.focus();try{q.setSelectionRange(caret,caret)}catch(e){}}
   if(r.name==='edit'||r.name==='new')bindEditor();
   if(r.name==='browse'&&isPhone()){const t=$('.tab[aria-pressed="true"]');if(t){const tb=t.parentElement;tb.scrollLeft=t.offsetLeft-tb.clientWidth/2+t.clientWidth/2}}
   if(r.name==='print'&&byId(r.id))drawPrint(byId(r.id));
   document.body.classList.toggle('printing-recipe',r.name==='print');
   document.title=(r.name==='r'&&byId(r.id)?byId(r.id).name+' – ':'')+'Recipe Box';
+  maybeTour();
 }
 function notFound(){return `<div class="empty"><p>That recipe isn't in this box anymore.</p><a class="btn" href="#/">Back to recipes</a></div>`}
 
@@ -817,7 +874,7 @@ function viewBrowse(){const all=S.box.recipes;const q=S.q.trim().toLowerCase();
   if(!all.length)return `<div class="hello"><div><h1>Your recipe box is empty</h1><p>Add your first recipe, or restore a backup from the settings menu.</p></div></div><a class="btn primary" href="#/new">${I.plus}Add your first recipe</a>`;
   const cnt=c=>c==='All'?all.length:c==='Favorites'?all.filter(r=>r.fav).length:all.filter(r=>(r.tags||[]).includes(c)).length;
   const catBtn=c=>`<li><button class="cat ${c==='All'?'tg5':c==='Favorites'?'tg1':tagClass(c)}" data-act="tag" data-v="${esc(c)}" aria-pressed="${S.tag===c}"><span class="sw" aria-hidden="true"></span><span class="cn">${esc(c)}</span><span class="cc">${cnt(c)}</span></button></li>`;
-  return `<div class="hello"><div><h1>What's cooking today?</h1><p>${all.length} recipes in your box. Pick a category, flip to a letter, or search for an ingredient.</p></div></div>
+  return `<div class="hello"><div><h1>What's cooking today?</h1><p>${all.length} recipes in your box. Pick a category, flip to a letter, or search for an ingredient.</p></div><a class="btn makebtn" href="#/make">${I2.jar}What can I make?</a></div>
 <div class="browse"><aside class="sidecol"><nav class="catbar" aria-label="Categories"><h2>Categories</h2><ul>${['All','Favorites'].map(catBtn).join('')}</ul><hr><ul>${tagsUsed.map(catBtn).join('')}</ul></nav></aside>
 <div class="rolo">${diffBox(all)}<section aria-label="Recipe rolodex"><div class="tabs">${letters.map((L,i)=>{const n=counts[L],on=!q&&L===S.letter;return `<button class="tab p${i%5}" data-act="letter" data-v="${L}" ${n?'':'disabled'} aria-pressed="${on}" aria-label="${L==='#'?'Numbers':L}, ${n} recipes"><b>${L}</b><small>${n||'·'}</small></button>`}).join('')}</div>
 <div class="drawer"><div class="drawer-head"><h2>${heading}</h2><span>${sub}</span>${q?`<button class="btn small" data-act="clearq">Clear search</button>`:''}</div>
@@ -856,7 +913,8 @@ ${r.photo?`<div class="photo has"><img src="${r.photo}" alt="Photo of ${esc(r.na
 <div class="cols2"><section class="panel ing-panel tg5" aria-labelledby="ih"><div class="band"><h2 id="ih">Ingredients</h2>${base&&s!==base?`<span>scaled for ${fmt(s)} servings</span>`:''}</div><div class="panel-body">${ing||'<p class="subtle">No ingredients yet.</p>'}
 ${r.ut?`<h3 class="grp">You'll need</h3><p class="ut">${esc(r.ut)}</p>`:''}</div></section>
 <section class="panel step-panel tg6" aria-labelledby="sh"><div class="band"><h2 id="sh">Steps</h2></div><div class="panel-body">${steps?`<ol class="steps">${steps}</ol>`:'<p class="subtle">No steps written yet.</p>'}
-${r.notes?`<div class="callout">${I.bulb}<span>${esc(r.notes)}</span></div>`:''}</div></section></div>`}
+${r.notes?`<div class="callout">${I.bulb}<span>${esc(r.notes)}</span></div>`:''}</div></section></div>
+<div class="memo ${r.story?'':'one'}">${storyHtml(r)}${madeHtml(r)}</div>`}
 /* ---------- editor ---------- */
 function blank(){return {id:uid(),name:'',tags:[],ing:[{i:''}],steps:[{t:''}]}}
 function editor(r){if(!S.draft||S.draft.__for!==(r?r.id:'new')){S.draft=r?clone(r):blank();S.draft.__for=r?r.id:'new';S.draft.tags=S.draft.tags||[];S.draft.ing.forEach(l=>{if(!l.h&&l.qt==null)l.qt=l.a!=null?(l.b!=null?fmt(l.a)+' to '+fmt(l.b):(l.q||fmt(l.a))):(l.q||'')})}
@@ -889,7 +947,8 @@ ${!r&&!d.__imported?`<div class="srcpick" role="group" aria-labelledby="srcL"><p
 <div id="stepRows">${stepRows(d)}</div>
 <div class="addrow"><button type="button" class="btn" data-ed="addstep">${I.plus}Add step</button><button type="button" class="btn" data-ed="addshead">${I.plus}Add section heading</button></div></div></section>
 <div class="sheet"><div class="field"><label for="f-ut">Equipment you'll need</label><input class="in" id="f-ut" value="${esc(d.ut||'')}"></div>
-<div class="field"><label for="f-notes">Tips and notes</label><textarea class="in" id="f-notes" rows="3">${esc(d.notes||'')}</textarea></div></div>
+<div class="field"><label for="f-notes">Tips and notes</label><textarea class="in" id="f-notes" rows="3">${esc(d.notes||'')}</textarea></div>
+<div class="field"><label for="f-story">The story behind this recipe (optional)</label><textarea class="in" id="f-story" rows="4" placeholder="Who made it, when it was served, a memory that goes with it">${esc(d.story||'')}</textarea></div></div>
 <div class="savebar">${r?`<button type="button" class="btn danger" data-ed="delete">${I.trash}Delete recipe</button>`:''}<span class="spacer"></span><a class="btn" href="${r?'#/r/'+encodeURIComponent(r.id):'#/'}">Cancel</a><button type="submit" class="btn primary">${I.check}${r?'Save changes':'Save recipe'}</button></div></form>`}
 function tagboxInner(){const d=S.draft;return d.tags.map(t=>`<span class="tchip ${tagClass(t)}">${esc(t)}<button type="button" data-ed="untag" data-v="${esc(t)}" aria-label="Remove category ${esc(t)}">×</button></span>`).join('')+
 `<input id="tagIn" class="addpill" role="combobox" aria-expanded="false" aria-controls="tagMenu" aria-autocomplete="list" autocomplete="off" aria-label="Add a category" placeholder="+ Add category">`}
@@ -904,7 +963,7 @@ function stepRows(d){let k=0;return d.steps.map((s,i)=>{const isH=s.h!=null;cons
 ${sent?`<button type="button" class="btn small ghost" data-ed="split" data-i="${i}" style="margin-top:4px;padding-left:0;color:var(--herb)">Split into separate steps</button>`:''}</div>
 <div class="tools" style="display:flex;gap:4px"><button type="button" class="btn small icon-btn" data-ed="stup" data-i="${i}" aria-label="Move up" ${i?'':'disabled'}>${I.up}</button><button type="button" class="btn small icon-btn" data-ed="stdown" data-i="${i}" aria-label="Move down" ${i<d.steps.length-1?'':'disabled'}>${I.down}</button><button type="button" class="btn small icon-btn" data-ed="stdel" data-i="${i}" aria-label="Remove">${I.trash}</button></div></div>`}).join('')}
 function readForm(){const d=S.draft;const v=id=>($('#'+id)||{}).value??'';
-  d.name=v('f-name');d.desc=v('f-desc');d.min=v('f-min');d.serv=v('f-serv');d.yld=v('f-yld');d.src=v('f-src');d.link=v('f-link');d.ut=v('f-ut');d.notes=v('f-notes');
+  d.name=v('f-name');d.desc=v('f-desc');d.min=v('f-min');d.serv=v('f-serv');d.yld=v('f-yld');d.src=v('f-src');d.link=v('f-link');d.ut=v('f-ut');d.notes=v('f-notes');d.story=v('f-story');
   $$('#ingRows .erow').forEach(row=>{const i=+row.dataset.i,l=d.ing[i];$$('[data-f]',row).forEach(el=>{l[el.dataset.f]=el.value})});
   $$('#stepRows [data-s]').forEach(el=>{const s=d.steps[+el.dataset.s];if(s.h!=null)s.h=el.value;else s.t=el.value})}
 function rerenderRows(){const d=S.draft;$('#ingRows').innerHTML=d.ing.map((l,i)=>ingRow(l,i,d.ing.length)).join('');$('#stepRows').innerHTML=stepRows(d)}
@@ -927,7 +986,7 @@ function bindEditor(){const f=$('#ed');if(!f)return;
     if(a==='diff'){const v=+b.dataset.v;d.diff=d.diff===v?0:v;const hp=b.closest('.hatpick');hp.outerHTML=hatPicker(d.diff,'data-ed');return}
     if(a==='untag'){d.tags=d.tags.filter(x=>x!==b.dataset.v);refreshTagbox(true);return}
     if(a==='nophoto'){delete d.photo;render();return}
-    if(a==='delete'){confirmDlg('Delete this recipe?',`“${esc(d.name||'Untitled')}” will be removed from this device. A backup file is the only way to get it back.`,'Delete recipe',()=>{S.box.recipes=S.box.recipes.filter(x=>x.id!==d.id);S.draft=null;persist();toast('Recipe deleted');go('/')});return}
+    if(a==='delete'){confirmDlg('Delete this recipe?',`“${esc(d.name||'Untitled')}” will move to Recently deleted. You can put it back anytime in the next ${TRASH_DAYS} days.`,'Delete recipe',()=>{S.draft=null;deleteRecipe(d.id);go('/')});return}
     if(['adding','addhead','addstep','addshead'].includes(a)){rerenderRows();const last=a==='adding'||a==='addhead'?$('#ingRows .erow:last-child .in'):$('#stepRows .srow:last-child .in');if(last)last.focus();return}
     rerenderRows()});
   bindTags();bindIngCombo();
@@ -987,7 +1046,8 @@ function bindTags(){bindTagInput();const box=$('#tagbox'),menu=$('#tagMenu');
 function loadPhoto(file){const fr=new FileReader();fr.onload=()=>{const img=new Image();img.onload=()=>{const max=1200,sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);readForm();S.draft.photo=c.toDataURL('image/jpeg',.82);render()};img.onerror=()=>toast('That file could not be read as an image');img.src=fr.result};fr.readAsDataURL(file)}
 function saveDraft(){readForm();const d=S.draft;if(!d.name.trim()){const n=$('#f-name');n.focus();$('#nameHelp').textContent='Give the recipe a name before saving.';$('#nameHelp').style.color='var(--accent)';return}
   const out={id:d.id,name:d.name.trim(),tags:d.tags,created:d.created||nowISO(),updated:nowISO()};
-  ['desc','src','yld','ut','notes','photo'].forEach(k=>{const raw=d[k];const v=typeof raw==='string'?raw.trim():raw;if(v)out[k]=v});
+  if(Array.isArray(d.made)&&d.made.length)out.made=d.made;
+  ['desc','src','yld','ut','notes','story','photo'].forEach(k=>{const raw=d[k];const v=typeof raw==='string'?raw.trim():raw;if(v)out[k]=v});
   if(d.link&&d.link.trim())out.link=/^https?:\/\//i.test(d.link.trim())?d.link.trim():'https://'+d.link.trim();
   const mi=parseInt(d.min,10);if(mi>0)out.min=mi;if(d.diff)out.diff=d.diff;const sv=parseNum(String(d.serv||''));if(sv>0)out.serv=sv;if(d.fav)out.fav=true;
   out.ing=[];d.ing.forEach(l=>{if(l.h!=null){if(l.h.trim())out.ing.push({h:l.h.trim()});return}const name=(l.i||'').trim();if(!name)return;
@@ -1003,7 +1063,7 @@ let wake=null;
 function startCook(r){const flat=[];let sect='';(r.steps||[]).forEach(s=>{if(s.h)sect=s.h;else flat.push({t:s.t,sect})});if(!flat.length)return;
   S.cook={id:r.id,i:0,flat,timers:[]};drawCook();tryWake()}
 async function tryWake(){try{if('wakeLock' in navigator){wake=await navigator.wakeLock.request('screen');const p=$('#wakePill');if(p)p.hidden=false}}catch(e){wake=null}}
-function stopCook(){S.cook.timers.forEach(t=>clearInterval(t.h));S.cook=null;try{wake&&wake.release()}catch(e){}wake=null;$('#layer').innerHTML='';document.body.style.overflow=''}
+function stopCook(){hush();S.cook.timers.forEach(t=>clearInterval(t.h));S.cook=null;try{wake&&wake.release()}catch(e){}wake=null;$('#layer').innerHTML='';document.body.style.overflow=''}
 function stepIngs(r,text){const low=text.toLowerCase();const f=(S.servings[r.id]&&r.serv)?S.servings[r.id]/r.serv:1;const seen=new Set();
   return (r.ing||[]).filter(l=>{if(!l.i)return false;const n=l.i.toLowerCase();const words=n.split(' ');const key=n;if(seen.has(key))return false;
     const hit=low.includes(n)||(words.length>1&&low.includes(words[words.length-1])&&words[words.length-1].length>4)||(words.length===1&&new RegExp('\\b'+n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(e?s)?\\b').test(low));if(hit)seen.add(key);return hit})
@@ -1016,10 +1076,12 @@ function drawCook(){const c=S.cook;if(!c)return;const r=byId(c.id);const st=c.fl
 <div class="running" id="runTimers">${timerChips()}</div>
 <div class="cook-body"><section class="cook-step"><div class="band"><h2>Step ${c.i+1} of ${c.flat.length}</h2>${st.sect?`<span>${esc(st.sect)}</span>`:''}</div><div class="cook-inner"><p>${esc(st.t)}</p>
 ${tm.length?`<div class="timers">${tm.map(x=>`<button class="timer-btn" data-act="timer" data-v="${x.sec}" data-l="${esc(x.label)}">${I.clock}Start ${esc(x.label)} timer</button>`).join('')}</div>`:''}
-<div class="cook-nav"><button class="btn" data-act="cookprev" ${c.i?'':'disabled'}>${I.prev}Back</button><button class="btn primary next" data-act="${last?'cookexit':'cooknext'}">${last?'All done':'Next step'}${last?'':I.next}</button></div></div></section>
+${canSpeak?`<div class="speakrow"><button class="btn small" data-act="speak" aria-pressed="${speakOn()}">${I2.speak}${speakOn()?'Read aloud is on':'Read aloud'}</button>${speakOn()?`<button class="btn small" data-act="speakagain">Read this step again</button>`:''}</div>`:''}
+<div class="cook-nav"><button class="btn" data-act="cookprev" ${c.i?'':'disabled'}>${I.prev}Back</button><button class="btn primary next" data-act="${last?'cookdone':'cooknext'}">${last?'All done':'Next step'}${last?'':I.next}</button></div></div></section>
 <aside class="cook-side"><div class="band"><h2>In this step</h2></div><div class="inner">${ings.length?`<ul>${ings.map(x=>`<li>${x.a?`<b>${esc(x.a)}</b> `:''}${esc(x.i)}${x.n?`<span class="note">, ${esc(x.n)}</span>`:''}</li>`).join('')}</ul>`:'<p class="subtle" style="margin:12px 0 0">No ingredients named in this step.</p>'}
 <p class="subtle" style="margin-top:auto;padding-top:16px">Swipe or use the arrow keys to move between steps.</p></div></aside></div></div>`;
-  const nx=$('.cook .next');if(nx)nx.focus({preventScroll:true})}
+  const nx=$('.cook .next');if(nx)nx.focus({preventScroll:true});
+  if(speakOn()&&c.spoke!==c.i){c.spoke=c.i;speakStep()}}
 function mmss(s){s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')}
 function timerChips(){return S.cook.timers.map((t,k)=>`<div class="run ${t.left<=0?'ding':''}" role="timer"><span>${t.left<=0?'Time is up: ':''}${esc(t.label)} · ${mmss(t.left)}</span><button class="btn small" data-act="timerdel" data-v="${k}">${t.left<=0?'Done':'Cancel'}</button></div>`).join('')}
 let actx=null;function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();[0,.35,.7].forEach(d=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;o.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.0001,actx.currentTime+d);g.gain.exponentialRampToValueAtTime(.3,actx.currentTime+d+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+d+.3);o.start(actx.currentTime+d);o.stop(actx.currentTime+d+.32)})}catch(e){}}
@@ -1030,16 +1092,18 @@ function toast(t,act){$$('.toast').forEach(x=>x.remove());const el=document.crea
 function openDlg(html){const w=document.createElement('div');w.className='scrim';w.innerHTML=`<div class="dlg" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(w);w.addEventListener('click',e=>{if(e.target===w||e.target.closest('[data-close]'))w.remove()});const f=w.querySelector('button,input,a');if(f)f.focus();return w}
 function confirmDlg(title,body,ok,fn){const w=openDlg(`<h2>${title}</h2><p>${body}</p><div class="acts"><button class="btn" data-close>Cancel</button><button class="btn primary" data-ok>${esc(ok)}</button></div>`);w.querySelector('[data-ok]').onclick=()=>{w.remove();fn()}}
 let downloads=null;
-function settingsDlg(){const n=S.box.recipes.length;const w=openDlg(`<h2>Backup and settings</h2><p style="margin:0">New to Recipe Box or stuck on something? <a href="./help.html" target="_blank" rel="noopener"><b>Open the help guide</b></a>.</p>
+function settingsDlg(){const n=S.box.recipes.length;const w=openDlg(`<h2>Backup and settings</h2><p style="margin:0">New to Recipe Box or stuck on something? <a href="./help.html" target="_blank" rel="noopener"><b>Open the help guide</b></a>, or <button class="inlinelink" data-s="tour">take the quick tour</button>.</p>
 <p>Your ${n} recipes are saved in this browser on this device. A backup file lets you move them to another device or keep a safe copy.</p>
 ${canSave()?`<button class="btn primary" data-s="backup">Download a backup file</button>`:`<p class="subtle">Downloading a backup isn't available in this view.</p>`}
 <label class="btn" for="restoreFile">Restore from a backup file</label>
-<label class="btn" for="shareFile">Add a shared recipe</label><input type="file" id="restoreFile" accept=".json,application/json" class="sr">
+<label class="btn" for="shareFile">Add a shared recipe</label>
+<button class="btn" data-s="trash">${I.trash}Recently deleted${S.trash.length?` (${S.trash.length})`:''}</button><input type="file" id="restoreFile" accept=".json,application/json" class="sr">
 ${syncSettingsHTML()}
 ${STANDALONE&&!isInstalled()?`<hr><p class="lblp">Install on this device</p>${installEvt?`<button class="btn" data-s="install">Install Recipe Box</button>`:installSteps()}<p class="subtle">Installing gives Recipe Box its own icon and keeps your recipes from being cleared with your browser history.</p>`:''}
 ${STANDALONE?`<hr><p class="lblp">Invite family</p><p>Copy this message and send it along with your recipe backup file.</p><label class="sr" for="invite">Invitation message</label><textarea class="in invite" id="invite" rows="8" readonly>${esc(inviteText())}</textarea><div class="acts" style="justify-content:flex-start;margin:0"><button class="btn" data-s="copyinvite">${I2.copy}Copy message</button>${navigator.share?`<button class="btn" data-s="shareinvite">Share…</button>`:''}</div>`:''}
 ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p><b>On a computer:</b> drag this button to your browser’s bookmarks bar. On any recipe website, click it to send the recipe here.</p><a class="btn bmk" href="${esc(bookmarkletCode())}" onclick="return false" draggable="true">${I2.paste}Save to Recipe Box</a><p><b>On a tablet or phone:</b> add a <b>Copy Web Recipe</b> bookmark to your browser. On any recipe website, tap it to copy the recipe, then paste it into Recipe Box.</p><button class="btn small" data-s="copybm" style="align-self:flex-start">Set up Copy Web Recipe</button><div id="bmSteps" hidden></div>`:''}
 <hr><p class="lblp">Appearance</p><div class="seg" role="group" aria-label="Appearance" style="align-self:flex-start">${['light','dark','auto'].map(t=>`<button data-s="theme" data-t="${t}" aria-pressed="${getTheme()===t}">${t==='light'?'Light':t==='dark'?'Dark':'Match device'}</button>`).join('')}</div>
+<p class="lblp">Text size</p><div class="seg" role="group" aria-label="Text size" style="align-self:flex-start">${[['m','Regular'],['l','Larger'],['xl','Largest']].map(([k,l])=>`<button data-s="text" data-t="${k}" aria-pressed="${getText()===k}">${l}</button>`).join('')}</div>
 <hr><p class="lblp">Start over</p><div class="acts" style="justify-content:flex-start">${SEED.recipes.length?`<button class="btn" data-s="seed">Reload the starting recipes</button>`:''}<button class="btn danger" data-s="empty">Empty the recipe box</button></div>
 <div class="acts"><button class="btn" data-close>Close</button></div>`);
   w.addEventListener('click',async e=>{const b=e.target.closest('[data-s]');if(!b)return;const a=b.dataset.s;
@@ -1052,10 +1116,13 @@ ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p><b>On a compu
     if(a==='bmway'){const k=b.dataset.t;$$('[data-s=bmway]',w).forEach(x=>x.setAttribute('aria-pressed',x===b));$('#bmWay',w).innerHTML=BMWAYS[k].html;return}
     if(a==='copybm'){const box=$('#bmSteps',w);let copied=false;try{await navigator.clipboard.writeText(bookmarkletCode());copied=true}catch(e){}
       box.innerHTML=(copied?`<p><b>The bookmark’s code is copied.</b> Now make the bookmark in your web browser:</p>`:`<p><b>Copy this code first:</b> press and hold in the box, tap <b>Select All</b>, then tap <b>Copy</b>. Then make the bookmark in your web browser:</p><textarea class="in" readonly rows="3" style="font-size:13px">${esc(bookmarkletCode())}</textarea>`)+bmStepsHtml();box.hidden=false;if(copied)toast('Code copied');return}
+    if(a==='tour'){w.remove();tourDlg();return}
+    if(a==='trash'){w.remove();go('/trash');return}
+    if(a==='text'){applyText(b.dataset.t);$$('[data-s=text]',w).forEach(x=>x.setAttribute('aria-pressed',x===b));return}
     if(a==='theme'){applyTheme(b.dataset.t);$$('[data-s=theme]',w).forEach(x=>x.setAttribute('aria-pressed',x===b));return}
-    if(a==='backup'){try{const stamp=new Date().toISOString().slice(0,10);await saveFile(`recipe-box-backup-${stamp}.json`,JSON.stringify({app:'recipe-box',version:1,exported:nowISO(),box:S.box}),'application/json');toast('Backup saved')}catch(err){const code=err&&err.code;toast(code==='declined'?'Backup not saved':code==='rate_limited'?'A save is already open. Try again in a moment.':'Backup could not be saved here')}}
+    if(a==='backup'){if(await doBackup()&&route().name==='browse')render()}
     if(a==='seed'){w.remove();confirmDlg('Reload the starting recipes?','This replaces everything in your box with the original 154 recipes. Recipes you added or changed will be lost unless you have a backup.','Reload recipes',()=>{S.box=ensureBox(freshBox(true));S.letter=null;persist();toast('Starting recipes loaded');go('/')})}
-    if(a==='empty'){w.remove();confirmDlg('Empty the recipe box?','Every recipe on this device will be removed. Your ingredient list and tags stay so you can start fresh.','Empty the box',()=>{S.box.recipes=[];persist();toast('Recipe box emptied');go('/')})}});
+    if(a==='empty'){w.remove();confirmDlg('Empty the recipe box?',`Every recipe will move to Recently deleted, where you can put them back for ${TRASH_DAYS} days. Your ingredient list and tags stay so you can start fresh.`,'Empty the box',()=>{{const at=nowISO();S.trash=S.box.recipes.map(r=>({r:clone(r),at})).concat(S.trash);purgeTrash();saveTrash()}S.box.recipes=[];persist();toast('Recipe box emptied');go('/')})}});
   w.querySelector('#restoreFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const fr=new FileReader();fr.onload=()=>{try{const j=JSON.parse(fr.result);if(j&&j.kind==='recipe'&&j.recipe){w.remove();e.target.value='';sharedPreview(j.recipe,true);return}const box=j.box||j;if(!box||!Array.isArray(box.recipes))throw 0;w.remove();
     confirmDlg('Restore this backup?',`The file has ${box.recipes.length} recipes. Restoring replaces what's on this device now.`,'Restore backup',()=>{S.box=ensureBox(box);S.letter=null;persist();toast('Backup restored');go('/')})}catch(err){toast("That file isn't a Recipe Box backup")}};fr.readAsText(file)})}
 
@@ -1063,7 +1130,7 @@ ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p><b>On a compu
 const SHARE_HINT='Open Recipe Box and choose “Add a shared recipe” in the settings menu, or on the Add recipe screen.';
 function cleanShared(rc){rc=rc&&typeof rc==='object'?rc:{};const s=v=>typeof v==='string'?v.trim():'';const n=v=>typeof v==='number'&&isFinite(v)?v:null;
   const o={name:s(rc.name)||'Untitled recipe',tags:[...new Set((Array.isArray(rc.tags)?rc.tags:[]).map(s).filter(Boolean))]};
-  ['desc','src','yld','ut','notes'].forEach(k=>{const v=s(rc[k]);if(v)o[k]=v});
+  ['desc','src','yld','ut','notes','story'].forEach(k=>{const v=s(rc[k]);if(v)o[k]=v});
   const ln=s(rc.link);if(/^https?:\/\//i.test(ln))o.link=ln;
   if(typeof rc.photo==='string'&&/^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(rc.photo))o.photo=rc.photo;
   const mi=n(rc.min);if(mi>0)o.min=Math.round(mi);const sv=n(rc.serv);if(sv>0)o.serv=sv;const df=n(rc.diff);if(df>=1&&df<=DIFF.length)o.diff=Math.round(df);
@@ -1092,19 +1159,128 @@ function sharedPreview(raw){const rc=cleanShared(raw);const ex=S.box.recipes.fin
 ${ex?`<p class="dupnote">You already have a recipe called “${esc(ex.name)}.” What would you like to do?</p><div class="acts"><button class="btn" data-close>Skip it</button><button class="btn" data-sh="replace">Replace mine</button><button class="btn primary" data-sh="both">Keep both</button></div>`
   :`<div class="acts"><button class="btn" data-close>Cancel</button><button class="btn primary" data-sh="add">Add to my box</button></div>`}`);
   w.addEventListener('click',e=>{const b=e.target.closest('[data-sh]');if(!b)return;const mode=b.dataset.sh;
-    if(mode==='replace'){w.remove();confirmDlg('Replace your recipe?',`Your “${esc(ex.name)}” will be swapped for the one you were sent. Your favorite mark stays, but your other changes to it will be gone.`,'Replace mine',()=>addShared(rc,'replace',ex));return}
+    if(mode==='replace'){w.remove();confirmDlg('Replace your recipe?',`Your “${esc(ex.name)}” will be swapped for the one you were sent. Your favorite mark and the times you've made it stay, but your other changes to it will be gone.`,'Replace mine',()=>addShared(rc,'replace',ex));return}
     w.remove();addShared(rc,mode,ex)})}
 function addShared(rc,mode,ex){const out={...rc};const now=nowISO();
-  if(mode==='replace'&&ex){out.id=ex.id;out.name=ex.name;out.created=ex.created||now;if(ex.fav)out.fav=true;out.updated=now;const i=S.box.recipes.indexOf(ex);S.box.recipes[i]=out;delete S.servings[out.id]}
+  if(mode==='replace'&&ex){if(Array.isArray(ex.made)&&ex.made.length)out.made=ex.made;out.id=ex.id;out.name=ex.name;out.created=ex.created||now;if(ex.fav)out.fav=true;out.updated=now;const i=S.box.recipes.indexOf(ex);S.box.recipes[i]=out;delete S.servings[out.id]}
   else{if(mode==='both')out.name=sharedCopyName(rc.name);out.id=uid();out.created=now;out.updated=now;S.box.recipes.push(out)}
   S.box.tags=unionCI(S.box.tags,out.tags);S.box.units=unionCI(S.box.units,out.ing.map(l=>l.u).filter(Boolean));S.box.ingredients=unionCI(S.box.ingredients,out.ing.map(l=>l.i).filter(Boolean));
   S.letter=null;persist();toast(mode==='replace'?'Recipe replaced':mode==='both'?`Added as “${out.name}”`:'Recipe added');go('/r/'+encodeURIComponent(out.id))}
 document.body.insertAdjacentHTML('beforeend','<input type="file" id="shareFile" accept=".json,application/json" class="sr" tabindex="-1" aria-hidden="true">');
 document.addEventListener('change',e=>{if(e.target.id!=='shareFile')return;const f=e.target.files[0];e.target.value='';if(!f)return;$$('.scrim').forEach(x=>x.remove());readSharedFile(f)});
 
+/* ---------- small device settings ---------- */
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const DAY=864e5;
+function fmtDay(k){try{const d=fromKey(String(k).slice(0,10));if(isNaN(d))return String(k);return MON[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear()}catch(e){return String(k)}}
+function andList(a){a=a.map(x=>String(x).toLowerCase());return a.length<3?a.join(' and '):a.slice(0,-1).join(', ')+', and '+a[a.length-1]}
+
+/* ---------- recently deleted ---------- */
+const TRASH_DAYS=30;
+function purgeTrash(){const cut=Date.now()-TRASH_DAYS*DAY;const n=S.trash.length;S.trash=S.trash.filter(x=>x&&x.r&&(Date.parse(x.at)||0)>cut);return n!==S.trash.length}
+function saveTrash(){kvSet('trash',S.trash)}
+function trashRecipe(r){if(!r)return null;const ent={r:clone(r),at:nowISO()};S.trash.unshift(ent);purgeTrash();saveTrash();return ent}
+function deleteRecipe(id){const r=byId(id);if(!r)return;const ent=trashRecipe(r);S.box.recipes=S.box.recipes.filter(x=>x.id!==id);delete S.servings[id];persist();
+  toast('Moved to Recently deleted',{label:'Undo',fn:()=>restoreEntry(ent,false)})}
+function restoreEntry(ent,open){const i=S.trash.indexOf(ent);if(i<0)return;S.trash.splice(i,1);saveTrash();const r=clone(ent.r);if(byId(r.id)){toast(`“${r.name}” is already back in your recipe box`);if(open)go('/r/'+encodeURIComponent(r.id));else render();return}
+  S.box.recipes.push(r);S.box.tags=unionCI(S.box.tags,r.tags||[]);S.letter=null;persist();toast(`“${r.name}” is back in your recipe box`);if(open)go('/r/'+encodeURIComponent(r.id));else render()}
+function viewTrash(){if(purgeTrash())saveTrash();const L=S.trash;const left=e=>Math.max(1,Math.ceil(((Date.parse(e.at)||0)+TRASH_DAYS*DAY-Date.now())/DAY));
+  return `<a class="back" href="#/">${I.back}Back to recipes</a>
+<div class="form"><h1>Recently deleted</h1>
+<div class="sheet"><p style="margin:0">Recipes you delete wait here for ${TRASH_DAYS} days, then they're removed for good. Tap <b>Put it back</b> to return one to your recipe box.</p><p class="subtle" style="margin:0">This list is kept on this device only.</p></div>
+${L.length?`<ul class="trashlist">${L.map((e,k)=>{const n=left(e);return `<li class="${tagClass(mainTag(e.r)||'')}"><div class="tn"><b>${esc(e.r.name||'Untitled recipe')}</b><span>Deleted ${esc(fmtDay(dkey(new Date(e.at))))}. ${n===1?'1 day':n+' days'} left to put it back.</span></div><div class="ta"><button class="btn primary" data-act="trashrestore" data-v="${k}">Put it back</button><button class="btn danger" data-act="trashdel" data-v="${k}">Delete forever</button></div></li>`}).join('')}</ul>
+<div class="actions"><button class="btn danger" data-act="trashempty">${I.trash}Empty Recently deleted</button></div>`:`<div class="empty"><p>Nothing here right now. Recipes you delete will wait here for ${TRASH_DAYS} days in case you change your mind.</p></div>`}</div>`}
+
+/* ---------- backups and the reminder ---------- */
+async function doBackup(){try{const stamp=new Date().toISOString().slice(0,10);await saveFile(`recipe-box-backup-${stamp}.json`,JSON.stringify({app:'recipe-box',version:1,exported:nowISO(),box:S.box}),'application/json');lsSet('rb-backup-at',nowISO());toast('Backup saved');return true}
+  catch(err){const code=err&&err.code;toast(code==='declined'?'Backup not saved':code==='rate_limited'?'A save is already open. Try again in a moment.':'Backup could not be saved here');return false}}
+function backupDue(){if(!S.ready||!STANDALONE||!canSave()||SY.st||!S.box||!S.box.recipes.length)return null;const now=Date.now();
+  if(now<(Date.parse(lsGet('rb-backup-snooze')||'')||0))return null;const last=Date.parse(lsGet('rb-backup-at')||'')||0;
+  if(last)return now-last>30*DAY?'old':null;const first=Date.parse(lsGet('rb-first-at')||'')||now;return now-first>14*DAY?'never':null}
+function backupBanner(){const due=backupDue();if(!due)return '';
+  return `<section class="bkbanner" aria-label="Backup reminder"><div class="ibtext"><b>${due==='never'?"You haven't made a backup yet":"It's been over a month since your last backup"}</b><span>Your recipes are saved only on this device. A backup file keeps a safe copy in case something happens to it. You can also turn on sync in the settings menu.</span></div><div class="ibacts"><button class="btn primary" data-act="bknow">Back up now</button><button class="btn" data-act="bklater">Remind me next week</button></div></section>`}
+
+/* ---------- text size ---------- */
+const getText=()=>lsGet('rb-text')||'m';
+function applyText(t){const el=document.documentElement;if(t==='l'||t==='xl')el.setAttribute('data-text',t);else{el.removeAttribute('data-text');t='m'}lsSet('rb-text',t)}
+
+/* ---------- read aloud in cooking mode ---------- */
+const canSpeak=('speechSynthesis' in window)&&typeof SpeechSynthesisUtterance==='function';
+const speakOn=()=>canSpeak&&lsGet('rb-speak')==='1';
+function hush(){try{canSpeak&&speechSynthesis.cancel()}catch(e){}}
+function speakStep(){if(!canSpeak||!S.cook)return;const c=S.cook,st=c.flat[c.i];try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(`Step ${c.i+1}. ${st.t}`);u.rate=.95;u.lang=navigator.language||'en-US';speechSynthesis.speak(u)}catch(e){}}
+
+/* ---------- the story and the made log ---------- */
+function storyHtml(r){return r.story?`<section class="panel tg7" aria-labelledby="sth"><div class="band"><h2 id="sth">The story behind it</h2></div><div class="panel-body"><p class="story-text">${esc(r.story)}</p></div></section>`:''}
+function madeHtml(r){const m=Array.isArray(r.made)?r.made:[];
+  const row=(e,k)=>`<li><div class="md"><b>${esc(fmtDay(e.d))}</b>${e.n?`<span>${esc(e.n)}</span>`:''}</div><button class="btn ghost icon-btn" data-act="madedel" data-v="${k}" aria-label="Remove ${esc(fmtDay(e.d))} from the log" title="Remove from the log">${I.x}</button></li>`;
+  return `<section class="panel tg3" aria-labelledby="mh"><div class="band"><h2 id="mh">Times we've made it</h2>${m.length?`<span>${m.length===1?'Once':m.length+' times'}</span>`:''}</div><div class="panel-body">
+${m.length?`<ul class="madelist">${m.slice(0,5).map(row).join('')}</ul>${m.length>5?`<details class="madeall"><summary>Show all ${m.length}</summary><ul class="madelist">${m.slice(5).map((e,k)=>row(e,k+5)).join('')}</ul></details>`:''}`:`<p class="madeempty">Not logged yet. After you make it, tap <b>We made this</b> to keep track of when, and jot down how it turned out.</p>`}
+<div class="madeacts"><button class="btn" data-act="made">${I.check}We made this</button></div></div></section>`}
+function madeDlg(r,done){if(!r)return;const today=dkey(new Date());
+  const w=openDlg(`<h2>${done?'All done! Nice work.':'We made this!'}</h2><p style="margin:0">${done?"Want to add this to the times you've made it?":"Add it to the times you've made this recipe."}</p>
+<div class="field"><label for="mdDate">When did you make it?</label><input class="in" type="date" id="mdDate" value="${today}" max="${today}"></div>
+<div class="field"><label for="mdNote">Anything to remember? (optional)</label><textarea class="in" id="mdNote" rows="3" placeholder="Doubled the garlic. Everyone had seconds."></textarea></div>
+<div class="acts"><button class="btn" data-close>${done?'Not now':'Cancel'}</button><button class="btn primary" data-ok>${I.check}Add to our log</button></div>`);
+  const ok=w.querySelector('[data-ok]');ok.focus();
+  ok.onclick=()=>{let d=(w.querySelector('#mdDate').value||'').slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(d))d=today;const n=w.querySelector('#mdNote').value.trim();
+    const rec=byId(r.id);if(!rec){w.remove();return}rec.made=Array.isArray(rec.made)?rec.made:[];rec.made.push(n?{d,n}:{d});rec.made.sort((a,b)=>String(b.d).localeCompare(String(a.d)));rec.updated=nowISO();
+    w.remove();persist();if(route().name==='r'&&route().id===rec.id)render();toast('Added to your log')}}
+
+/* ---------- what can I make ---------- */
+function haveList(){if(!Array.isArray(S.have)){try{S.have=JSON.parse(lsGet('rb-have')||'[]')}catch(e){S.have=[]}if(!Array.isArray(S.have))S.have=[]}return S.have}
+const saveHave=()=>lsSet('rb-have',JSON.stringify(haveList()));
+const haveBasics=()=>lsGet('rb-have-basics')!=='0';
+const normIng=s=>' '+fold(String(s)).toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(Boolean).map(w=>w.length>3&&/[^s]s$/.test(w)?w.replace(/(ches|shes|oes|ies|s)$/,m=>m==='ies'?'y':m==='s'?'':m.slice(0,-2)):w).join(' ')+' ';
+let BASIC=null;const basicSet=()=>BASIC||(BASIC=new Set(['salt','kosher salt','sea salt','table salt','pepper','black pepper','ground black pepper','water','cold water','warm water','hot water','boiling water','ice','oil','olive oil','extra virgin olive oil','vegetable oil','canola oil','cooking oil','cooking spray','nonstick cooking spray'].map(x=>normIng(x).trim())));
+function addHave(){const el=$('#haveIn');if(!el)return;const parts=el.value.split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean);if(!parts.length){el.focus();return}
+  const h=haveList();parts.forEach(p=>{if(!h.some(x=>x.toLowerCase()===p.toLowerCase()))h.push(p)});saveHave();render();const n=$('#haveIn');if(n)n.focus()}
+function makeResults(){const have=haveList().map(normIng).filter(x=>x.trim());if(!have.length)return null;const bas=haveBasics(),B=basicSet();
+  return S.box.recipes.map(r=>{const used=[],need=[],seen=new Set();(r.ing||[]).forEach(l=>{if(!l.i)return;const n=normIng(l.i);if(seen.has(n))return;seen.add(n);
+      if(have.some(t=>n.includes(t)||t.includes(n)))used.push(l.i);else if(!(bas&&B.has(n.trim())))need.push(l.i)});return {r,used,need}})
+    .filter(x=>x.used.length).sort((a,b)=>a.need.length-b.need.length||b.used.length-a.used.length||collator.compare(a.r.name,b.r.name))}
+function makeCard(x){const rec=x.r;const t=mainTag(rec);const cls=tagClass(t);const more=x.need.length>4?` and ${x.need.length-4} more`:'';
+  return `<a class="card ${cls}" href="#/r/${encodeURIComponent(rec.id)}">${rec.photo?`<div class="card-photo"><img src="${rec.photo}" alt=""></div>`:''}<div class="card-title"><span>${esc(rec.name)}</span>${rec.fav?`<span class="sr">Favorite</span>${I.heartF}`:''}</div>
+<div class="card-body"><span class="hit">Uses your ${esc(andList(x.used))}</span>${x.need.length?`<span class="need">Still need ${esc(andList(x.need.slice(0,4)))}${more}</span>`:''}${rec.min?`<span>${esc(fmtMin(rec.min))}</span>`:''}</div></a>`}
+function viewMake(){const have=haveList();const res=makeResults();
+  const grp=(title,sub,list)=>list.length?`<section class="makegrp"><h2>${title}</h2><p>${sub}</p><div class="grid">${list.map(makeCard).join('')}</div></section>`:'';
+  let out='';
+  if(!have.length)out=`<div class="empty"><p>Add a few ingredients above, and the recipes that use them will show up here.</p></div>`;
+  else if(!res.length)out=`<div class="empty"><p>None of your recipes use ${esc(andList(have))} yet. Try adding something else you have.</p></div>`;
+  else{const ready=res.filter(x=>!x.need.length),close=res.filter(x=>x.need.length&&x.need.length<=2),some=res.filter(x=>x.need.length>2);
+    out=grp('Ready to make','You have everything these recipes call for.',ready)+grp('Almost there','Just one or two things to pick up.',close)+grp('Uses some of what you have',some.length>24?`Showing the 24 closest matches out of ${some.length}.`:'You would need a few more things for these.',some.slice(0,24))}
+  return `<a class="back" href="#/">${I.back}Back to recipes</a>
+<div class="form"><h1>What can I make?</h1>
+<div class="sheet"><p style="margin:0">Add what's in your kitchen, and Recipe Box shows which recipes you can make with it. Start with the main things, like chicken, rice, or apples.</p>
+<div class="field"><label for="haveIn">Add an ingredient you have</label><div class="haverow"><input class="in" id="haveIn" list="haveOpts" autocomplete="off" enterkeyhint="done" placeholder="Like: chicken"><button class="btn primary" data-act="haveadd">${I.plus}Add</button></div><datalist id="haveOpts">${S.box.ingredients.map(x=>`<option value="${esc(x)}">`).join('')}</datalist><span class="help">You can add several at once with commas, like: chicken, rice, onion</span></div>
+${have.length?`<div class="field"><span class="lbl">What you have</span><ul class="havechips">${have.map((x,k)=>`<li class="havechip">${esc(x)}<button data-act="havedel" data-v="${k}" aria-label="Remove ${esc(x)}" title="Remove">${I.x}</button></li>`).join('')}</ul><div><button class="btn small" data-act="haveclear">Clear the list</button></div></div>`:''}
+<label class="dunr" style="font-size:16px"><input type="checkbox" id="haveBasics" ${haveBasics()?'checked':''}> I always have salt, pepper, water, and cooking oil</label></div>
+${out}</div>`}
+
+/* ---------- quick tour ---------- */
+const TOUR=()=>[
+  {c:'tg5',ic:I.box,t:'Welcome to Recipe Box',p:"Here's a quick look around. It takes about a minute, and you can skip it anytime."},
+  {c:'tg2',ic:I.search,t:'Finding a recipe',p:'Flip through the letter tabs just like a real recipe box, or pick a category. The search box looks through ingredients too, so typing “chicken” finds every chicken dish.'},
+  {c:'tg6',ic:I.plus,t:'Adding recipes',p:'Tap <b>Add recipe</b> to type one in. You can also bring one in from a website, scan it from a cookbook with your camera, or add a file someone sent you.'},
+  {c:'tg3',ic:I.pot,t:'Cooking',p:'Open a recipe and tap <b>Start cooking</b>. You get one big step at a time, with timers you can start with a tap. Turn on <b>Read aloud</b> and Recipe Box reads each step to you.'},
+  {c:'tg4',ic:I2.cal,t:'Planning and shopping',p:'Add recipes to your <b>Meal plan</b> for the week, and Recipe Box builds your shopping list. Not sure what to cook? <b>What can I make?</b> on the main page shows recipes that use what you already have.'},
+  {c:'tg7',ic:I.gear,t:'Keeping your recipes safe',p:'The settings button has backups, sync, text size, and <b>Recently deleted</b>. If you delete a recipe by mistake, you have 30 days to put it back. The <b>?</b> button opens the help guide anytime.'}];
+function tourDlg(){const T=TOUR();let k=0;$$('.scrim').forEach(x=>x.remove());const w=document.createElement('div');w.className='scrim';document.body.appendChild(w);
+  const done=()=>{lsSet('rb-tour','done');w.remove()};
+  const draw=()=>{const s=T[k],last=k===T.length-1;w.innerHTML=`<div class="dlg tour ${s.c}" role="dialog" aria-modal="true" aria-labelledby="tourH"><div class="tico">${s.ic}</div><h2 id="tourH">${s.t}</h2><p>${s.p}</p>
+<div class="tdots" role="img" aria-label="Tip ${k+1} of ${T.length}">${T.map((_,i)=>`<span class="${i===k?'on':''}"></span>`).join('')}</div><div class="tfoot">${last?'':`<button class="btn ghost" data-t="skip">Skip tour</button>`}${k?`<button class="btn" data-t="back">Back</button>`:''}<button class="btn primary" data-t="next">${last?'Get started':'Next'}</button></div></div>`;
+    const f=w.querySelector('[data-t=next]');if(f)f.focus()};
+  w.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;const a=b.dataset.t;if(a==='skip')done();else if(a==='back'){k=Math.max(0,k-1);draw()}else if(k===T.length-1)done();else{k++;draw()}});
+  w.addEventListener('keydown',e=>{if(e.key==='Escape')done()});draw()}
+function maybeTour(){if(lsGet('rb-tour')||!S.box||S.cook||route().name!=='browse')return;
+  setTimeout(()=>{if(!lsGet('rb-tour')&&!$('.scrim')&&!S.cook&&route().name==='browse')tourDlg()},600)}
+
 /* ---------- shared box parts ---------- */
 function ensureBox(b){b.plan=b.plan||{};b.shop=b.shop||{};b.shop.recipes=b.shop.recipes||[];b.shop.extra=b.shop.extra||[];b.shop.checked=b.shop.checked||{};b.shop.removed=b.shop.removed||{};b.units=b.units||SEED.units.slice();b.ingredients=b.ingredients||[];b.tags=b.tags||[];return b}
 const I2={
+ speak:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>',
+ jar:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8v3H8zM7 6h10a1 1 0 0 1 1 1v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7a1 1 0 0 1 1-1z"/><path d="M9 12h6M9 15.5h4"/></svg>',
  book:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v14c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5zM12 6.5v14"/></svg>',
  share:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 9H6a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10a1 1 0 0 0-1-1h-2"/><path d="M12 15V3M8.5 6.5 12 3l3.5 3.5"/></svg>',
  cart:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11h10.2L20 8H6.2"/><circle cx="9" cy="19.5" r="1.5"/><circle cx="17" cy="19.5" r="1.5"/></svg>',
@@ -1299,8 +1475,8 @@ const FORMATS={
  half:{name:'Half page (5½ × 8½)',short:'half page',w:5.5,h:8.5,m:.45,base:10.5,min:8,cols:false,tile:{w:11,h:8.5,pos:[[0,0],[5.5,0]]}},
  c46:{name:'Recipe card (4 × 6)',short:'4 × 6 card',w:6,h:4,m:.3,base:9.5,min:7,cols:true,tile:{w:8.5,h:11,pos:[[1.25,.9],[1.25,6.1]]}},
  c35:{name:'Recipe card (3 × 5)',short:'3 × 5 card',w:5,h:3,m:.25,base:8.5,min:7,cols:true,tile:{w:8.5,h:11,pos:[[1.75,.75],[1.75,4],[1.75,7.25]]}}};
-const PFIELDS=[['photo','Photo'],['desc','Description'],['tags','Categories'],['details','Time, servings, and difficulty'],['src','Where it came from'],['ing','Ingredients'],['steps','Steps'],['ut','Equipment'],['notes','Tips and notes']];
-function printPrefs(){const b=S.box;b.print=b.print||{fmt:'letter',paper:'direct',look:'card',size:'auto',fields:{photo:true,desc:true,tags:true,details:true,src:true,ing:true,steps:true,ut:true,notes:true},byFmt:{}};return b.print}
+const PFIELDS=[['photo','Photo'],['desc','Description'],['tags','Categories'],['details','Time, servings, and difficulty'],['src','Where it came from'],['ing','Ingredients'],['steps','Steps'],['ut','Equipment'],['notes','Tips and notes'],['story','The story behind it']];
+function printPrefs(){const b=S.box;b.print=b.print||{fmt:'letter',paper:'direct',look:'card',size:'auto',fields:{photo:true,desc:true,tags:true,details:true,src:true,ing:true,steps:true,ut:true,notes:true,story:true},byFmt:{}};if(b.print.fields&&b.print.fields.story===undefined)b.print.fields.story=true;return b.print}
 function pBlocks(r,P,f,cols){const F=P.fields,B=[];const base=r.serv||null;const s=S.printServ??base;const fac=base&&s?s/base:1;
   B.push({k:'title',h:`<div class="pb-title">${esc(r.name)}</div>`});
   const det=[];if(F.details){if(r.min)det.push(`<span><b>Time</b> ${fmtMin(r.min)}</span>`);if(base)det.push(`<span><b>Serves</b> ${fmt(s)}</span>`);if(r.yld)det.push(`<span><b>Makes</b> ${esc(r.yld)}</span>`);if(r.diff)det.push(`<span><b>Difficulty</b> ${DIFF[r.diff-1]}</span>`)}
@@ -1317,6 +1493,7 @@ function pBlocks(r,P,f,cols){const F=P.fields,B=[];const base=r.serv||null;const
     r.steps.forEach(st=>{if(st.h)B.push({k:'grp',keep:true,h:`<div class="pb-grp">${esc(st.h)}</div>`});else{n++;B.push({k:'step',n,t:st.t,h:`<div class="pb-step"><span class="pb-n">${n}</span><span>${esc(st.t)}</span></div>`})}})}
   if(F.ut&&r.ut)B.push({k:'ut',h:`<div class="pb-sec small">You'll need</div><p class="pb-p">${esc(r.ut)}</p>`});
   if(F.notes&&r.notes)B.push({k:'notes',h:`<div class="pb-sec small">Tips and notes</div><p class="pb-p">${esc(r.notes)}</p>`});
+  if(F.story&&r.story)B.push({k:'notes',h:`<div class="pb-sec small">The story behind it</div><p class="pb-p">${esc(r.story)}</p>`});
   return B}
 function paginate(r,P,f,pt,cols){const fm=FORMATS[f];const meas=$('#pmeasure');const cw=(fm.w-2*fm.m)*96,ch=(fm.h-2*fm.m)*96-16;
   meas.className='pgin look-'+P.look+' fmt-'+f;meas.style.width=cw+'px';meas.style.fontSize=pt+'pt';
@@ -1553,7 +1730,7 @@ function localDocs(){const m={};const add=(id,kind,data,label)=>{m[id]={kind,dat
   S.box.recipes.forEach(r=>add('r-'+r.id,'recipe',r,r.name));add('lists','lists',{ingredients:S.box.ingredients,units:S.box.units,tags:S.box.tags},'Ingredient, unit, and category lists');
   add('plan','plan',S.box.plan,'Meal plan');add('shop','shop',S.box.shop,'Shopping list');return m}
 const unionCI=(a,b)=>{const seen=new Map();[...(a||[]),...(b||[])].forEach(x=>{const k=String(x).toLowerCase();if(!seen.has(k))seen.set(k,x)});return [...seen.values()].sort(collator.compare)};
-function applyDoc(id,data){if(id.startsWith('r-')){const rid=id.slice(2);const i=S.box.recipes.findIndex(r=>r.id===rid);if(data==null){if(i>=0)S.box.recipes.splice(i,1)}else if(i>=0)S.box.recipes[i]=data;else S.box.recipes.push(data);return}
+function applyDoc(id,data){if(id.startsWith('r-')){const rid=id.slice(2);const i=S.box.recipes.findIndex(r=>r.id===rid);if(data==null){if(i>=0){trashRecipe(S.box.recipes[i]);S.box.recipes.splice(i,1)}}else if(i>=0)S.box.recipes[i]=data;else S.box.recipes.push(data);return}
   if(id==='lists'){if(!data)return;S.box.ingredients=unionCI(S.box.ingredients,data.ingredients);S.box.units=unionCI(S.box.units,data.units);S.box.tags=unionCI(S.box.tags,data.tags);return}
   if(id==='plan')S.box.plan=data||{};if(id==='shop'){S.box.shop=data||{};ensureBox(S.box)}}
 const fname=id=>id+'.json';
@@ -1591,7 +1768,7 @@ function diffRows(c){const a=c.local,b=c.remote;if(c.kind!=='recipe'){const cnt=
   f('Name',a.name,b.name);f('Description',a.desc,b.desc);f('Servings',a.serv,b.serv);f('Total time',a.min?fmtMin(a.min):'',b.min?fmtMin(b.min):'');f('Difficulty',a.diff?DIFF[a.diff-1]:'',b.diff?DIFF[b.diff-1]:'');f('Categories',(a.tags||[]).join(', '),(b.tags||[]).join(', '));f('From',a.src,b.src);f('Favorite',a.fav?'Yes':'No',b.fav?'Yes':'No');
   const il=r=>(r.ing||[]).map(l=>l.h?'['+l.h+']':(amountText(l,1)+' '+l.i+(l.n?', '+l.n:'')).trim());const ia=il(a),ib=il(b);if(sj(ia)!==sj(ib)){const onlyA=ia.filter(x=>!ib.includes(x)),onlyB=ib.filter(x=>!ia.includes(x));rows.push(['Ingredients',onlyA.length?onlyA.slice(0,4).join('; ')+(onlyA.length>4?'; …':''):'(same lines, different order)',onlyB.length?onlyB.slice(0,4).join('; ')+(onlyB.length>4?'; …':''):'(same lines, different order)'])}
   const sa=(a.steps||[]).map(s=>s.t||s.h),sb=(b.steps||[]).map(s=>s.t||s.h);if(sj(sa)!==sj(sb))rows.push(['Steps',sa.length+' steps'+(sa.length===sb.length?', worded differently':''),sb.length+' steps'+(sa.length===sb.length?', worded differently':'')]);
-  f('Notes',a.notes,b.notes);f('Equipment',a.ut,b.ut);if(sj(a.photo||'')!==sj(b.photo||''))rows.push(['Photo',a.photo?'A photo':'No photo',b.photo?'A different photo':'No photo']);
+  f('Notes',a.notes,b.notes);f('Story',a.story,b.story);f('Equipment',a.ut,b.ut);{const mc=r=>(r.made||[]).length;if(sj(a.made||[])!==sj(b.made||[]))rows.push(['Times made',mc(a)+(mc(a)===1?' entry':' entries'),mc(b)+(mc(b)===1?' entry':' entries')])}if(sj(a.photo||'')!==sj(b.photo||''))rows.push(['Photo',a.photo?'A photo':'No photo',b.photo?'A different photo':'No photo']);
   return rows.length?rows:[['Details','Small changes','Small changes']]}
 function conflictDlg(){const cs=SY.conflicts;if(!cs||!cs.length||$('.cdlg'))return;const pick={};cs.forEach((c,i)=>pick[i]='local');
   const w=openDlg(`<div class="cdlg"><h2>Choose which changes to keep</h2><p>${cs.length===1?'This was':'These were'} changed on this device and on another device since the last sync. Pick the version to keep for each one.</p>
@@ -1675,6 +1852,20 @@ document.addEventListener('click',e=>{if(!e.target.closest('.cartwrap'))closeCar
   else if(a==='cooknext'){S.cook.i++;drawCook()}
   else if(a==='cookprev'){S.cook.i--;drawCook()}
   else if(a==='cookexit')stopCook();
+  else if(a==='cookdone'){const rr=byId(S.cook.id);stopCook();madeDlg(rr,true)}
+  else if(a==='speak'&&S.cook){if(speakOn()){lsSet('rb-speak','0');hush()}else{lsSet('rb-speak','1');S.cook.spoke=null}drawCook()}
+  else if(a==='speakagain'){speakStep()}
+  else if(a==='made'&&r){madeDlg(r)}
+  else if(a==='madedel'&&r&&Array.isArray(r.made)){const k=+v;const e0=r.made.splice(k,1)[0];if(!r.made.length)delete r.made;r.updated=nowISO();persist();render();
+    if(e0)toast('Removed from your log',{label:'Undo',fn:()=>{const rec=byId(r.id);if(!rec)return;rec.made=Array.isArray(rec.made)?rec.made:[];rec.made.push(e0);rec.made.sort((a,b)=>String(b.d).localeCompare(String(a.d)));rec.updated=nowISO();persist();render()}})}
+  else if(a==='bknow'){doBackup().then(ok=>{if(ok)render()})}
+  else if(a==='bklater'){lsSet('rb-backup-snooze',new Date(Date.now()+7*DAY).toISOString());render();toast("OK, we'll remind you next week")}
+  else if(a==='haveadd'){addHave()}
+  else if(a==='havedel'){haveList().splice(+v,1);saveHave();render()}
+  else if(a==='haveclear'){S.have=[];saveHave();render()}
+  else if(a==='trashrestore'){const ent=S.trash[+v];if(ent)restoreEntry(ent,true)}
+  else if(a==='trashdel'){const ent=S.trash[+v];if(ent)confirmDlg('Delete forever?',`“${esc(ent.r.name||'Untitled')}” will be gone for good. This can't be undone.`,'Delete forever',()=>{const i=S.trash.indexOf(ent);if(i>=0)S.trash.splice(i,1);saveTrash();render();toast('Deleted for good')})}
+  else if(a==='trashempty'){confirmDlg('Empty Recently deleted?',`All ${S.trash.length} ${S.trash.length===1?'recipe':'recipes'} in Recently deleted will be gone for good. This can't be undone.`,'Empty it',()=>{S.trash=[];saveTrash();render();toast('Recently deleted is empty')})}
   else if(a==='timer')addTimer(+v,b.dataset.l);
   else if(a==='timerdel'){const t=S.cook.timers[+v];clearInterval(t.h);S.cook.timers.splice(+v,1);$('#runTimers').innerHTML=timerChips()}
   else if(a==='settings')settingsDlg();});
@@ -1687,6 +1878,8 @@ let tx=null;document.addEventListener('touchstart',e=>{if(S.cook)tx=e.touches[0]
 document.addEventListener('touchend',e=>{if(!S.cook||tx==null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)<70)return;if(dx<0&&S.cook.i<S.cook.flat.length-1){S.cook.i++;drawCook()}else if(dx>0&&S.cook.i>0){S.cook.i--;drawCook()}},{passive:true});
 document.addEventListener('visibilitychange',()=>{if(S.cook&&document.visibilityState==='visible'&&wake===null)tryWake()});
 document.addEventListener('toggle',e=>{if(e.target.id==='diffdet')S.diffOpen=e.target.open},true);
+document.addEventListener('keydown',e=>{if(e.target&&e.target.id==='haveIn'&&e.key==='Enter'){e.preventDefault();addHave()}});
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='haveBasics'){lsSet('rb-have-basics',e.target.checked?'1':'0');render();const el=$('#haveBasics');if(el)el.focus()}});
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.pf==='field'){printEvents(byId(route().id),e);return}if(t.id==='dmin'||t.id==='dmax'){S.letter=null;render();const el=$('#'+t.id);if(el)el.focus()}else if(t.id==='dunr'){S.dunr=t.checked;S.letter=null;render();const el=$('#dunr');if(el)el.focus()}});
 window.addEventListener('pagehide',()=>{if(saveTimer){clearTimeout(saveTimer);kvSet('box',S.box)}});
 let rsz=null;window.addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(()=>{if(route().name==='print'&&byId(route().id))drawPrint(byId(route().id))},150)});
@@ -1695,13 +1888,16 @@ window.addEventListener('hashchange',()=>{const r=route();if(r.name!=='edit'&&r.
 function getTheme(){try{return localStorage.getItem('rb-theme')||'light'}catch(e){return 'light'}}
 function applyTheme(t){const el=document.documentElement;if(t==='auto')el.removeAttribute('data-theme');else el.setAttribute('data-theme',t);try{localStorage.setItem('rb-theme',t)}catch(e){}}
 applyTheme(getTheme());
+applyText(getText());
 /* ---------- boot ---------- */
 (async function(){try{DB=await idb()}catch(e){DB=null;persistOK=false}
+  {const t=await kvGet('trash');S.trash=Array.isArray(t)?t:[];if(purgeTrash())saveTrash()}if(!lsGet('rb-first-at'))lsSet('rb-first-at',nowISO());
   let box=await kvGet('box');if(box&&Array.isArray(box.recipes))S.box=ensureBox(box);else if(!STANDALONE){box=freshBox(true);S.box=ensureBox(box);if(DB){persistOK=await kvSet('box',box)}}
   render();
   try{if(window.claude&&claude.use){downloads=await claude.use('downloads')}}catch(e){downloads=null}
   if(STANDALONE&&'serviceWorker' in navigator){try{await navigator.serviceWorker.register('./sw.js')}catch(e){}}
   if(STANDALONE&&S.box){await syncLoad();const back=await oauthFinish();if(SY.st){render();if(!back)runSync(false)}}
+  S.ready=true;if(S.box&&route().name==='browse'&&backupDue())render();
   window.addEventListener('online',()=>scheduleSync(500));window.addEventListener('offline',()=>{if(SY.st)setSync('offline')});
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&SY.st)scheduleSync(800)});
 })();
