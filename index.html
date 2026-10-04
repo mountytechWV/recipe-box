@@ -1096,12 +1096,13 @@ let downloads=null;
 function settingsDlg(){const n=S.box.recipes.length;const w=openDlg(`<h2>Backup and settings</h2><p style="margin:0">New to Recipe Box or stuck on something? <a href="./help.html" target="_blank" rel="noopener"><b>Open the help guide</b></a>, or <button class="inlinelink" data-s="tour">take the quick tour</button>.</p>
 <p>Your ${n} recipes are saved in this browser on this device. A backup file lets you move them to another device or keep a safe copy.</p>
 ${canSave()?`<button class="btn primary" data-s="backup">Download a backup file</button>`:`<p class="subtle">Downloading a backup isn't available in this view.</p>`}
+<label class="btn" for="mergeFile">Add recipes from a backup file</label><input type="file" id="mergeFile" accept=".json,.txt,application/json,text/plain" class="sr">
 <label class="btn" for="restoreFile">Restore from a backup file</label>
 <label class="btn" for="shareFile">Add a shared recipe</label>
-<button class="btn" data-s="trash">${I.trash}Recently deleted${S.trash.length?` (${S.trash.length})`:''}</button><input type="file" id="restoreFile" accept=".json,application/json" class="sr">
+<button class="btn" data-s="trash">${I.trash}Recently deleted${S.trash.length?` (${S.trash.length})`:''}</button><input type="file" id="restoreFile" accept=".json,.txt,application/json,text/plain" class="sr">
 ${syncSettingsHTML()}
 ${STANDALONE&&!isInstalled()?`<hr><p class="lblp">Install on this device</p>${installEvt?`<button class="btn" data-s="install">Install Recipe Box</button>`:installSteps()}<p class="subtle">Installing gives Recipe Box its own icon and keeps your recipes from being cleared with your browser history.</p>`:''}
-${STANDALONE?`<hr><p class="lblp">Invite family</p><p>Copy this message and send it along with your recipe backup file.</p><label class="sr" for="invite">Invitation message</label><textarea class="in invite" id="invite" rows="8" readonly>${esc(inviteText())}</textarea><div class="acts" style="justify-content:flex-start;margin:0"><button class="btn" data-s="copyinvite">${I2.copy}Copy message</button>${navigator.share?`<button class="btn" data-s="shareinvite">Share…</button>`:''}</div>`:''}
+${STANDALONE?`<hr><p class="lblp">Family and Friends</p><p style="margin:0">Invite someone to use Recipe Box. Choose what to send:</p><div id="invBox" style="display:flex;flex-direction:column;gap:12px">${inviteHTML()}</div>`:''}
 ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p><b>On a computer:</b> drag this button to your browser’s bookmarks bar. On any recipe website, click it to send the recipe here.</p><a class="btn bmk" href="${esc(bookmarkletCode())}" onclick="return false" draggable="true">${I2.paste}Save to Recipe Box</a><p><b>On a tablet or phone:</b> add a <b>Copy Web Recipe</b> bookmark to your browser. On any recipe website, tap it to copy the recipe, then paste it into Recipe Box.</p><button class="btn small" data-s="copybm" style="align-self:flex-start">Set up Copy Web Recipe</button><div id="bmSteps" hidden></div>`:''}
 <hr><p class="lblp">Appearance</p><div class="seg" role="group" aria-label="Appearance" style="align-self:flex-start">${['light','dark','auto'].map(t=>`<button data-s="theme" data-t="${t}" aria-pressed="${getTheme()===t}">${t==='light'?'Light':t==='dark'?'Dark':'Match device'}</button>`).join('')}</div>
 <p class="lblp">Text size</p><div class="seg" role="group" aria-label="Text size" style="align-self:flex-start">${[['m','Regular'],['l','Larger'],['xl','Largest']].map(([k,l])=>`<button data-s="text" data-t="${k}" aria-pressed="${getText()===k}">${l}</button>`).join('')}</div>
@@ -1112,8 +1113,10 @@ ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p><b>On a compu
     if(a==='connect'){const pid=b.dataset.p;w.remove();try{await PROV[pid].connect()}catch(e){toast('Could not connect to '+PROV[pid].name+'. Please try again.')}return}
     if(a==='syncnow'){w.remove();syncTap();return}
     if(a==='syncoff'){w.remove();confirmDlg('Turn off sync?','Your recipes stay on this device and in your cloud folder, but they will stop syncing.','Turn off sync',disconnect);return}
-    if(a==='copyinvite'){try{await navigator.clipboard.writeText(inviteText());toast('Message copied')}catch(e){const t=$('#invite',w);t.focus();t.select();toast('Press Ctrl+C or Command+C to copy')}return}
-    if(a==='shareinvite'){try{await navigator.share({title:'Recipe Box',text:inviteText()})}catch(e){}return}
+    if(a==='copyinvite'){await copyInvite(w);return}
+    if(a==='invmode'){S.invMode=b.dataset.t;$('#invBox',w).innerHTML=inviteHTML();return}
+    if(a==='sendinvite'){await sendInvite(w);return}
+    if(a==='saveinvfile'){try{await saveFile('Recipe Box recipes.json',invBackup(),'application/json');toast('Recipe file saved')}catch(e){toast('The recipe file could not be saved here')}return}
     if(a==='bmway'){const k=b.dataset.t;$$('[data-s=bmway]',w).forEach(x=>x.setAttribute('aria-pressed',x===b));$('#bmWay',w).innerHTML=BMWAYS[k].html;return}
     if(a==='copybm'){const box=$('#bmSteps',w);let copied=false;try{await navigator.clipboard.writeText(bookmarkletCode());copied=true}catch(e){}
       box.innerHTML=(copied?`<p><b>The bookmark’s code is copied.</b> Now make the bookmark in your web browser:</p>`:`<p><b>Copy this code first:</b> press and hold in the box, tap <b>Select All</b>, then tap <b>Copy</b>. Then make the bookmark in your web browser:</p><textarea class="in" readonly rows="3" style="font-size:13px">${esc(bookmarkletCode())}</textarea>`)+bmStepsHtml();box.hidden=false;if(copied)toast('Code copied');return}
@@ -1124,6 +1127,7 @@ ${STANDALONE?`<hr><p class="lblp">Save recipes from websites</p><p><b>On a compu
     if(a==='backup'){if(await doBackup()&&route().name==='browse')render()}
     if(a==='seed'){w.remove();confirmDlg('Reload the starting recipes?','This replaces everything in your box with the original 154 recipes. Recipes you added or changed will be lost unless you have a backup.','Reload recipes',()=>{S.box=ensureBox(freshBox(true));S.letter=null;persist();toast('Starting recipes loaded');go('/')})}
     if(a==='empty'){w.remove();confirmDlg('Empty the recipe box?',`Every recipe will move to Recently deleted, where you can put them back for ${TRASH_DAYS} days. Your ingredient list and tags stay so you can start fresh.`,'Empty the box',()=>{{const at=nowISO();S.trash=S.box.recipes.map(r=>({r:clone(r),at})).concat(S.trash);purgeTrash();saveTrash()}S.box.recipes=[];persist();toast('Recipe box emptied');go('/')})}});
+  w.querySelector('#mergeFile').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;w.remove();readSharedFile(f)});
   w.querySelector('#restoreFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const fr=new FileReader();fr.onload=()=>{try{const j=JSON.parse(fr.result);if(j&&j.kind==='recipe'&&j.recipe){w.remove();e.target.value='';sharedPreview(j.recipe,true);return}const box=j.box||j;if(!box||!Array.isArray(box.recipes))throw 0;w.remove();
     confirmDlg('Restore this backup?',`The file has ${box.recipes.length} recipes. Restoring replaces what's on this device now.`,'Restore backup',()=>{S.box=ensureBox(box);S.letter=null;persist();toast('Backup restored');go('/')})}catch(err){toast("That file isn't a Recipe Box backup")}};fr.readAsText(file)})}
 
@@ -1138,10 +1142,15 @@ function cleanShared(rc){rc=rc&&typeof rc==='object'?rc:{};const s=v=>typeof v==
   o.ing=(Array.isArray(rc.ing)?rc.ing:[]).map(l=>{if(!l||typeof l!=='object')return null;if(s(l.h))return {h:s(l.h)};const i=s(l.i);if(!i)return null;const x={i};['a','b'].forEach(k=>{const v=n(l[k]);if(v!=null)x[k]=v});['q','u','n'].forEach(k=>{const v=s(l[k]);if(v)x[k]=v});return x}).filter(Boolean);
   o.steps=(Array.isArray(rc.steps)?rc.steps:[]).map(st=>{if(!st||typeof st!=='object')return null;if(s(st.h))return {h:s(st.h)};return s(st.t)?{t:s(st.t)}:null}).filter(Boolean);
   return o}
-function shareFileName(r){return ((r.name||'').replace(/[\\/:*?"<>|#%]+/g,'').replace(/\s+/g,' ').trim().slice(0,60)||'Recipe')+'.recipe.json'}
+function shareBase(r){return ((r.name||'').replace(/[\\/:*?"<>|#%]+/g,'').replace(/\s+/g,' ').trim().slice(0,60)||'Recipe')+'.recipe'}
+function shareFileName(r){return shareBase(r)+'.json'}
+/* A file this device's share menu will accept. Android and Windows only attach certain kinds of files, so if a
+   .json file isn't allowed, the same contents go out as a .txt file. Recipe Box reads either one. */
+function shareableFile(text,base,extra){if(!navigator.share||!navigator.canShare||typeof File!=='function')return null;
+  for(const [ext,type] of [['.json','application/json'],['.txt','text/plain']]){try{const f=new File([text],base+ext,{type});if(navigator.canShare({files:[f],...(extra||{})}))return f}catch(e){}}return null}
 async function shareRecipe(r){const name=shareFileName(r);const text=JSON.stringify({app:'recipe-box',kind:'recipe',version:1,exported:nowISO(),recipe:cleanShared(r)});
   const touch=isIOS()||isAndroid()||matchMedia('(pointer:coarse)').matches;
-  if(touch&&navigator.share&&navigator.canShare&&typeof File==='function'){try{const f=new File([text],name,{type:'application/json'});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:r.name});return}}catch(e){if(e&&e.name==='AbortError')return}}
+  if(touch){const f=shareableFile(text,shareBase(r));if(f){try{await navigator.share({files:[f],title:r.name});return}catch(e){if(e&&e.name==='AbortError')return}}}
   if(!canSave()){toast("Sharing isn't available in this view");return}
   try{await saveFile(name,text,'application/json');openDlg(`<h2>Recipe file saved</h2><p>“${esc(r.name)}” was saved as <b>${esc(name)}</b>, probably in your Downloads folder.</p><p>Attach that file to an email or message. The person who gets it can add it to their own Recipe Box. ${SHARE_HINT}</p><div class="acts"><button class="btn primary" data-close>Got it</button></div>`)}
   catch(err){const code=err&&err.code;toast(code==='declined'?'Recipe file not saved':'The recipe file could not be saved here')}}
@@ -1149,8 +1158,17 @@ const sameName=(a,b)=>a.trim().toLowerCase()===b.trim().toLowerCase();
 function sharedCopyName(name){let n=name+' (shared)',k=2;while(S.box.recipes.some(x=>sameName(x.name,n)))n=`${name} (shared ${k++})`;return n}
 function readSharedFile(file){const fr=new FileReader();fr.onload=()=>{let j;try{j=JSON.parse(fr.result)}catch(e){j=null}
     if(j&&j.kind==='recipe'&&j.recipe){sharedPreview(j.recipe);return}
-    if(j&&(Array.isArray(j.recipes)||(j.box&&Array.isArray(j.box.recipes)))){openDlg(`<h2>That's a full backup file</h2><p>This file holds a whole recipe box, not a single shared recipe. To load it, open the settings menu and choose <b>Restore from a backup file</b>.</p><p>Restoring a backup replaces the recipes on this device, so only do that if you mean to.</p><div class="acts"><button class="btn primary" data-close>OK</button></div>`);return}
+    if(j&&(Array.isArray(j.recipes)||(j.box&&Array.isArray(j.box.recipes)))){mergeDlg(j.box||j);return}
     toast("That file isn't a shared recipe")};fr.onerror=()=>toast('That file could not be opened');fr.readAsText(file)}
+function mergeDlg(box){const names=new Set(S.box.recipes.map(r=>(r.name||'').trim().toLowerCase()));const add=[],skip=[];
+  (Array.isArray(box.recipes)?box.recipes:[]).forEach(raw=>{const r=fixRecipe(clone(raw));if(!r)return;const k=(r.name||'').trim().toLowerCase();if(names.has(k)){skip.push(r);return}names.add(k);add.push(r)});
+  const n=add.length,plural=x=>x===1?'recipe':'recipes';
+  if(!n){openDlg(`<h2>Nothing new to add</h2><p>You already have ${skip.length===1?'the recipe':`all ${skip.length} recipes`} in this file, so nothing was changed.</p><div class="acts"><button class="btn primary" data-close>OK</button></div>`);return}
+  confirmDlg(`Add ${n} ${plural(n)}?`,`${n} new ${plural(n)} will be added to your recipe box.${skip.length?` ${skip.length} ${plural(skip.length)} you already have (with the same name) will be skipped.`:''} Your own recipes stay just as they are.`,`Add ${plural(n)}`,()=>{const now=nowISO();
+    add.forEach(r=>{if(byId(r.id))r.id=uid();delete r.fav;delete r.made;r.created=r.created||now;r.updated=r.updated||now;S.box.recipes.push(r)});
+    const strs=a=>(Array.isArray(a)?a:[]).filter(x=>typeof x==='string');
+    S.box.tags=unionCI(S.box.tags,add.flatMap(r=>r.tags));S.box.ingredients=unionCI(S.box.ingredients,strs(box.ingredients).concat(add.flatMap(r=>r.ing.map(l=>l.i).filter(Boolean))));S.box.units=unionCI(S.box.units,strs(box.units).concat(add.flatMap(r=>r.ing.map(l=>l.u).filter(Boolean))));
+    S.letter=null;persist();toast(`Added ${n} ${plural(n)}`);go('/')})}
 function sharedPreview(raw){const rc=cleanShared(raw);const ex=S.box.recipes.find(x=>sameName(x.name,rc.name));
   const ni=rc.ing.filter(l=>l.i).length,ns=rc.steps.filter(x=>x.t).length;
   const meta=[`${ni} ${ni===1?'ingredient':'ingredients'}`,`${ns} ${ns===1?'step':'steps'}`].concat(rc.min?[fmtMin(rc.min)]:[]).join(', ');
@@ -1167,7 +1185,7 @@ function addShared(rc,mode,ex){const out={...rc};const now=nowISO();
   else{if(mode==='both')out.name=sharedCopyName(rc.name);out.id=uid();out.created=now;out.updated=now;S.box.recipes.push(out)}
   S.box.tags=unionCI(S.box.tags,out.tags);S.box.units=unionCI(S.box.units,out.ing.map(l=>l.u).filter(Boolean));S.box.ingredients=unionCI(S.box.ingredients,out.ing.map(l=>l.i).filter(Boolean));
   S.letter=null;persist();toast(mode==='replace'?'Recipe replaced':mode==='both'?`Added as “${out.name}”`:'Recipe added');go('/r/'+encodeURIComponent(out.id))}
-document.body.insertAdjacentHTML('beforeend','<input type="file" id="shareFile" accept=".json,application/json" class="sr" tabindex="-1" aria-hidden="true">');
+document.body.insertAdjacentHTML('beforeend','<input type="file" id="shareFile" accept=".json,.txt,application/json,text/plain" class="sr" tabindex="-1" aria-hidden="true">');
 document.addEventListener('change',e=>{if(e.target.id!=='shareFile')return;const f=e.target.files[0];e.target.value='';if(!f)return;$$('.scrim').forEach(x=>x.remove());readSharedFile(f)});
 
 /* ---------- small device settings ---------- */
@@ -1596,18 +1614,44 @@ function installBanner(){if(!STANDALONE||isInstalled()||bannerOff()||!S.box)retu
   return `<section class="ibanner" aria-label="Install Recipe Box"><div class="ibtext"><b>Install Recipe Box on this ${isIOS()||isAndroid()?(/iPad|Tablet/.test(navigator.userAgent)||(isIOS()&&navigator.maxTouchPoints>1&&!/iPhone/.test(navigator.userAgent))?'tablet':'phone'):'computer'}</b><span>It gets its own icon, opens in its own window, and works without internet.</span></div>
 <div class="ibacts">${installEvt?`<button class="btn primary" data-act="doinstall">Install</button>`:`<button class="btn" data-act="howinstall" aria-expanded="${!!S.showHow}">${S.showHow?'Hide the steps':'Show me how'}</button>`}<button class="btn ghost icon-btn" data-act="hideinstall" aria-label="Don't show this again">${I.x}</button></div>
 ${S.showHow&&!installEvt?`<div class="ibsteps">${installSteps()}</div>`:''}</section>`}
-function inviteText(){const url=location.origin+location.pathname;return `Hi! I put our family recipes into an app called Recipe Box. It's free and works on computers, tablets, and phones.
+function inviteText(mode){const url=location.origin+location.pathname;
+  const icon='Give it its own icon: on an iPad or iPhone, tap Share, then "Add to Home Screen," and open Recipe Box from the new icon. On Android, tap ⋮ in Chrome, then "Install app." On a computer, click the install icon in the address bar.';
+  if(mode==='recipes')return `Hi! I've put my recipes into a free app called Recipe Box, and I'd love for you to have them. It works on computers, tablets, and phones, with no account or sign-up.
 
-1. Open this link: ${url}
+Heads up: when you first open the link, the recipe box will be empty. That's normal. The recipes are in the file I've attached.
 
-2. Install it so it gets its own icon:
-- iPad or iPhone (Safari): tap the Share button, then "Add to Home Screen." Then open Recipe Box from the new icon before going on.
-- Android: tap the ⋮ menu in Chrome, then "Install app."
-- Computer (Chrome or Edge): click the install icon at the right end of the address bar.
+1. Save the attached file. On an iPad or iPhone, tap it and choose "Save to Files."
+2. Open Recipe Box: ${url}
+3. ${icon}
+4. On the welcome screen, tap "Restore from a backup file" and pick the file you saved.
 
-3. Load the recipes: save the file I've attached (on an iPad or iPhone, tap it and choose "Save to Files"). In Recipe Box, choose "Restore from a backup file" and pick that file.
+Already using Recipe Box? Skip step 4. Instead, open settings and tap "Add recipes from a backup file." That adds my recipes and keeps all of yours.
 
-That's it. Your recipes stay on your own device, and you can add your own too.`}
+After that, the recipes are yours. Anything you add or change stays on your device and won't affect mine.`;
+  return `Hi! I've been using a free app called Recipe Box to keep my recipes, and I think you'd like it. It works on computers, tablets, and phones, with no account or sign-up, and your recipes stay private on your own device.
+
+1. Open Recipe Box: ${url}
+2. ${icon}
+3. On the welcome screen, tap "Start with an empty recipe box."
+
+You can type in recipes, save them from websites, or scan them from a cookbook with your camera.`}
+const invMode=()=>S.invMode==='recipes'?'recipes':'app';
+function inviteHTML(){const m=invMode(),n=S.box.recipes.length;const canSend=!!navigator.share;
+  return `<div class="seg" role="group" aria-label="What to send" style="align-self:flex-start"><button data-s="invmode" data-t="app" aria-pressed="${m==='app'}">Just the app</button><button data-s="invmode" data-t="recipes" aria-pressed="${m==='recipes'}">The app and my recipes</button></div>
+<p class="subtle" style="margin:0">${m==='app'?'Sends the link and simple steps to get started. Your recipes are not included.':`Sends the link plus a copy of ${n===1?'your 1 recipe':`all ${n} of your recipes`}. They get their own copy, so changes either of you make later won't affect the other.`}</p>
+<label for="invite" style="font-weight:600">Invitation message <span class="subtle" style="font-weight:400">(you can change it, like adding your name)</span></label><textarea class="in invite" id="invite" rows="9">${esc(inviteText(m))}</textarea>
+<div class="acts" style="justify-content:flex-start;margin:0">${canSend?`<button class="btn primary" data-s="sendinvite">${I2.share}Send invitation</button>`:''}<button class="btn" data-s="copyinvite">${I2.copy}Copy message</button>${m==='recipes'&&canSave()?`<button class="btn" data-s="saveinvfile">Save the recipe file</button>`:''}</div>
+${m==='recipes'?`<p class="subtle" style="margin:0">${canSend?'<b>Send invitation</b> attaches your recipes to the message for you. ':''}If you'd rather do it yourself, copy the message, save the recipe file, and attach it to an email or text.</p>`:''}`}
+const invBackup=()=>JSON.stringify({app:'recipe-box',version:1,exported:nowISO(),box:S.box});
+async function sendInvite(w){const msg=($('#invite',w)||{}).value||inviteText(invMode());
+  if(invMode()==='app'){if(navigator.share){try{await navigator.share({title:'Recipe Box',text:msg});return}catch(e){if(e&&e.name==='AbortError')return}}return copyInvite(w,msg)}
+  const text=invBackup();const f=shareableFile(text,'Recipe Box recipes',{text:msg});
+  if(f){try{await navigator.share({files:[f],text:msg,title:'Recipe Box'});return}catch(e){if(e&&e.name==='AbortError')return}}
+  /* this device can't attach the file: copy the message and save the file instead */
+  let copied=false;try{await navigator.clipboard.writeText(msg);copied=true}catch(e){}
+  let saved=false;if(canSave()){try{await saveFile('Recipe Box recipes.json',text,'application/json');saved=true}catch(e){}}
+  openDlg(`<h2>Almost ready to send</h2><p>This device can't attach the recipe file for you, so here's the quick way:</p><ol class="howto"><li>${copied?'Your message is copied.':'Copy the message from the Family and Friends box.'} Start an email or text and paste it in.</li><li>${saved?'Your recipes were saved as <b>Recipe Box recipes.json</b>, probably in your Downloads folder.':'Tap <b>Save the recipe file</b> in Family and Friends.'} Attach that file to the message.</li><li>Send it.</li></ol><div class="acts"><button class="btn primary" data-close>Got it</button></div>`)}
+async function copyInvite(w,msg){msg=msg||($('#invite',w)||{}).value||inviteText(invMode());try{await navigator.clipboard.writeText(msg);toast('Message copied')}catch(e){const t=$('#invite',w);if(t){t.focus();t.select()}toast('Press Ctrl+C or Command+C to copy')}}
 function bmDetect(){const ua=navigator.userAgent,ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);if(/Android/.test(ua))return 'and';if(ios)return /CriOS/.test(ua)?'ichrome':'isafari';return 'isafari'}
 const BMWAYS={
  isafari:{label:'iPad or iPhone, Safari',html:`<p class="lblp">Make the bookmark</p><ol class="howto"><li>Open <b>Safari</b> and go to any website. Any page is fine.</li><li>Tap the <b>Share</b> button (a square with an arrow pointing up), then tap <b>Add Bookmark</b>.</li><li>Change the name to <b>Copy Web Recipe</b>. Under <b>Location</b>, choose <b>Favorites</b>. Tap <b>Save</b>.</li><li>Open your bookmarks. On an iPad, tap the sidebar button at the top left, then <b>Bookmarks</b>. On an iPhone, tap the <b>Bookmarks</b> button (an open book) at the bottom.</li><li>Open <b>Favorites</b>, tap <b>Edit</b>, then tap <b>Copy Web Recipe</b>.</li><li>Tap the web address under the name, then tap the small <b>ⓧ</b> to clear it. Press and hold in the empty box and tap <b>Paste</b>.</li><li>Tap <b>Done</b>.</li></ol><p class="lblp">On an iPad, show the Favorites bar</p><ol class="howto"><li>Open the iPad’s <b>Settings</b> app, tap <b>Safari</b>, and turn on <b>Show Favorites Bar</b>.</li></ol><p class="lblp">Use it</p><ol class="howto"><li>Go to a recipe on any website in Safari.</li><li>On an iPad, tap <b>Copy Web Recipe</b> on the Favorites bar under the address. On an iPhone, tap the <b>Bookmarks</b> button, then <b>Favorites</b>, then <b>Copy Web Recipe</b>.</li><li>Tap <b>Copy this recipe</b>, then paste it into Recipe Box.</li></ol>`},
@@ -1663,7 +1707,7 @@ function viewWelcome(){return `<div class="welcome"><div class="welcome-card"><d
 ${STANDALONE&&!isInstalled()?(installEvt&&!isIOS()?`<div class="wtip winstall"><div><b>First, install Recipe Box</b><span>Gives it its own icon and window, and it works without internet. Choose Install, then follow the prompt.</span></div><button class="btn primary" data-act="doinstall">Install</button></div>`:`<div class="wtip"><b>${isIOS()?'On an iPad or iPhone? Add Recipe Box to your Home Screen first.':isAndroid()?'First, add Recipe Box to your home screen':'First, install Recipe Box on this computer'}</b>${installSteps()}</div>`):''}
 <div class="welcome-opts">${SEED.recipes.length?`<button class="wopt" data-w="seed"><b>Start with the family recipes</b><span>${SEED.recipes.length} recipes, ready to cook from. You can change or delete any of them.</span></button>`:''}
 <button class="wopt" data-w="empty"><b>Start with an empty recipe box</b><span>Add your own recipes, or paste them in from websites.</span></button>
-<label class="wopt" for="wfile"><b>Restore from a backup file</b><span>${SEED.recipes.length?'Use a backup someone sent you, or one from your other device.':'Got a recipe backup file from family? Choose it here to load all of those recipes.'}</span></label><input type="file" id="wfile" accept=".json,application/json" class="sr"></div><p class="whelp">Need help getting started? <a href="./help.html#getting-started" target="_blank" rel="noopener"><b>Open the help guide</b></a></p></div></div></div>`}
+<label class="wopt" for="wfile"><b>Restore from a backup file</b><span>${SEED.recipes.length?'Use a backup someone sent you, or one from your other device.':'Got a recipe backup file from family? Choose it here to load all of those recipes.'}</span></label><input type="file" id="wfile" accept=".json,.txt,application/json,text/plain" class="sr"></div><p class="whelp">Need help getting started? <a href="./help.html#getting-started" target="_blank" rel="noopener"><b>Open the help guide</b></a></p></div></div></div>`}
 function startBox(box){S.box=ensureBox(box);S.letter=null;persist();try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}render()}
 
 /* ---------- sync with Google Drive, OneDrive, Dropbox ---------- */

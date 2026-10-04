@@ -195,7 +195,7 @@ main{max-width:980px;margin:0 auto;padding:28px 20px 60px;padding-left:max(20px,
 <h3>Step 3: Add your recipes</h3>
 <p>Open Recipe Box from its new icon. You'll see the <strong>Welcome to Recipe Box</strong> screen with two choices.</p>
 <h4>If someone sent you a recipe file</h4>
-<p>A family member may have emailed you a file of their recipes. It will have a name ending in <strong>.json</strong>.</p>
+<p>A family member may have emailed or texted you a file of their recipes. It will have a name ending in <strong>.json</strong> or <strong>.txt</strong>.</p>
 <ol>
 <li>First, save the file from your email.<ul>
 <li>On a computer, click the attachment and choose <strong>Download</strong>. It will go in your <strong>Downloads</strong> folder.</li>
@@ -210,7 +210,7 @@ main{max-width:980px;margin:0 auto;padding:28px 20px 60px;padding-left:max(20px,
 <h4>If you're starting fresh</h4>
 <p>Tap <strong>Start with an empty recipe box</strong>. Then tap <strong>Add your first recipe</strong> to type in a favorite.</p>
 <aside class="tip">
-<p>Already got past the Welcome screen? You can still load a backup file anytime. Tap the <strong>settings button</strong> (three small sliders at the top of the screen), then tap <strong>Restore from a backup file</strong>.</p>
+<p>Already got past the Welcome screen? You can still load a backup file anytime. Tap the <strong>settings button</strong> (three small sliders at the top of the screen), then tap <strong>Add recipes from a backup file</strong>. This adds the recipes and keeps any you already have.</p>
 </aside><p class="totop"><a href="#contents">Back to contents</a></p></div></section><section class="card" id="tour" aria-labelledby="tour-h"><header class="band b-sky"><h2 id="tour-h">A Quick Tour of Recipe Box</h2></header><div class="body"><p>Think of Recipe Box as a recipe card box with dividers. Every recipe is a card, filed in alphabetical order by its name.</p>
 <h3>The bar across the top</h3>
 <p>This bar stays at the top of every screen, so you can always get where you need to go. (On a phone, <strong>Browse</strong>, <strong>Index</strong>, <strong>Meal plan</strong>, and <strong>Add</strong> move to the bottom of the screen.)</p>
@@ -735,7 +735,7 @@ main{max-width:980px;margin:0 auto;padding:28px 20px 60px;padding-left:max(20px,
 <li><strong>On a computer</strong>, Recipe Box saves the recipe file, usually in your <strong>Downloads</strong> folder. It's named after the recipe, like <strong>Grandma's Chili.recipe.json</strong>. Start an email, attach that file, and send it.</li>
 </ol>
 <aside class="tip">
-<p>On some Android tablets and phones, the share menu doesn't open. Instead, Recipe Box saves the file to your Downloads folder and tells you so. Attach it to an email or message the same way you would on a computer.</p>
+<p>On Android, the recipe file may be sent with a name ending in <strong>.txt</strong> instead of <strong>.json</strong>, because that's the kind of file Android lets apps attach. Recipe Box reads both kinds. If the share menu doesn't open at all, Recipe Box saves the file to your Downloads folder and tells you so. Attach it to an email or message the same way you would on a computer.</p>
 </aside>
 <h3>Adding a recipe someone sent you</h3>
 <ol>
@@ -856,18 +856,36 @@ main{max-width:980px;margin:0 auto;padding:28px 20px 60px;padding-left:max(20px,
 <aside class="tip">
 <p>If you use sync, restoring on one device can change your other devices too, once they sync.</p>
 </aside>
+<h3>Adding recipes from a backup file</h3>
+<p>Got a backup file from family or friends, but you already have recipes of your own? Use this instead of restoring. It <strong>adds</strong> their recipes to yours and keeps everything you already have.</p>
+<ol>
+<li>Make sure the file is saved on your device.</li>
+<li>Open <strong>settings</strong> and tap <strong>Add recipes from a backup file</strong>.</li>
+<li>Find the file and tap it.</li>
+<li>Recipe Box tells you how many new recipes it found. Tap <strong>Add recipes</strong>.</li>
+</ol>
+<p>Any recipe with the same name as one you already have is skipped, so you won't get doubles. Their favorites and their "Times we've made it" notes stay with them, so your favorites and log are only yours.</p>
 <h3>Install on this device</h3>
 <p>If Recipe Box isn't installed yet on the device you're using, settings will show steps for installing it. Installing gives Recipe Box its own icon and protects your recipes, since recipes in a regular browser page can be erased if someone clears the browser's history. If you don't see this section, Recipe Box is already installed.</p>
 <h3>Sync</h3>
 <p>This is where you connect Google Drive, sync right away, or turn sync off. See <a href="#sync">Syncing with Google Drive</a>.</p>
-<h3>Invite family</h3>
+<h3>Family and Friends</h3>
+<p>This is where you invite someone to use Recipe Box. First, choose what to send:</p>
+<ul>
+<li><strong>Just the app</strong> sends the link and simple steps to get started. Your recipes aren't included, and they start with an empty recipe box of their own.</li>
+<li><strong>The app and my recipes</strong> sends the link plus a copy of all your recipes, so they start with everything you have.</li>
+</ul>
+<p>A ready-made message appears below your choice. You can change it, like adding your name or a personal note. Then:</p>
 <ol>
-<li>Download a backup file to send along with your invitation.</li>
-<li>In settings, find <strong>Invite family</strong>. You'll see a ready-made message with the link to Recipe Box and simple steps for getting started.</li>
-<li>Tap <strong>Copy message</strong>, then paste it into an email or text. (On some devices, you'll also see <strong>Share…</strong>, which sends it straight from Recipe Box.)</li>
-<li>Attach your backup file and send it.</li>
+<li>Tap <strong>Send invitation</strong>. Your device's share menu opens.</li>
+<li>Choose how to send it, like Messages, Mail, or Gmail, and pick the person.</li>
+<li>Send it. If you chose <strong>The app and my recipes</strong>, the recipe file is already attached for you.</li>
 </ol>
-<p>They'll get their own copy of your recipes. From then on, their recipe box is their own. Changes they make won't affect yours, and yours won't affect theirs.</p>
+<p><strong>Don't see Send invitation, or the file didn't attach?</strong> Some computers can't attach files this way. Recipe Box will copy the message and save the recipe file (usually to your Downloads folder) and tell you what to do: start an email, paste the message, attach the file, and send. You can also do this yourself anytime with <strong>Copy message</strong> and <strong>Save the recipe file</strong>.</p>
+<p>The people you invite get their own copy of your recipes. From then on, their recipe box is their own. Changes they make won't affect yours, and yours won't affect theirs.</p>
+<aside class="tip">
+<p>On Android phones and Windows computers, the recipe file may arrive with a name ending in <strong>.txt</strong> instead of <strong>.json</strong>. That's normal. Recipe Box reads both.</p>
+</aside>
 <h3>Save recipes from websites</h3>
 <p>This is where you set up <strong>Save to Recipe Box</strong> on a computer, or <strong>Copy Web Recipe</strong> on a tablet or phone. See <a href="#websites">Saving Recipes from Websites</a>.</p>
 <h3>Appearance</h3>
