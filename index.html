@@ -1821,6 +1821,8 @@ async function runSync(interactive){if(!SY.st||SY.busy)return;if(!navigator.onLi
       jobs.push(async()=>{
         if(lChanged&&!rChanged){if(L){const res=await P.put(fname(id),JSON.stringify({v:1,id,data:L.data}),R||s&&s.fid&&{fid:s.fid});st[id]={base:L.hash,ver:res.ver,fid:res.fid}}else{if(R)await P.del(R);delete st[id]}return}
         let rdata=null,rhash=null;if(R){const txt=await P.get(R);rdata=JSON.parse(txt).data;rhash=hsh(sj(rdata))}
+        /* The cloud can give a file a new version number without anyone changing it (Google Drive does this). If the cloud copy is still exactly what this device last synced, nothing changed there, so it is not a conflict. */
+        if(s&&R&&rhash===s.base){if(lChanged){if(L){const res=await P.put(fname(id),JSON.stringify({v:1,id,data:L.data}),R);st[id]={base:L.hash,ver:res.ver,fid:res.fid}}else{await P.del(R);delete st[id]}}else st[id]={base:s.base,ver:R.ver,fid:R.fid};return}
         if(!lChanged&&rChanged){if(R){applyDoc(id,rdata);st[id]={base:rhash,ver:R.ver,fid:R.fid}}else{applyDoc(id,null);delete st[id]}changed=true;return}
         if(L&&R&&rhash===L.hash){st[id]={base:L.hash,ver:R.ver,fid:R.fid};return}
         if(!L&&!R){delete st[id];return}
