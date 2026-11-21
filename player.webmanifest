@@ -1,0 +1,21 @@
+{
+  "id": "./player.html",
+  "name": "Recipe Player",
+  "short_name": "Recipe Player",
+  "description": "Find a recipe and follow it one step at a time, in big, easy-to-read letters.",
+  "start_url": "./player.html",
+  "scope": "./player.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#E6ECF1",
+  "theme_color": "#FFFFFF",
+  "icons": [
+    { "src": "./icons/player-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/player-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/player-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icons/player-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Shopping list", "url": "./player.html#/shop" }
+  ]
+}

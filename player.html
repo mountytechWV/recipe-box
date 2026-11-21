@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recipe Player</title>
+<meta name="description" content="Find a recipe and follow it one step at a time.">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Recipe Player">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="./player.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/player-favicon-32.png">
+<link rel="apple-touch-icon" href="./icons/player-apple-touch-icon.png">
+<style>
+@font-face{font-family:'Caveat';font-style:normal;font-weight:700;font-display:swap;src:url(./fonts/caveat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-style:normal;font-weight:400;font-display:swap;src:url(./fonts/libre-franklin-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-style:normal;font-weight:600;font-display:swap;src:url(./fonts/libre-franklin-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-style:normal;font-weight:700;font-display:swap;src:url(./fonts/libre-franklin-latin-700-normal.woff2) format('woff2')}
+:root{
+  --desk:#E6ECF1;--paper:#FFFFFF;--paper-2:#F5F8FA;--edge:#B9C6D1;--rule:#D6E4EF;
+  --ink:#14202B;--ink-2:#2E3B47;--muted:#46535F;
+  --red:#C2302A;--red-dk:#8E221D;--on-red:#FFFFFF;--go:#2E6B34;--go-dk:#1F4D24;
+  --peach:#FBD9C9;--peach-f:#6E2E14;--sky:#D3E4F2;--sky-f:#1F4763;--butter:#FBEBB5;--butter-f:#5C430B;
+  --sage:#D6E8D3;--sage-f:#284F25;--lilac:#E4DAF0;--lilac-f:#462E66;--blush:#F7D6DF;--blush-f:#70253E;
+  --mint:#D5ECE6;--mint-f:#1D5046;--apricot:#FCE1C4;--apricot-f:#6B400F;--slate:#E3E8EE;--slate-f:#33404C;
+  --lift:0 2px 0 var(--edge),0 12px 28px rgba(20,32,43,.10);
+  --hand:Caveat,'Segoe Print','Bradley Hand',cursive;--body:'Libre Franklin','Segoe UI',Helvetica,Arial,sans-serif;
+  color-scheme:light;font-size:21px}
+:root[data-size="l"]{font-size:24px}
+:root[data-size="xl"]{font-size:27px}
+@media (max-width:420px){:root{font-size:19px}:root[data-size="l"]{font-size:21.5px}:root[data-size="xl"]{font-size:24px}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--desk);color:var(--ink);font-family:var(--body);font-size:1rem;line-height:1.5;
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+.tg0{--tb:var(--peach);--tf:var(--peach-f)}.tg1{--tb:var(--blush);--tf:var(--blush-f)}.tg2{--tb:var(--sky);--tf:var(--sky-f)}
+.tg3{--tb:var(--apricot);--tf:var(--apricot-f)}.tg4{--tb:var(--mint);--tf:var(--mint-f)}.tg5{--tb:var(--butter);--tf:var(--butter-f)}
+.tg6{--tb:var(--sage);--tf:var(--sage-f)}.tg7{--tb:var(--lilac);--tf:var(--lilac-f)}.tg8{--tb:var(--slate);--tf:var(--slate-f)}
+a{color:var(--sky-f)}
+h1,h2,h3{line-height:1.2;margin:0}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+:focus-visible{outline:4px solid #1F6FB5;outline-offset:3px}
+svg{flex:none}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45em;min-height:3rem;padding:.55em 1.1em;border-radius:14px;
+  border:2px solid var(--edge);background:var(--paper);color:var(--ink);font:600 1rem/1.2 var(--body);text-decoration:none;cursor:pointer;
+  box-shadow:0 2px 0 var(--edge);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn:hover{background:var(--paper-2)}
+.btn:active{transform:translateY(2px);box-shadow:none}
+.btn[disabled]{opacity:.45;cursor:default;transform:none}
+.btn.primary{background:var(--red);border-color:var(--red-dk);color:var(--on-red);box-shadow:0 3px 0 var(--red-dk)}
+.btn.primary:hover{background:#B02A25}
+.btn.go{background:var(--go);border-color:var(--go-dk);color:#fff;box-shadow:0 3px 0 var(--go-dk)}
+.btn.go:hover{background:#285E2E}
+.btn.quiet{border-color:transparent;box-shadow:none;background:transparent;text-decoration:underline;text-underline-offset:4px}
+.btn.small{min-height:2.4rem;font-size:.9rem;padding:.4em .8em}
+.btn.wide{width:100%}
+/* top bar */
+.bar{background:var(--paper);border-bottom:2px solid var(--edge);z-index:5}
+@media (min-width:700px){.bar{position:sticky;top:0}}
+@media (max-width:560px){.brand{font-size:1.7rem}.brand img{display:none}}
+.bar .wrap{display:flex;align-items:center;gap:12px;min-height:4.2rem;flex-wrap:wrap;padding-top:6px;padding-bottom:6px}
+.brand{font:700 2.1rem/1 var(--hand);color:var(--red);text-decoration:none;display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand img{width:2.2rem;height:2.2rem;border-radius:9px}
+.count{display:inline-flex;align-items:center;justify-content:center;min-width:1.6em;height:1.6em;border-radius:99px;background:var(--red);color:#fff;font-size:.85rem;padding:0 .4em}
+.btn.primary .count{background:#fff;color:var(--red)}
+main.wrap{padding-top:22px;padding-bottom:60px}
+.back{margin:0 0 16px}
+/* banners */
+.note{border-radius:14px;padding:14px 18px;margin:0 0 18px;background:var(--butter);color:var(--butter-f);border:2px solid #E8D28A;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.note.bad{background:var(--blush);color:var(--blush-f);border-color:#E6AFBF}
+.note.ok{background:var(--sage);color:var(--sage-f);border-color:#AFCFA9}
+.note p{margin:0;flex:1 1 260px}
+/* search */
+.find{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 14px}
+.searchbox{flex:1 1 320px;display:flex;align-items:center;gap:10px;background:var(--paper);border:3px solid var(--edge);border-radius:18px;padding:0 14px;min-height:3.6rem}
+.searchbox:focus-within{border-color:#1F6FB5}
+.searchbox input{flex:1;border:0;outline:0;background:transparent;font:500 1.2rem var(--body);color:var(--ink);min-width:0;padding:.5em 0}
+.searchbox input::placeholder{color:#5E6B77}
+.searchbox input::-webkit-search-cancel-button{display:none}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.seg{display:inline-flex;border:2px solid var(--edge);border-radius:14px;overflow:hidden;background:var(--paper)}
+.seg button{border:0;background:transparent;font:600 1rem var(--body);color:var(--ink);padding:.55em 1em;min-height:3rem;cursor:pointer}
+.seg button+button{border-left:2px solid var(--edge)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+select.in{font:600 1rem var(--body);color:var(--ink);background:var(--paper);border:2px solid var(--edge);border-radius:14px;min-height:3rem;padding:0 .8em;max-width:100%}
+.shown{color:var(--muted);margin:6px 0 14px}
+/* recipe cards */
+.cards{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
+.card{display:flex;flex-direction:column;background:var(--paper);border-radius:12px;box-shadow:var(--lift);text-decoration:none;color:var(--ink);overflow:hidden;height:100%;border:2px solid transparent}
+.card:hover{border-color:var(--edge)}
+.card .pic{aspect-ratio:16/10;background:var(--tb);display:flex;align-items:center;justify-content:center;color:var(--tf);font:700 4rem/1 var(--hand);overflow:hidden}
+.card .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.card .band{height:12px;background:var(--tb)}
+.card .txt{padding:12px 16px 16px;display:flex;flex-direction:column;gap:4px;flex:1}
+.card h2{font:700 1.75rem/1.1 var(--hand);color:var(--ink)}
+.card .meta{color:var(--muted);font-size:.9rem}
+.card .open{margin-top:auto;padding-top:8px;display:flex;align-items:center;gap:8px;font-weight:700;color:var(--red)}
+@media (max-width:560px){.cards{grid-template-columns:1fr;gap:12px}.card{flex-direction:row;min-height:7rem}.card .pic{aspect-ratio:auto;width:7rem;flex:none;font-size:3rem}.card .txt{padding:10px 14px}.card h2{font-size:1.55rem}.card .open{padding-top:4px}}
+.empty{background:var(--paper);border-radius:12px;box-shadow:var(--lift);padding:28px;text-align:center}
+.empty p{font-size:1.1rem;margin:0 0 16px}
+.foot{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:36px 0 0}
+/* recipe page */
+.sheet{background:var(--paper);border-radius:12px;box-shadow:var(--lift);overflow:hidden;margin:0 0 20px}
+.sheet>.band{background:var(--tb);color:var(--tf);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sheet>.band h2{font-size:1.3rem}
+.sheet>.body{padding:20px 22px 24px}
+.top{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;align-items:start}
+@media (max-width:820px){.top{grid-template-columns:1fr}}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.tag{background:var(--tb);color:var(--tf);border-radius:99px;padding:.15em .8em;font-size:.85rem;font-weight:700}
+.rname{font:700 3rem/1.05 var(--hand);margin:0 0 10px}
+.desc{font-size:1.1rem;color:var(--ink-2);margin:0 0 16px}
+.photo{border-radius:10px;overflow:hidden;background:var(--paper-2);border:0;padding:0;cursor:zoom-in;display:block;width:100%}
+.photo img{width:100%;max-height:440px;object-fit:cover;display:block}
+.play{display:flex;align-items:center;gap:18px;width:100%;min-height:5.4rem;padding:14px 24px;border-radius:20px;font:700 1.6rem/1.1 var(--body);text-align:left;margin:6px 0 16px}
+.play .tri{width:3.4rem;height:3.4rem;border-radius:50%;background:#fff;color:var(--red);display:flex;align-items:center;justify-content:center;flex:none}
+.play small{display:block;font:500 .9rem var(--body);opacity:.92;margin-top:4px}
+.facts{display:flex;flex-wrap:wrap;gap:10px 26px;margin:0 0 16px}
+.fact span{display:block;color:var(--muted);font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.fact b{font-size:1.1rem}
+.servrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+.step{width:3rem;height:3rem;border-radius:50%;border:2px solid var(--edge);background:var(--paper);font:700 1.5rem/1 var(--body);cursor:pointer;color:var(--ink)}
+.cols{display:grid;grid-template-columns:1fr 1.4fr;gap:20px;align-items:start}
+@media (max-width:820px){.cols{grid-template-columns:1fr}}
+.ings{list-style:none;margin:0;padding:0}
+.ings li{padding:.45em 0;border-bottom:2px dotted var(--rule);font-size:1.05rem}
+.ings label{display:flex;gap:.7em;align-items:flex-start;cursor:pointer}
+.ings input[type=checkbox]{width:1.5em;height:1.5em;margin:.05em 0 0;flex:none;accent-color:var(--go)}
+.ings input:checked+span{text-decoration:line-through;color:var(--muted)}
+.amt{font-weight:700}
+.inote{color:var(--muted)}
+.grp{font-size:1.05rem;margin:16px 0 4px;color:var(--ink-2)}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{display:flex;gap:14px;padding:.7em 0;border-bottom:2px dotted var(--rule);font-size:1.08rem}
+.steps .n{flex:none;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem}
+.steps li.h{border:0;padding-bottom:0}
+.steps li.h h3{font-size:1.1rem;color:var(--ink-2)}
+.callout{display:flex;gap:12px;background:var(--butter);color:var(--butter-f);border-radius:12px;padding:14px 16px;margin:16px 0 0;font-size:1.05rem;white-space:pre-wrap}
+.story{font-size:1.1rem;white-space:pre-wrap;margin:0}
+.made{list-style:none;margin:0;padding:0}
+.made li{padding:.3em 0}
+/* shopping list */
+.shopadd{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px}
+.shopadd input{flex:1 1 240px;font:500 1.1rem var(--body);border:3px solid var(--edge);border-radius:14px;padding:.5em .8em;min-height:3.2rem;color:var(--ink);background:var(--paper)}
+.shopadd input:focus{border-color:#1F6FB5;outline:0}
+.forrecs{display:flex;flex-wrap:wrap;gap:10px;list-style:none;margin:0 0 18px;padding:0}
+.forrecs li{display:flex;align-items:center;gap:8px;background:var(--tb);color:var(--tf);border-radius:14px;padding:4px 6px 4px 14px;font-weight:600}
+.forrecs a{color:inherit}
+.aisles{columns:2 360px;column-gap:28px}
+.aisle{break-inside:avoid;margin:0 0 20px}
+.aisle h2{font-size:1.15rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:3px solid var(--ink);padding:0 0 4px;margin:0 0 4px}
+.sitem{display:flex;align-items:center;gap:8px;border-bottom:2px dotted var(--rule)}
+.sitem label{flex:1;display:flex;gap:.7em;align-items:center;padding:.6em 0;cursor:pointer;font-size:1.1rem;min-height:3.2rem}
+.sitem input{width:1.6em;height:1.6em;flex:none;accent-color:var(--go)}
+.sitem input:checked+span{text-decoration:line-through;color:var(--muted)}
+.sitem small{display:block;color:var(--muted);font-size:.8rem}
+.havelist{list-style:none;padding:0;margin:10px 0 0}
+.havelist li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:.4em 0;border-bottom:2px dotted var(--rule)}
+details.have summary{cursor:pointer;font-weight:700;font-size:1.05rem;padding:.6em 0;min-height:3rem}
+/* settings and setup */
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.choice{background:var(--paper);border-radius:12px;box-shadow:var(--lift);overflow:hidden;display:flex;flex-direction:column}
+.choice .band{background:var(--tb);color:var(--tf);padding:14px 18px;display:flex;align-items:center;gap:12px}
+.choice .band h2{font-size:1.25rem}
+.choice .body{padding:16px 18px 20px;display:flex;flex-direction:column;gap:14px;flex:1}
+.choice .body p{margin:0}
+.choice .body .btn{margin-top:auto}
+.sizes{display:flex;gap:10px;flex-wrap:wrap}
+.sizes button{min-width:6.5rem}
+.sizes button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.toggle{display:flex;align-items:center;gap:14px;cursor:pointer;font-size:1.05rem}
+.toggle input{width:1.7em;height:1.7em;accent-color:var(--go)}
+.lead{font-size:1.1rem;max-width:44em}
+.subtle{color:var(--muted)}
+.pageh{font:700 2.6rem/1.1 var(--hand);margin:0 0 12px}
+/* dialogs and toast */
+.scrim{position:fixed;inset:0;background:rgba(20,32,43,.55);z-index:50;display:flex;align-items:center;justify-content:center;padding:18px}
+.dlg{background:var(--paper);border-radius:16px;max-width:560px;width:100%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.dlg h2{font-size:1.4rem;margin:0 0 12px}
+.dlg p{margin:0 0 12px;font-size:1.05rem}
+.acts{display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px}
+.bigpic{max-width:96vw;max-height:88vh;border-radius:10px;display:block}
+.playing .toast{bottom:auto;top:calc(110px + env(safe-area-inset-top,0px))}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:max-content;text-align:center;background:var(--ink);color:#fff;padding:16px 24px;border-radius:14px;font-size:1.05rem;font-weight:600;z-index:80;max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.sharecard{border-radius:12px;overflow:hidden;border:2px solid var(--edge);margin:0 0 12px}
+.sharecard .band{background:var(--tb);color:var(--tf);padding:10px 16px;font:700 1.6rem/1.1 var(--hand)}
+.sharecard .b{padding:12px 16px;display:flex;gap:14px;align-items:flex-start}
+.sharecard img{width:110px;height:80px;object-fit:cover;border-radius:6px}
+/* cooking player */
+.player{position:fixed;inset:0;z-index:40;background:var(--desk);display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+.ptop{background:var(--paper);border-bottom:2px solid var(--edge);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ptop .ttl{flex:1 1 200px;font:700 1.7rem/1.1 var(--hand);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prog{height:12px;background:var(--rule);display:flex;gap:3px;padding:0}
+.prog span{flex:1;background:#C9D6E1}
+.prog span.done{background:var(--go)}
+.prog span.on{background:var(--red)}
+.timers{display:flex;flex-wrap:wrap;gap:10px;padding:10px 16px 0}
+.timers:empty{display:none}
+.tchip{display:flex;align-items:center;gap:12px;background:var(--paper);border:3px solid var(--edge);border-radius:14px;padding:6px 8px 6px 16px;font-weight:700;font-size:1.1rem}
+.tchip.ding{background:var(--red);border-color:var(--red-dk);color:#fff;animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){.tchip.ding{animation:none}}
+.pbody{flex:1;overflow:auto;padding:16px;display:grid;grid-template-columns:1.7fr 1fr;gap:16px;align-content:start;grid-auto-rows:max-content;max-width:1300px;width:100%;margin:0 auto}
+@media (max-width:820px){.pbody{grid-template-columns:1fr}}
+.pcard{background:var(--paper);border-radius:12px;box-shadow:var(--lift);overflow:hidden}
+.pcard>.band{background:var(--tb);color:var(--tf);padding:12px 20px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.pcard>.band h2{font-size:1.35rem}
+.pcard>.inner{padding:20px 24px 24px}
+.stext{font-size:clamp(1.55rem,3.4vw,2.3rem);line-height:1.45;margin:0;font-weight:500}
+.pcard .acts2{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.timerbtn{background:var(--sky);color:var(--sky-f);border-color:#9FC0DA;font-size:1.1rem;min-height:3.4rem}
+.side .ings li{font-size:1.15rem}
+.pnav{background:var(--paper);border-top:2px solid var(--edge);padding:12px 16px;display:flex;gap:14px}
+.pnav .btn{flex:1;min-height:4.4rem;font-size:1.4rem;border-radius:18px}
+.pnav .btn.next{flex:2}
+.donebox{text-align:center;padding:10px 0}
+.donebox .big{font:700 3rem/1.1 var(--hand);margin:0 0 12px}
+@media print{.bar,.foot,.noprint,.shopadd,.havebtn{display:none!important}body{background:#fff}.sheet{box-shadow:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<input type="file" id="pickFile" accept=".json,.txt,application/json,text/plain" class="sr" tabindex="-1" aria-hidden="true">
+<script src="./config.js"></script>
+<script>
+'use strict';
+/* Recipe Player: a simple, big-text way to look up a recipe from Recipe Box and follow it step by step.
+   It reads the same recipes as Recipe Box (from Google Drive, from Recipe Box on this device, or from a recipe file).
+   The shopping list is the only part that can be changed here. */
+const CFG=window.RB_CONFIG||{};
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():'r'+Date.now().toString(36)+Math.random().toString(36).slice(2));
+const nowISO=()=>new Date().toISOString();
+const clone=o=>JSON.parse(JSON.stringify(o));
+/* ---------- shared with Recipe Box (copied from index.html so recipes read the same) ---------- */
+const collator=new Intl.Collator(undefined,{numeric:true,sensitivity:'base'});
+function fmtMin(m){if(!m)return '';const h=Math.floor(m/60),mm=m%60;return (h?h+' hr':'')+(h&&mm?' ':'')+(mm?mm+' min':'')}
+const FR=[[0,''],[1/8,'⅛'],[1/4,'¼'],[1/3,'⅓'],[3/8,'⅜'],[1/2,'½'],[5/8,'⅝'],[2/3,'⅔'],[3/4,'¾'],[7/8,'⅞'],[1,'']];
+function fmt(v){if(v==null||isNaN(v))return '';if(v>=20)return String(Math.round(v));let w=Math.floor(v+1e-9),r=v-w,b=FR[0];for(const o of FR)if(Math.abs(o[0]-r)<Math.abs(b[0]-r))b=o;
+  if(b[0]===1){w+=1;b=FR[0]}if(!w&&!b[1])return '⅛';return (w?String(w):'')+(b[1]?(w?' ':'')+b[1]:'')}
+const PL={cup:'cups',clove:'cloves',head:'heads',bunch:'bunches',can:'cans',stick:'sticks',bottle:'bottles',slice:'slices',package:'packages',pint:'pints',quart:'quarts',gallon:'gallons',liter:'liters',pinch:'pinches',dash:'dashes',splash:'splashes'};
+const COUNTU=new Set(['clove','head','can','stick','bottle','slice','package','bunch']);
+function amountText(l,f){let n='',big=0;
+  if(l.a!=null){const cnt=f!==1&&(!l.u||COUNTU.has(l.u));const rd=x=>cnt&&x>=1?Math.max(.5,Math.round(x*2)/2):x;const a=rd(l.a*f),b=l.b!=null?rd(l.b*f):null;n=fmt(a)+(b!=null?' to '+fmt(b):'');big=b!=null?b:a}
+  else if(l.q){n=l.q}
+  const u=l.u?(big>1&&PL[l.u]?PL[l.u]:l.u):'';return (n+(u?' '+u:'')).trim()}
+function timersIn(text){const out=[];const re=/(\d+(?:\.\d+)?)(?:\s*(?:to|-|–)\s*(\d+(?:\.\d+)?))?\s*(hours?|hrs?|minutes?|mins?|seconds?|secs?)\b/gi;let m;
+  while((m=re.exec(text))&&out.length<3){const v=parseFloat(m[2]||m[1]);const u=m[3].toLowerCase();const sec=u.startsWith('h')?v*3600:u.startsWith('s')?v:v*60;if(sec>=10&&sec<=86400)out.push({sec:Math.round(sec),label:m[0].replace(/\s+/g,' ')})}return out}
+const DIFF=['Very easy','Easy','Medium','Challenging','Advanced'];
+const SAFE_PHOTO=/^(data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+\/=]+|https?:\/\/[^\s"'<>`]+)$/i;
+const AISLES=[
+ ['Drinks and bar',/(vodka|\brum\b|\bgin\b|tequila|wine|whiske?y|liqu?eur|liquore|schnapps|brandy|cognac|\bsake\b|beer|champagne|sherry|\bport\b|triple sec|cointreau|grand marnier|irish cream|aperol|benedictine|bourbon|jack daniels|club soda|soda water|sprite|margarita mix|sour mix|^sours$|lemon sour|orgeat|cr[eè]me de|frangelico|godiva|sloe|simple syrup|cassis|razzmatazz|sangria|bitters)/],
+ ['Frozen',/(^ice$|frozen|ice cream|cool whip)/],
+ ['Pantry',/(broth|stock|bouillon|sauce|juice|paste|puree|purée|dressing|mayonnaise|vinegar|\boil\b|peanut butter|cream of|ketchup|mustard$|dijon|relish|salsa|pesto|olive$|olives|capers|tahini|pasta|spaghetti|linguin|macaroni|shells|orzo|rotini|tortellini|capellini|cellentani|acini|\brice\b|grits|beans|bread crumbs|panko|tortilla|wrappers|cereal|cornflake|pita|bread|toast|cracker|chips|cake mix|seaweed|wakame|kelp|bonito|canned|whole canned|crushed tomatoes|sundried|roasted red|pickled|chipotle in adobo|mirin|fish sauce|soy|worcestershire|sriracha|tabasco|hot sauce|chili sauce|horseradish|water$)/],
+ ['Spices and seasonings',/(powder|seasoning|paprika|cumin|oregano|thyme|cinnamon|nutmeg|allspice|cardamom|coriander|turmeric|bay lea|garam|curry|saffron|\bdill|tarragon|rosemary|\bsage\b|caraway|^clove$|salt\b|black pepper|white pepper|cayenne|red pepper|pepper seeds|gochugaru|\brub\b|spice|sesame seeds|flakes|lawry)/],
+ ['Baking',/(flour|sugar|baking|yeast|vanilla|chocolate|cocoa|cornstarch|shortening|crisco|sprinkles|marshmallow|pudding|graham|food coloring|pectin|syrup|molasses|honey|condensed|evaporated|coconut|nuts$|pecan|walnut|kisses)/],
+ ['Meat and seafood',/(beef|pork|chicken|turkey|sausage|bacon|\bham\b|shrimp|scallop|crab|clam|grouper|salmon|\bfish\b|steak|\bribs?\b|chorizo|kielbasa|pepperoni|salami|boston butt|prime rib|tenderloin|andouille|ground)/],
+ ['Dairy and eggs',/(milk|cream|butter|cheese|\begg|yogurt|half-and-half|ghee|velveeta|ricotta|mozzarella|parmesan|parmigiano|feta|cheddar|gouda|romano|asiago|gruyere|roquefort|swiss|monterey|colby|crema|eggnog|dream whip)/],
+ ['Produce',/(onion|garlic|shallot|scallion|leek|pepper|jalape|chil[ei]|tomat|avocado|lime|lemon|orange|apple|banana|berr|cherry|grape|peach|plum|pineapple|pomegranate|mango|apricot|raisin|cilantro|parsley|basil|mint|chive|lettuce|romaine|cabbage|spinach|kale|celery|carrot|potato|zucchini|squash|cucumber|mushroom|\bcorn\b|ginger|lemongrass|radish|tomatillo|asparagus|herb|cranberr|artichoke)/]];
+const AISLE_ORDER=['Produce','Meat and seafood','Dairy and eggs','Baking','Spices and seasonings','Pantry','Frozen','Drinks and bar','Other'];
+function aisleOf(name){const n=name.toLowerCase();for(const [a,re] of AISLES)if(re.test(n))return a;return 'Pantry'}
+function fixRecipe(r){if(!r||typeof r!=='object'||Array.isArray(r))return null;
+  const str=v=>typeof v==='string'?v:(v==null?'':String(v));const num=v=>{const n=typeof v==='number'?v:parseFloat(v);return isFinite(n)?n:null};
+  if(typeof r.id!=='string'||!r.id)r.id=r.id!=null&&r.id!==''?String(r.id):uid();
+  if(typeof r.name!=='string')r.name=str(r.name)||'Untitled recipe';
+  r.tags=Array.isArray(r.tags)?r.tags.filter(t=>typeof t==='string'&&t.trim()):(typeof r.tags==='string'&&r.tags.trim()?[r.tags]:[]);
+  ['desc','src','yld','ut','notes','story','created','updated'].forEach(k=>{if(r[k]!=null&&typeof r[k]!=='string')r[k]=str(r[k])});
+  if(r.photo!=null&&!(typeof r.photo==='string'&&SAFE_PHOTO.test(r.photo)))delete r.photo;
+  if(r.link!=null&&!(typeof r.link==='string'&&/^https?:\/\//i.test(r.link.trim())))delete r.link;
+  ['min','serv'].forEach(k=>{if(r[k]!=null&&typeof r[k]!=='number'){const n=num(r[k]);if(n>0)r[k]=n;else delete r[k]}});
+  if(r.diff!=null&&!(Number.isInteger(r.diff)&&r.diff>=1&&r.diff<=DIFF.length)){const n=Math.round(num(r.diff));if(n>=1&&n<=DIFF.length)r.diff=n;else delete r.diff}
+  if(r.fav!=null&&typeof r.fav!=='boolean'){if(r.fav)r.fav=true;else delete r.fav}
+  r.ing=(Array.isArray(r.ing)?r.ing:[]).filter(l=>l&&typeof l==='object'&&!Array.isArray(l)).map(l=>{['i','h','q','u','n'].forEach(k=>{if(l[k]!=null&&typeof l[k]!=='string')l[k]=str(l[k])});['a','b'].forEach(k=>{if(l[k]!=null&&typeof l[k]!=='number'){const n=num(l[k]);if(n!=null)l[k]=n;else delete l[k]}});return l}).filter(l=>l.h!=null||l.i);
+  r.steps=(Array.isArray(r.steps)?r.steps:[]).map(x=>typeof x==='string'?{t:x}:x).filter(x=>x&&typeof x==='object'&&!Array.isArray(x)).map(x=>{['t','h'].forEach(k=>{if(x[k]!=null&&typeof x[k]!=='string')x[k]=str(x[k])});return x}).filter(x=>x.h!=null||x.t);
+  if(r.made!=null){r.made=(Array.isArray(r.made)?r.made:[]).filter(e=>e&&typeof e==='object'&&/^\d{4}-\d{2}-\d{2}$/.test(e.d)).map(e=>{const o={d:e.d};if(typeof e.n==='string'&&e.n)o.n=e.n;return o});if(!r.made.length)delete r.made}
+  return r}
+function cleanShared(rc){rc=rc&&typeof rc==='object'?rc:{};const s=v=>typeof v==='string'?v.trim():'';const n=v=>typeof v==='number'&&isFinite(v)?v:null;
+  const o={name:s(rc.name)||'Untitled recipe',tags:[...new Set((Array.isArray(rc.tags)?rc.tags:[]).map(s).filter(Boolean))]};
+  ['desc','src','yld','ut','notes','story'].forEach(k=>{const v=s(rc[k]);if(v)o[k]=v});
+  const ln=s(rc.link);if(/^https?:\/\//i.test(ln))o.link=ln;
+  if(typeof rc.photo==='string'&&/^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(rc.photo))o.photo=rc.photo;
+  const mi=n(rc.min);if(mi>0)o.min=Math.round(mi);const sv=n(rc.serv);if(sv>0)o.serv=sv;const df=n(rc.diff);if(df>=1&&df<=DIFF.length)o.diff=Math.round(df);
+  o.ing=(Array.isArray(rc.ing)?rc.ing:[]).map(l=>{if(!l||typeof l!=='object')return null;if(s(l.h))return {h:s(l.h)};const i=s(l.i);if(!i)return null;const x={i};['a','b'].forEach(k=>{const v=n(l[k]);if(v!=null)x[k]=v});['q','u','n'].forEach(k=>{const v=s(l[k]);if(v)x[k]=v});return x}).filter(Boolean);
+  o.steps=(Array.isArray(rc.steps)?rc.steps:[]).map(st=>{if(!st||typeof st!=='object')return null;if(s(st.h))return {h:s(st.h)};return s(st.t)?{t:s(st.t)}:null}).filter(Boolean);
+  return o}
+
+/* ---------- icons ---------- */
+const sv=(p,w=26,extra='')=>`<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${p}</svg>`;
+const IC={
+ search:sv('<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',28),
+ back:sv('<path d="M15 18l-6-6 6-6"/>'),next:sv('<path d="M9 18l6-6-6-6"/>'),
+ play:'<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>',
+ cart:sv('<path d="M3 4h2l2.4 11h10.2L20 8H6.2"/><circle cx="9" cy="19.5" r="1.5"/><circle cx="17" cy="19.5" r="1.5"/>'),
+ x:sv('<path d="M6 6l12 12M18 6L6 18"/>'),plus:sv('<path d="M12 5v14M5 12h14"/>'),
+ clock:sv('<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/>'),
+ speak:sv('<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>'),
+ gear:sv('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>'),
+ heart:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#C2302A" aria-hidden="true"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>',
+ bulb:sv('<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>'),
+ check:sv('<path d="M5 12l4 4 10-10"/>'),print:sv('<path d="M7 9V3h10v6"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v7H7z"/>'),
+ cloud:sv('<path d="M7 19a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 17.9 9.5 4.25 4.25 0 0 1 17.5 19z"/>',30),
+ device:sv('<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',30),
+ file:sv('<path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M9 13h6M9 17h6"/>',30),
+ refresh:sv('<path d="M20 11a8 8 0 0 0-14.6-4.5M4 13a8 8 0 0 0 14.6 4.5"/><path d="M5 3v4h4M19 21v-4h-4"/>')
+};
+const TAGPAL={'Sauces & Dips':0,'Dessert':1,'Cocktails & Drinks':7,'Meat':3,'Pork':3,'Fish & Seafood':4,'Poultry':5,'Breakfast':5,'Vegetables':6,'Salad':6,'Vegetarian':6,'Pastas':3,'Rice':5,'Bread and Pastry':0,'Soup':2,'Appetizers':1,'Beans':6,'Spring Rolls':4};
+function tagClass(t){if(!t)return 'tg5';if(t in TAGPAL)return 'tg'+TAGPAL[t];let h=0;for(const ch of t)h=(h*31+ch.charCodeAt(0))>>>0;return 'tg'+(h%9)}
+const mainTag=r=>(r.tags||[]).find(t=>t!=='Vegetarian')||(r.tags||[])[0]||'';
+
+/* ---------- storage ----------
+   The player keeps its own settings and a saved copy of the recipes in its own database ("recipe-player").
+   "Recipe Box on this device" means the full app's database ("recipe-box"), opened exactly the way that app opens it. */
+function openDB(name){return new Promise((res,rej)=>{try{const r=indexedDB.open(name,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('kv'))r.result.createObjectStore('kv')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);r.onblocked=()=>rej(new Error('blocked'))}catch(e){rej(e)}})}
+function kvGet(db,k){return new Promise(res=>{try{const t=db.transaction('kv').objectStore('kv').get(k);t.onsuccess=()=>res(t.result??null);t.onerror=()=>res(null)}catch(e){res(null)}})}
+function kvSet(db,k,v){return new Promise(res=>{try{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res(true);tx.onerror=()=>res(false)}catch(e){res(false)}})}
+let PDB=null,MDB=null,BOOTED=false;
+const mainDB=async()=>MDB||(MDB=await openDB('recipe-box'));
+const emptyShop=()=>({recipes:[],extra:[],checked:{},removed:{}});
+function ensureShop(s){s=s&&typeof s==='object'&&!Array.isArray(s)?s:{};s.recipes=Array.isArray(s.recipes)?s.recipes:[];s.extra=Array.isArray(s.extra)?s.extra:[];
+  s.checked=s.checked&&typeof s.checked==='object'?s.checked:{};s.removed=s.removed&&typeof s.removed==='object'?s.removed:{};return s}
+
+/* ---------- state ---------- */
+const P={cfg:{src:null,size:'m',speak:false},lib:{recipes:[],shop:emptyShop()},drive:{files:{},folder:null,account:'',last:null},ops:[],
+  q:'',fav:false,kind:'',serv:{},play:null,status:null,busy:false,progress:'',justAdded:null};
+const byId=id=>P.lib.recipes.find(r=>r.id===id);
+const saveCfg=()=>kvSet(PDB,'cfg',P.cfg);
+const saveLib=()=>P.cfg.src==='device'?Promise.resolve(true):kvSet(PDB,'lib',P.lib);
+const saveDrive=()=>kvSet(PDB,'drive',P.drive);
+const saveOps=()=>kvSet(PDB,'ops',P.ops);
+function cleanList(list){return (Array.isArray(list)?list:[]).map(r=>fixRecipe(clone(r))).filter(Boolean)}
+
+/* ---------- shopping list (same list format as Recipe Box) ---------- */
+function shopItems(shop,recipes){const map=new Map();const find=id=>recipes.find(r=>r.id===id);
+  shop.recipes.forEach(e=>{const r=find(e.id);if(!r)return;const f=r.serv&&e.serv?e.serv/r.serv:1;
+    (r.ing||[]).forEach(l=>{if(!l.i||/^(cold |ice )?water$/i.test(l.i))return;const k=l.i.toLowerCase()+'|'+(l.u||'').toLowerCase();
+      if(!map.has(k))map.set(k,{key:k,i:l.i,u:l.u,a:null,b:null,more:false,from:new Set()});const it=map.get(k);it.from.add(r.name);
+      if(l.a!=null){it.a=(it.a||0)+l.a*f;if(l.b!=null||it.b!=null)it.b=(it.b??it.a-l.a*f)+(l.b!=null?l.b:l.a)*f}else it.more=true})});
+  const items=[...map.values()].map(it=>({...it,aisle:aisleOf(it.i),amt:it.a!=null?amountText({a:it.a,b:it.b!=null&&Math.abs(it.b-it.a)>1e-6?it.b:null,u:it.u},1):(it.u||''),from:[...it.from]}));
+  shop.extra.forEach(x=>{if(x&&typeof x.t==='string')items.push({key:'x:'+x.t.toLowerCase(),i:x.t,t:x.t,amt:'',aisle:'Other',from:[],extra:true})});return items}
+/* Every change to the list is a small "op". For Google Drive, ops are replayed onto the newest list in the cloud,
+   so a change made in Recipe Box on another device at the same time isn't lost. */
+function applyOp(sh,o,recipes){ensureShop(sh);const find=id=>recipes.find(r=>r.id===id);
+  if(o.t==='check'){if(o.on)sh.checked[o.k]=true;else delete sh.checked[o.k]}
+  else if(o.t==='have'){sh.removed[o.k]=true;delete sh.checked[o.k]}
+  else if(o.t==='back'){delete sh.removed[o.k]}
+  else if(o.t==='addx'){if(!sh.extra.some(x=>x.t.toLowerCase()===o.text.toLowerCase()))sh.extra.push({t:o.text});delete sh.checked['x:'+o.text.toLowerCase()]}
+  else if(o.t==='delx'){const i=sh.extra.findIndex(x=>x.t===o.text);if(i>=0)sh.extra.splice(i,1);delete sh.checked['x:'+o.text.toLowerCase()]}
+  else if(o.t==='addr'){const r=find(o.id);const ex=sh.recipes.find(e=>e.id===o.id);if(ex)ex.serv=(ex.serv||(r&&r.serv)||0)+(o.serv||(r&&r.serv)||0)||null;else sh.recipes.push({id:o.id,serv:o.serv||(r&&r.serv)||null})}
+  else if(o.t==='delr'){sh.recipes=sh.recipes.filter(e=>e.id!==o.id)}
+  else if(o.t==='clearchecked'){const items=shopItems(sh,recipes);items.filter(i=>sh.checked[i.key]&&i.extra).forEach(i=>{const k=sh.extra.findIndex(x=>x.t===i.t);if(k>=0)sh.extra.splice(k,1)});
+    Object.keys(sh.checked).forEach(k=>{if(!k.startsWith('x:'))sh.removed[k]=true;delete sh.checked[k]});
+    sh.recipes=sh.recipes.filter(e=>{const r=find(e.id);if(!r)return false;const keys=(r.ing||[]).filter(l=>l.i).map(l=>l.i.toLowerCase()+'|'+(l.u||'').toLowerCase());return !keys.every(k=>sh.removed[k]||/^(cold |ice )?water\|/.test(k))})}
+  else if(o.t==='clear'){sh.recipes=[];sh.extra=[];sh.checked={};sh.removed={}}
+  return sh}
+async function shopDo(o){applyOp(P.lib.shop,o,P.lib.recipes);
+  try{if(P.cfg.src==='device'){const db=await mainDB();const box=await kvGet(db,'box');if(!box){toast('Recipe Box on this device could not be found');return}box.shop=applyOp(ensureShop(box.shop),o,box.recipes||[]);await kvSet(db,'box',box);P.lib.shop=box.shop}
+    else if(P.cfg.src==='drive'){P.ops.push(o);await saveOps();await saveLib();flushSoon()}
+    else await saveLib()}catch(e){console.error(e);toast('That change could not be saved')}}
+const shopLeft=()=>shopItems(P.lib.shop,P.lib.recipes).filter(i=>!P.lib.shop.checked[i.key]&&!P.lib.shop.removed[i.key]).length;
+
+/* ---------- Google Drive (reads the "Recipe Box" folder that Recipe Box syncs to) ---------- */
+const REDIRECT=location.origin+location.pathname.replace(/\/player$/,'/player.html');
+const helper=()=>(CFG.googleHelperUrl||'').replace(/\/+$/,'');
+const SCOPE='https://www.googleapis.com/auth/drive.file';
+class AuthNeeded extends Error{}
+function b64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function rnd(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return b64url(a)}
+async function googleSignIn(){if(!CFG.googleClientId){toast('Google sign-in isn’t set up for this copy of Recipe Box');return}
+  if(helper()){const v=rnd(48);const c=b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)));const state=rnd(16);
+    sessionStorage.setItem('rp-oauth',JSON.stringify({v,state}));
+    location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:CFG.googleClientId,response_type:'code',redirect_uri:REDIRECT,scope:SCOPE,access_type:'offline',prompt:'consent',include_granted_scopes:'true',code_challenge:c,code_challenge_method:'S256',state,...(P.drive.account?{login_hint:P.drive.account}:{})});return}
+  /* No sign-in helper: use Google's pop-up sign-in (it lasts about an hour, then asks again). */
+  try{await new Promise((res,rej)=>{if(window.google&&google.accounts&&google.accounts.oauth2)return res();const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.onload=res;s.onerror=rej;document.head.appendChild(s)});
+    const t=await new Promise((res,rej)=>{google.accounts.oauth2.initTokenClient({client_id:CFG.googleClientId,scope:SCOPE,callback:t=>t.error?rej(new Error(t.error)):res(t),error_callback:e=>rej(new Error(e&&e.type||'popup'))}).requestAccessToken({prompt:''})});
+    await kvSet(PDB,'auth',{access:t.access_token,exp:Date.now()+(t.expires_in||3600)*1000});await driveConnected()}
+  catch(e){toast('Google sign-in did not finish. Please try again.')}}
+async function helperCall(path,body){const r=await fetch(helper()+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.error)throw new Error(j.error||('helper '+r.status));return j}
+async function finishSignIn(){const q=new URLSearchParams(location.search);if(!q.get('code')&&!q.get('error'))return;let pend=null;try{pend=JSON.parse(sessionStorage.getItem('rp-oauth')||'null')}catch(e){}
+  history.replaceState(null,'',location.pathname+'#/');sessionStorage.removeItem('rp-oauth');
+  if(!pend||q.get('state')!==pend.state||q.get('error')){toast('Google sign-in was cancelled');return}
+  try{const j=await helperCall('/token',{code:q.get('code'),code_verifier:pend.v,redirect_uri:REDIRECT});
+    await kvSet(PDB,'auth',{access:j.access_token,refresh:j.refresh_token,exp:Date.now()+(j.expires_in||3600)*1000});await driveConnected()}
+  catch(e){console.error(e);toast('Google sign-in could not finish. Please try again.')}}
+async function token(){let a=await kvGet(PDB,'auth');if(a&&a.access&&a.exp>Date.now()+60000)return a.access;
+  if(a&&a.refresh&&helper()){try{const j=await helperCall('/refresh',{refresh_token:a.refresh});a={...a,access:j.access_token,exp:Date.now()+(j.expires_in||3600)*1000};await kvSet(PDB,'auth',a);return a.access}catch(e){if(!navigator.onLine)throw e}}
+  throw new AuthNeeded('auth')}
+async function gfetch(url,opt={}){const r=await fetch(url,{...opt,headers:{...(opt.headers||{}),Authorization:'Bearer '+await token()}});if(r.status===401)throw new AuthNeeded('auth');if(!r.ok){let t='';try{t=await r.text()}catch(e){}throw new Error(r.status+' '+t.slice(0,160))}return r}
+const G='https://www.googleapis.com/drive/v3/files';
+async function gFolder(create){if(P.drive.folder){try{const r=await gfetch(`${G}/${P.drive.folder}?fields=id,trashed`);const j=await r.json();if(!j.trashed)return P.drive.folder}catch(e){if(e instanceof AuthNeeded)throw e}}
+  const q=encodeURIComponent("name='Recipe Box' and mimeType='application/vnd.google-apps.folder' and trashed=false");const j=await (await gfetch(`${G}?q=${q}&fields=files(id)`)).json();
+  if(j.files&&j.files[0])return P.drive.folder=j.files[0].id;if(!create)return null;
+  const c=await gfetch(G+'?fields=id',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Recipe Box',mimeType:'application/vnd.google-apps.folder'})});return P.drive.folder=(await c.json()).id}
+async function gList(folder){const out={};let pt='';do{const q=encodeURIComponent(`'${folder}' in parents and trashed=false`);const j=await (await gfetch(`${G}?q=${q}&pageSize=1000&fields=nextPageToken,files(id,name,version)${pt?'&pageToken='+pt:''}`)).json();(j.files||[]).forEach(x=>out[x.name]={fid:x.id,ver:String(x.version)});pt=j.nextPageToken}while(pt);return out}
+async function gGet(e){return (await gfetch(`${G}/${e.fid}?alt=media`)).text()}
+async function gPut(name,text,e){if(e){const j=await (await gfetch(`https://www.googleapis.com/upload/drive/v3/files/${e.fid}?uploadType=media&fields=id,version`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:text})).json();return {fid:j.id,ver:String(j.version)}}
+  const bd='rp'+rnd(8);const body=`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({name,parents:[await gFolder(true)],mimeType:'application/json'})}\r\n--${bd}\r\nContent-Type: application/json\r\n\r\n${text}\r\n--${bd}--`;
+  const j=await (await gfetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,version',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+bd},body})).json();return {fid:j.id,ver:String(j.version)}}
+async function driveConnected(){P.cfg.src='drive';await saveCfg();P.drive={files:{},folder:null,account:'',last:null};P.lib={recipes:[],shop:emptyShop()};P.ops=[];
+  try{const j=await (await gfetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)')).json();P.drive.account=j.user.emailAddress}catch(e){}
+  await Promise.all([saveDrive(),saveLib(),saveOps()]);if(BOOTED){location.hash='#/';render();driveRefresh()}}
+/* Brings the saved copy up to date: only recipes that changed in the cloud are downloaded again. */
+async function driveRefresh(){if(P.cfg.src!=='drive'||P.busy)return;if(!navigator.onLine){setStatus('offline');return}
+  P.busy=true;setStatus('checking');
+  try{const folder=await gFolder(false);
+    if(!folder){P.drive.noFolder=true;await saveDrive();setStatus('nofolder');return}P.drive.noFolder=false;
+    if(!P.lib.recipes.length)setProgress('Getting your recipes…');const files=await gList(folder);const old=P.drive.files||{};const have=new Map(P.lib.recipes.map(r=>['r-'+r.id+'.json',r]));
+    const names=Object.keys(files).filter(n=>/^r-.+\.json$/.test(n));const need=names.filter(n=>!(old[n]&&old[n].ver===files[n].ver&&have.has(n)));
+    const got=new Map();let done=0;const first=!P.lib.recipes.length;
+    for(let i=0;i<need.length;i+=6){await Promise.all(need.slice(i,i+6).map(async n=>{try{const d=JSON.parse(await gGet(files[n])).data;const r=fixRecipe(d);if(r)got.set(n,r)}catch(e){if(e instanceof AuthNeeded)throw e}done++}));
+      if(first&&need.length>12)setProgress(`Getting your recipes: ${done} of ${need.length}`)}
+    const recipes=names.map(n=>got.get(n)||have.get(n)).filter(Boolean);let changed=need.length>0||recipes.length!==P.lib.recipes.length;
+    const se=files['shop.json'];if(se&&(!old['shop.json']||old['shop.json'].ver!==se.ver)){try{const sh=ensureShop(JSON.parse(await gGet(se)).data);P.ops.forEach(o=>applyOp(sh,o,recipes));P.lib.shop=sh;changed=true}catch(e){if(e instanceof AuthNeeded)throw e}}
+    P.lib.recipes=recipes;P.drive.files=files;P.drive.last=nowISO();setProgress('');await Promise.all([saveLib(),saveDrive()]);
+    P.busy=false;await flushOps();setStatus(null);if(changed)softRender()}
+  catch(e){setProgress('');if(e instanceof AuthNeeded)setStatus('signin');else{console.error(e);setStatus(navigator.onLine?'error':'offline')}}
+  finally{P.busy=false}}
+let flushT=null;function flushSoon(){clearTimeout(flushT);flushT=setTimeout(flushOps,1200)}
+async function flushOps(){if(P.cfg.src!=='drive'||!P.ops.length||P.busy||!navigator.onLine)return;P.busy=true;
+  try{const folder=await gFolder(true);const files=await gList(folder);const e=files['shop.json']||null;let sh=emptyShop();if(e)sh=ensureShop(JSON.parse(await gGet(e)).data);
+    const n=P.ops.length;P.ops.slice(0,n).forEach(o=>applyOp(sh,o,P.lib.recipes));
+    const res=await gPut('shop.json',JSON.stringify({v:1,id:'shop',data:sh}),e);P.drive.files['shop.json']=res;P.ops.splice(0,n);
+    P.ops.forEach(o=>applyOp(sh,o,P.lib.recipes));P.lib.shop=sh;await Promise.all([saveOps(),saveLib(),saveDrive()]);if(P.status==='signin'||P.status==='error')setStatus(null)}
+  catch(e){if(e instanceof AuthNeeded)setStatus('signin');else console.error(e)}
+  finally{P.busy=false}}
+async function driveSignOut(){await kvSet(PDB,'auth',null);P.cfg.src=null;await saveCfg();P.lib={recipes:[],shop:emptyShop()};P.drive={files:{},folder:null,account:'',last:null};P.ops=[];await Promise.all([saveLib(),saveDrive(),saveOps()]);go('/');toast('Signed out of Google')}
+
+/* ---------- Recipe Box on this device ---------- */
+async function deviceBox(){try{const db=await mainDB();const b=await kvGet(db,'box');return b&&Array.isArray(b.recipes)?b:null}catch(e){return null}}
+async function loadDevice(){const b=await deviceBox();if(!b){P.lib={recipes:[],shop:emptyShop()};setStatus('nodevice');return}P.lib={recipes:cleanList(b.recipes),shop:ensureShop(b.shop)};if(P.status==='nodevice')setStatus(null)}
+
+/* ---------- adding recipes that someone sent ---------- */
+function readJSONFile(file){return new Promise(res=>{const fr=new FileReader();fr.onload=()=>{try{res(JSON.parse(fr.result))}catch(e){res(null)}};fr.onerror=()=>res(null);fr.readAsText(file)})}
+const sameName=(a,b)=>String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase();
+function copyName(name){let n=name+' (shared)',k=2;while(P.lib.recipes.some(x=>sameName(x.name,n)))n=`${name} (shared ${k++})`;return n}
+/* Saves new or replaced recipes wherever this person's recipes live. */
+async function storeRecipes(list,replaceIds=[]){const now=nowISO();list.forEach(r=>{r.created=r.created||now;r.updated=now});
+  if(P.cfg.src==='device'){const db=await mainDB();const box=await kvGet(db,'box');if(!box)throw new Error('no box');
+    list.forEach(r=>{const i=box.recipes.findIndex(x=>x.id===r.id);if(i>=0)box.recipes[i]=r;else box.recipes.push(r)});
+    const u=(a,b)=>{const m=new Map();[...(a||[]),...b].forEach(x=>{if(typeof x==='string'&&!m.has(x.toLowerCase()))m.set(x.toLowerCase(),x)});return [...m.values()].sort(collator.compare)};
+    box.tags=u(box.tags,list.flatMap(r=>r.tags||[]));box.ingredients=u(box.ingredients,list.flatMap(r=>(r.ing||[]).map(l=>l.i).filter(Boolean)));box.units=u(box.units,list.flatMap(r=>(r.ing||[]).map(l=>l.u).filter(Boolean)));
+    await kvSet(db,'box',box);P.lib.recipes=cleanList(box.recipes);return}
+  if(P.cfg.src==='drive'){if(!navigator.onLine)throw new Error('offline');
+    for(const r of list){const name='r-'+r.id+'.json';const res=await gPut(name,JSON.stringify({v:1,id:'r-'+r.id,data:r}),P.drive.files[name]||null);P.drive.files[name]=res}await saveDrive()}
+  list.forEach(r=>{const i=P.lib.recipes.findIndex(x=>x.id===r.id);if(i>=0)P.lib.recipes[i]=r;else P.lib.recipes.push(r)});await saveLib()}
+async function addSentFile(file){const j=await readJSONFile(file);if(!j){toast('That file isn’t a recipe file');return}
+  if(j.kind==='recipe'&&j.recipe)return previewOne(cleanShared(j.recipe));
+  const box=j.box||j;if(Array.isArray(box.recipes))return addMany(cleanList(box.recipes));
+  toast('That file isn’t a recipe file')}
+function previewOne(rc){const ex=P.lib.recipes.find(x=>sameName(x.name,rc.name));const ni=rc.ing.filter(l=>l.i).length,ns=rc.steps.filter(x=>x.t).length;
+  const w=openDlg(`<h2>Add this recipe?</h2><div class="sharecard ${tagClass(rc.tags[0])}"><div class="band">${esc(rc.name)}</div><div class="b">${rc.photo?`<img src="${esc(rc.photo)}" alt="">`:''}<div>${rc.desc?`<p>${esc(rc.desc)}</p>`:''}<p class="subtle">${ni} ingredients, ${ns} steps${rc.min?', '+fmtMin(rc.min):''}</p></div></div></div>
+${ex?`<p>You already have a recipe called “${esc(ex.name)}.”</p><div class="acts"><button class="btn" data-close>Skip it</button><button class="btn" data-m="replace">Replace mine</button><button class="btn primary" data-m="both">Keep both</button></div>`:`<div class="acts"><button class="btn" data-close>Cancel</button><button class="btn primary" data-m="add">${IC.plus}Add it</button></div>`}`);
+  w.addEventListener('click',async e=>{const b=e.target.closest('[data-m]');if(!b)return;const m=b.dataset.m;w.remove();const out={...rc};
+    if(m==='replace'&&ex){out.id=ex.id;out.name=ex.name;out.created=ex.created;if(ex.fav)out.fav=true;if(ex.made)out.made=ex.made}else{out.id=uid();if(m==='both')out.name=copyName(rc.name)}
+    try{await storeRecipes([out]);toast(m==='replace'?'Recipe replaced':'Recipe added');go('/r/'+encodeURIComponent(out.id))}catch(err){console.error(err);toast(String(err.message)==='offline'?'You’re offline. Try again when you’re connected.':'The recipe could not be added. Please try again.')}})}
+function addMany(list){const names=new Set(P.lib.recipes.map(r=>r.name.trim().toLowerCase()));const add=[];let skip=0;
+  list.forEach(r=>{const k=r.name.trim().toLowerCase();if(names.has(k)){skip++;return}names.add(k);delete r.fav;delete r.made;if(byId(r.id))r.id=uid();add.push(r)});
+  if(!add.length){openDlg(`<h2>Nothing new to add</h2><p>You already have every recipe in that file.</p><div class="acts"><button class="btn primary" data-close>OK</button></div>`);return}
+  confirmDlg(`Add ${add.length} ${add.length===1?'recipe':'recipes'}?`,`${add.length===1?'One new recipe':add.length+' new recipes'} will be added.${skip?` ${skip} you already have will be skipped.`:''}`,'Add them',async()=>{
+    try{setProgress('Adding recipes…');await storeRecipes(add);setProgress('');toast(`Added ${add.length} ${add.length===1?'recipe':'recipes'}`);go('/')}catch(e){setProgress('');toast('The recipes could not all be added. Please try again.')}})}
+
+/* ---------- a recipe file as the whole collection ---------- */
+async function useFile(file){const j=await readJSONFile(file);let list=null,shop=emptyShop();
+  if(j&&j.kind==='recipe'&&j.recipe){const r=cleanShared(j.recipe);r.id=uid();list=[r]}
+  else if(j&&Array.isArray((j.box||j).recipes)){list=cleanList((j.box||j).recipes);shop=ensureShop((j.box||j).shop)}
+  if(!list){toast('That file isn’t a Recipe Box file');return}
+  P.cfg.src='file';P.lib={recipes:list,shop};await Promise.all([saveCfg(),saveLib()]);setStatus(null);go('/');toast(`${list.length} ${list.length===1?'recipe':'recipes'} ready`)}
+
+/* ---------- status ---------- */
+function setStatus(s){P.status=s;const el=$('#status');if(el)el.outerHTML=statusHTML()}
+function setProgress(t){P.progress=t;const el=$('#status');if(el)el.outerHTML=statusHTML()}
+function ago(iso){if(!iso)return 'not yet';const s=(Date.now()-new Date(iso))/1000;if(s<90)return 'just now';if(s<3600)return Math.round(s/60)+' minutes ago';if(s<86400)return Math.round(s/3600)+' hours ago';return new Date(iso).toLocaleDateString()}
+function statusHTML(){const s=P.status;if(P.progress)return `<div class="note" id="status"><p id="prog">${esc(P.progress)}</p></div>`;
+  if(s==='signin')return `<div class="note bad" id="status"><p><b>Your recipes can’t be updated right now.</b> Google needs you to sign in again. Your saved recipes still work.</p><button class="btn" data-a="signin">Sign in again</button></div>`;
+  if(s==='nofolder')return `<div class="note bad" id="status"><p><b>No recipes found in this Google account yet.</b> Open the full Recipe Box, turn on sync with this same Google account, and the recipes will show up here.</p><button class="btn" data-a="refresh">${IC.refresh}Check again</button></div>`;
+  if(s==='nodevice')return `<div class="note bad" id="status"><p><b>Recipe Box on this device has no recipes right now.</b> Open Settings to choose where your recipes come from.</p><a class="btn" href="#/settings">Settings</a></div>`;
+  if(s==='error')return `<div class="note bad" id="status"><p>Your recipes couldn’t be updated just now. Your saved recipes still work.</p><button class="btn" data-a="refresh">${IC.refresh}Try again</button></div>`;
+  return '<span id="status" hidden></span>'}
+
+/* ---------- screens ---------- */
+function route(){const h=location.hash.slice(1)||'/';const p=h.split('/').filter(Boolean);return {name:p[0]||'home',id:p[1]?decodeURIComponent(p[1]):null}}
+function go(h){if(location.hash==='#'+h)render();else location.hash=h}
+function bar(){const n=shopLeft();return `<header class="bar"><div class="wrap"><a class="brand" href="#/"><img src="./icons/player-192.png" alt="">Recipe Player</a>
+<a class="btn" href="#/shop">${IC.cart}Shopping list${n?` <span class="count" aria-label="${n} items">${n}</span>`:''}</a></div></header>`}
+function render(){const app=$('#app');const r=route();
+  if(!P.cfg.src&&r.name!=='settings'){app.innerHTML=viewSetup();return}
+  let body='';if(r.name==='r'||r.name==='play'){const rec=byId(r.id);body=rec?viewRecipe(rec):missing()}
+  else if(r.name==='shop')body=viewShop();else if(r.name==='settings')body=viewSettings();else if(r.name==='setup'){app.innerHTML=viewSetup(true);return}else body=viewHome();
+  app.innerHTML=bar()+`<main class="wrap">${body}</main>`;
+  if(r.name==='play'){const rec=byId(r.id);if(rec)openPlayer(rec);}else if(P.play)closePlayer(true);
+  if(r.name!=='home'&&r.name!=='play')window.scrollTo(0,0)}
+function softRender(){const r=route();if(r.name==='play'){drawPlayer();return}const f=document.activeElement;const id=f&&f.id;const pos=f&&f.selectionStart;const y=scrollY;render();scrollTo(0,y);if(id){const el=document.getElementById(id);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}}
+function missing(){return `<a class="btn back" href="#/">${IC.back}All recipes</a><div class="empty"><p>That recipe isn’t here anymore.</p><a class="btn primary" href="#/">See all recipes</a></div>`}
+
+function matches(){const q=P.q.trim().toLowerCase();let list=P.lib.recipes;if(P.fav)list=list.filter(r=>r.fav);if(P.kind)list=list.filter(r=>(r.tags||[]).includes(P.kind));
+  if(!q)return list.slice().sort((a,b)=>collator.compare(a.name,b.name));const words=q.split(/\s+/);
+  const score=r=>{const n=r.name.toLowerCase();if(n.startsWith(q))return 0;if(n.includes(q))return 1;const hay=n+' '+(r.tags||[]).join(' ').toLowerCase()+' '+(r.ing||[]).map(l=>l.i||'').join(' ').toLowerCase()+' '+(r.desc||'').toLowerCase();return words.every(w=>hay.includes(w))?2:9};
+  return list.map(r=>[score(r),r]).filter(x=>x[0]<9).sort((a,b)=>a[0]-b[0]||collator.compare(a[1].name,b[1].name)).map(x=>x[1])}
+function cardHTML(r){const t=mainTag(r);const meta=[r.min?fmtMin(r.min):'',r.diff?DIFF[r.diff-1]:''].filter(Boolean).join(' · ');
+  return `<li><a class="card ${tagClass(t)}" href="#/r/${encodeURIComponent(r.id)}"><div class="pic">${r.photo?`<img src="${esc(r.photo)}" alt="" loading="lazy">`:esc((r.name.trim()[0]||'?').toUpperCase())}</div>
+<div class="txt"><h2>${esc(r.name)}${r.fav?' '+IC.heart:''}</h2>${meta?`<span class="meta">${esc(meta)}</span>`:''}<span class="open">${IC.play.replace('30','22').replace('30','22')}Open recipe</span></div></a></li>`}
+function viewHome(){const list=matches();const kinds=[...new Set(P.lib.recipes.flatMap(r=>r.tags||[]))].sort(collator.compare);const favs=P.lib.recipes.some(r=>r.fav);
+  return `${statusHTML()}<div class="find"><label class="searchbox" for="q">${IC.search}<span class="sr">Find a recipe</span><input id="q" type="search" placeholder="Type a recipe name" value="${esc(P.q)}" autocomplete="off" enterkeyhint="search"></label>${P.q?`<button class="btn" data-a="clearq">${IC.x}Clear</button>`:''}</div>
+<div class="filters">${favs?`<div class="seg" role="group" aria-label="Which recipes"><button data-a="all" aria-pressed="${!P.fav}">All recipes</button><button data-a="favs" aria-pressed="${P.fav}">Favorites</button></div>`:''}
+${kinds.length>1?`<label class="sr" for="kind">Kind of recipe</label><select class="in" id="kind"><option value="">Any kind of recipe</option>${kinds.map(k=>`<option ${k===P.kind?'selected':''}>${esc(k)}</option>`).join('')}</select>`:''}</div>
+<p class="shown" id="shown">${list.length===P.lib.recipes.length?`${list.length} ${list.length===1?'recipe':'recipes'}`:`Showing ${list.length} of ${P.lib.recipes.length} recipes`}</p>
+<div id="results">${resultsHTML(list)}</div>
+<div class="foot"><button class="btn" data-a="addsent">${IC.plus}Add a recipe someone sent me</button><a class="btn" href="#/settings">${IC.gear}Settings</a></div>`}
+function resultsHTML(list){if(!P.lib.recipes.length)return `<div class="empty"><p>${P.cfg.src==='drive'&&P.busy?'Getting your recipes…':'There are no recipes here yet.'}</p>${P.cfg.src==='drive'?`<button class="btn" data-a="refresh">${IC.refresh}Check for recipes</button>`:''}</div>`;
+  if(!list.length)return `<div class="empty"><p>No recipes match “${esc(P.q||P.kind)}”.</p><button class="btn primary" data-a="clearall">Show all recipes</button></div>`;
+  return `<ul class="cards">${list.map(cardHTML).join('')}</ul>`}
+function updateResults(){const list=matches();const el=$('#results');if(el)el.innerHTML=resultsHTML(list);const s=$('#shown');if(s)s.textContent=list.length===P.lib.recipes.length?`${list.length} recipes`:`Showing ${list.length} of ${P.lib.recipes.length} recipes`}
+
+function scaleOf(r){const base=r.serv||null;const s=P.serv[r.id]??base;return {base,s,f:base&&s?s/base:1}}
+function ingHTML(r,f,checks){let out='',open=false;(r.ing||[]).forEach(l=>{if(l.h){if(open)out+='</ul>';out+=`<h3 class="grp">${esc(l.h)}</h3><ul class="ings">`;open=true;return}
+  if(!open){out+='<ul class="ings">';open=true}const a=amountText(l,f);const line=`${a?`<span class="amt">${esc(a)}</span> `:''}${esc(l.i)}${l.n?`<span class="inote">, ${esc(l.n)}</span>`:''}`;
+  out+=checks?`<li><label><input type="checkbox"><span>${line}</span></label></li>`:`<li>${line}</li>`});if(open)out+='</ul>';return out}
+function viewRecipe(r){const {base,s,f}=scaleOf(r);const t=r.tags||[];const tg=tagClass(mainTag(r));let n=0;const hasSteps=(r.steps||[]).some(x=>x.t);
+  const steps=(r.steps||[]).map(st=>st.h?`<li class="h"><h3>${esc(st.h)}</h3></li>`:`<li><span class="n">${++n}</span><span>${esc(st.t)}</span></li>`).join('');
+  const onList=P.lib.shop.recipes.some(e=>e.id===r.id);
+  return `<a class="btn back" href="#/">${IC.back}All recipes</a>
+<article class="sheet ${tg}"><div class="band">${t.length?`<div class="tags" style="margin:0">${t.map(x=>`<span>${esc(x)}</span>`).join(' · ')}</div>`:'<span></span>'}${r.fav?`<span>${IC.heart} Favorite</span>`:''}</div><div class="body">
+<div class="top"><div><h1 class="rname">${esc(r.name)}</h1>${r.desc?`<p class="desc">${esc(r.desc)}</p>`:''}
+${hasSteps?`<button class="btn primary play" data-a="play"><span class="tri">${IC.play}</span><span>Start cooking<small>Shows one step at a time, in big letters</small></span></button>`:'<p class="note">This recipe has no steps written yet.</p>'}
+<div class="facts">${r.min?`<div class="fact"><span>Total time</span><b>${fmtMin(r.min)}</b></div>`:''}${r.yld?`<div class="fact"><span>Makes</span><b>${esc(r.yld)}</b></div>`:''}${r.diff?`<div class="fact"><span>How hard</span><b>${DIFF[r.diff-1]}</b></div>`:''}
+${r.src||r.link?`<div class="fact"><span>From</span><b>${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.src||'The original recipe')}</a>`:esc(r.src)}</b></div>`:''}</div>
+${base?`<div class="servrow"><span><b>Servings: ${fmt(s)}</b>${s!==base?` <span class="subtle">(recipe makes ${fmt(base)})</span>`:''}</span><button class="step" data-a="serv" data-v="-1" aria-label="Fewer servings">−</button><button class="step" data-a="serv" data-v="1" aria-label="More servings">+</button></div>`:''}
+<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-a="addshop">${IC.cart}${onList?'Add to shopping list again':'Add to shopping list'}</button>${onList?`<a class="btn quiet" href="#/shop">See the list</a>`:''}</div></div>
+<div>${r.photo?`<button class="photo" data-a="bigpic" aria-label="Show the photo bigger"><img src="${esc(r.photo)}" alt="Photo of ${esc(r.name)}"></button>`:''}</div></div></div></article>
+<div class="cols"><section class="sheet tg5" aria-labelledby="ih"><div class="band"><h2 id="ih">Ingredients</h2>${base&&s!==base?`<span>for ${fmt(s)} servings</span>`:''}</div><div class="body">${ingHTML(r,f,true)||'<p class="subtle">No ingredients listed.</p>'}
+${r.ut?`<h3 class="grp">You’ll need</h3><p style="margin:0">${esc(r.ut)}</p>`:''}</div></section>
+<section class="sheet tg6" aria-labelledby="sh"><div class="band"><h2 id="sh">Steps</h2></div><div class="body">${steps?`<ol class="steps">${steps}</ol>`:'<p class="subtle">No steps written yet.</p>'}
+${r.notes?`<div class="callout">${IC.bulb}<span><b>Tips and notes</b><br>${esc(r.notes)}</span></div>`:''}</div></section></div>
+${r.story?`<section class="sheet tg7"><div class="band"><h2>The story behind this recipe</h2></div><div class="body"><p class="story">${esc(r.story)}</p></div></section>`:''}
+${r.made&&r.made.length?`<section class="sheet tg0"><div class="band"><h2>We made this</h2><span>${r.made.length} ${r.made.length===1?'time':'times'}</span></div><div class="body"><ul class="made">${r.made.slice(0,12).map(e=>`<li><b>${esc(new Date(e.d+'T12:00').toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}))}</b>${e.n?` · ${esc(e.n)}`:''}</li>`).join('')}</ul></div></section>`:''}
+${hasSteps?`<button class="btn primary play noprint" data-a="play"><span class="tri">${IC.play}</span><span>Start cooking</span></button>`:''}`}
+
+function viewShop(){const sh=P.lib.shop;const all=shopItems(sh,P.lib.recipes);const items=all.filter(i=>!sh.removed[i.key]);const gone=all.filter(i=>sh.removed[i.key]).sort((x,y)=>collator.compare(x.i,y.i));
+  const groups=AISLE_ORDER.map(a=>[a,items.filter(i=>i.aisle===a).sort((x,y)=>collator.compare(x.i,y.i))]).filter(g=>g[1].length);
+  const recs=sh.recipes.map(e=>({e,r:byId(e.id)})).filter(x=>x.r);const left=items.filter(i=>!sh.checked[i.key]).length;
+  return `<a class="btn back noprint" href="#/">${IC.back}All recipes</a><h1 class="pageh">Shopping list</h1>
+<form class="shopadd" data-form="add"><label class="sr" for="newItem">Add something to the list</label><input id="newItem" placeholder="Add something, like milk" autocomplete="off" enterkeyhint="done"><button class="btn primary" type="submit">${IC.plus}Add</button></form>
+${recs.length?`<p class="subtle" style="margin:0 0 6px">For these recipes:</p><ul class="forrecs">${recs.map(x=>`<li class="${tagClass(mainTag(x.r))}"><a href="#/r/${encodeURIComponent(x.r.id)}">${esc(x.r.name)}</a><button class="btn small noprint" data-a="delr" data-v="${esc(x.r.id)}" aria-label="Take ${esc(x.r.name)} off the list">${IC.x}</button></li>`).join('')}</ul>`:''}
+${items.length?`<p style="font-size:1.1rem"><b>${left} of ${items.length}</b> ${items.length===1?'item':'items'} left to get. Tap an item to check it off. Tap “Have it” if you already have it at home.</p>
+<div class="aisles">${groups.map(([a,its])=>`<section class="aisle"><h2>${esc(a)}</h2>${its.map(it=>`<div class="sitem"><label><input type="checkbox" data-a="check" data-v="${esc(it.key)}" ${sh.checked[it.key]?'checked':''}><span>${it.amt?`<span class="amt">${esc(it.amt)}</span> `:''}${esc(it.i)}${it.from.length?`<small>${esc(it.from.join(', '))}</small>`:''}</span></label>
+${it.extra?`<button class="btn small havebtn" data-a="delx" data-v="${esc(it.t)}">Remove</button>`:`<button class="btn small havebtn" data-a="have" data-v="${esc(it.key)}">Have it</button>`}</div>`).join('')}</section>`).join('')}</div>`
+:`<div class="empty"><p>The shopping list is empty.</p><p class="subtle" style="font-size:1rem">Open a recipe and tap “Add to shopping list,” or type something above.</p></div>`}
+${gone.length?`<details class="have noprint"><summary>Already have these (${gone.length})</summary><ul class="havelist">${gone.map(it=>`<li><span>${it.amt?`<b>${esc(it.amt)}</b> `:''}${esc(it.i)}</span><button class="btn small" data-a="back" data-v="${esc(it.key)}">Put back on list</button></li>`).join('')}</ul></details>`:''}
+${items.length||recs.length?`<div class="foot noprint">${Object.keys(sh.checked).length?`<button class="btn" data-a="clearchecked">${IC.check}Remove checked items</button>`:''}<button class="btn" data-a="print">${IC.print}Print the list</button><button class="btn" data-a="clearlist">${IC.x}Clear the whole list</button></div>`:''}`}
+
+const SRCNAME={drive:'Google Drive',device:'Recipe Box on this device',file:'A recipe file'};
+async function deviceCount(){const b=await deviceBox();return b?b.recipes.length:0}
+function viewSetup(again){setTimeout(async()=>{const n=await deviceCount();const el=$('#devChoice');if(el&&n){el.hidden=false;$('#devN').textContent=`Recipe Box in this web browser has ${n} ${n===1?'recipe':'recipes'}.`}},0);
+  return `<header class="bar"><div class="wrap"><span class="brand"><img src="./icons/player-192.png" alt="">Recipe Player</span>${again?`<a class="btn" href="#/settings">${IC.back}Back</a>`:''}</div></header><main class="wrap">
+<h1 class="pageh">${again?'Where are the recipes?':'Welcome! Let’s find your recipes.'}</h1><p class="lead">${again?'Choose where Recipe Player should get recipes from.':'This only needs to be done once. A family member can help with this part.'}</p>
+<div class="choices"><section class="choice tg2"><div class="band">${IC.cloud}<h2>Google Drive</h2></div><div class="body"><p>Recipes that Recipe Box keeps in a Google account. New recipes added there show up here by themselves.</p>
+${CFG.googleClientId?`<button class="btn primary wide" data-a="signin">Sign in with Google</button>`:'<p class="subtle">Google sign-in isn’t set up for this copy.</p>'}</div></section>
+<section class="choice tg6" id="devChoice" hidden><div class="band">${IC.device}<h2>On this device</h2></div><div class="body"><p id="devN"></p><p>Use the same recipes as Recipe Box in this browser.</p><button class="btn primary wide" data-a="usedevice">Use these recipes</button></div></section>
+<section class="choice tg0"><div class="band">${IC.file}<h2>A recipe file</h2></div><div class="body"><p>A Recipe Box backup file or recipe file that someone sent you.</p><button class="btn primary wide" data-a="usefile">Choose the file</button></div></section></div></main>`}
+function viewSettings(){const src=P.cfg.src;const d=P.drive;
+  return `<a class="btn back" href="#/">${IC.back}All recipes</a><h1 class="pageh">Settings</h1><p class="lead subtle">These are usually set once, often by a family member.</p>
+<section class="sheet tg8"><div class="band"><h2>Size of the words</h2></div><div class="body"><div class="sizes" role="group" aria-label="Size of the words">
+${[['m','Large',21],['l','Larger',24],['xl','Largest',27]].map(([k,l,px])=>`<button class="btn" data-a="size" data-v="${k}" aria-pressed="${P.cfg.size===k}" style="font-size:${px}px">${l}</button>`).join('')}</div></div></section>
+<section class="sheet tg8"><div class="band"><h2>Cooking</h2></div><div class="body"><label class="toggle"><input type="checkbox" id="speakDef" ${P.cfg.speak?'checked':''} ${canSpeak?'':'disabled'}><span>Read each step out loud when cooking starts${canSpeak?'':' (not available in this web browser)'}</span></label></div></section>
+<section class="sheet tg2"><div class="band"><h2>Where the recipes come from</h2></div><div class="body">
+<p style="font-size:1.1rem"><b>${esc(SRCNAME[src]||'Not chosen yet')}</b>${src==='drive'&&d.account?` · ${esc(d.account)}`:''}</p>
+${src==='drive'?`<p class="subtle">Last checked for new recipes: ${esc(ago(d.last))}.</p>`:''}${src==='file'?`<p class="subtle">Recipes from a file don’t update by themselves. Choose a newer file to update them.</p>`:''}
+<div style="display:flex;gap:12px;flex-wrap:wrap">${src==='drive'?`<button class="btn" data-a="refresh">${IC.refresh}Check for new recipes now</button><button class="btn" data-a="signin">Sign in to Google again</button>`:''}
+<a class="btn" href="#/setup">Change where recipes come from</a>${src==='drive'?`<button class="btn quiet" data-a="signout">Sign out of Google</button>`:''}</div></div></section>
+<section class="sheet tg6"><div class="band"><h2>Adding recipes</h2></div><div class="body">
+<p>Family and friends can send a recipe from their Recipe Box with the <b>Share</b> button. Save the file they send, then tap the button below to add it.</p>
+<button class="btn primary" data-a="addsent">${IC.plus}Add a recipe someone sent me</button>
+${src==='drive'?`<p style="margin-top:16px">A family member can also add recipes for you: open the full Recipe Box on their own device, turn on sync, and sign in with <b>${esc(d.account||'this same Google account')}</b>. Anything they add appears here.</p>`:''}
+${src==='device'?`<p style="margin-top:16px">Recipes added in the full Recipe Box on this device appear here too.</p>`:''}</div></section>
+<section class="sheet tg5"><div class="band"><h2>Put Recipe Player on the home screen</h2></div><div class="body">
+${installHelp()}<p style="margin:14px 0 0"><a href="./" target="_blank" rel="noopener">Open the full Recipe Box</a> to add or change recipes.</p></div></section>`}
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let installEvt=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e});
+function installHelp(){if(matchMedia('(display-mode: standalone)').matches)return '<p>Recipe Player is already on the home screen.</p>';
+  if(installEvt)return `<p>Add Recipe Player as an app so it opens with one tap.</p><button class="btn primary" data-a="install">Add Recipe Player</button>`;
+  if(isIOS())return '<p>In Safari, tap the <b>Share</b> button (the square with an arrow), then <b>Add to Home Screen</b>, then <b>Add</b>.</p>';
+  if(/Android/.test(navigator.userAgent))return '<p>In Chrome, tap the menu (three dots at the top right), then <b>Add to Home screen</b> or <b>Install app</b>.</p>';
+  return '<p>In Chrome or Edge, click the install icon at the right end of the address bar. In Safari on a Mac, choose <b>File</b>, then <b>Add to Dock</b>.</p>'}
+
+/* ---------- cooking player ---------- */
+let wake=null;
+const canSpeak=('speechSynthesis' in window)&&typeof SpeechSynthesisUtterance==='function';
+function stepIngs(r,text,f){const low=text.toLowerCase();const seen=new Set();
+  return (r.ing||[]).filter(l=>{if(!l.i)return false;const n=l.i.toLowerCase();const words=n.split(' ');if(seen.has(n))return false;
+    const hit=low.includes(n)||(words.length>1&&low.includes(words[words.length-1])&&words[words.length-1].length>4)||(words.length===1&&new RegExp('\\b'+n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(e?s)?\\b').test(low));if(hit)seen.add(n);return hit})
+    .map(l=>({a:amountText(l,f),i:l.i,n:l.n}))}
+function openPlayer(r){if(P.play&&P.play.id===r.id){drawPlayer();return}const flat=[];let sect='';(r.steps||[]).forEach(s=>{if(s.h)sect=s.h;else if(s.t)flat.push({t:s.t,sect})});
+  P.play={id:r.id,i:0,flat,timers:[],speak:P.cfg.speak&&canSpeak,spoke:-1,got:{}};document.body.style.overflow='hidden';document.body.classList.add('playing');drawPlayer();tryWake()}
+function closePlayer(fromRoute){if(!P.play)return;hush();P.play.timers.forEach(t=>clearInterval(t.h));P.play=null;stopAlarm();try{wake&&wake.release()}catch(e){}wake=null;$('#layer').innerHTML='';document.body.style.overflow='';document.body.classList.remove('playing');if(!fromRoute)history.back()}
+async function tryWake(){try{if('wakeLock' in navigator&&P.play)wake=await navigator.wakeLock.request('screen')}catch(e){wake=null}}
+/* Screen 0 is "Get ready", then each step, then "All done". */
+function drawPlayer(){const c=P.play;if(!c)return;const r=byId(c.id);if(!r){closePlayer();return}const {f}=scaleOf(r);const N=c.flat.length;const total=N+2;const i=c.i;
+  let main='',side='';
+  if(i===0){main=`<div class="band"><h2>Get ready</h2><span>Before you start</span></div><div class="inner"><p class="stext" style="font-size:clamp(1.3rem,2.6vw,1.8rem)">Gather everything you need. Tap each one as you set it out.</p>${r.ut?`<p style="font-size:1.2rem;margin:16px 0 0"><b>You’ll need:</b> ${esc(r.ut)}</p>`:''}</div>`;
+    side=`<div class="band"><h2>Ingredients</h2>${r.serv?`<span>${fmt(scaleOf(r).s)} servings</span>`:''}</div><div class="inner">${ingHTML(r,f,true)||'<p class="subtle">No ingredients listed.</p>'}</div>`}
+  else if(i<=N){const st=c.flat[i-1];const tm=timersIn(st.t);const ings=stepIngs(r,st.t,f);
+    main=`<div class="band"><h2>Step ${i} of ${N}</h2>${st.sect?`<span>${esc(st.sect)}</span>`:''}</div><div class="inner"><p class="stext">${esc(st.t)}</p>
+<div class="acts2">${tm.map(x=>`<button class="btn timerbtn" data-a="timer" data-v="${x.sec}" data-l="${esc(x.label)}">${IC.clock}Start a ${esc(x.label.replace(/(\w)s$/i,'$1'))} timer</button>`).join('')}
+${canSpeak&&c.speak?`<button class="btn" data-a="sayagain">${IC.speak}Say it again</button>`:''}</div></div>`;
+    side=`<div class="band"><h2>In this step</h2></div><div class="inner">${ings.length?`<ul class="ings">${ings.map(x=>`<li>${x.a?`<span class="amt">${esc(x.a)}</span> `:''}${esc(x.i)}${x.n?`<span class="inote">, ${esc(x.n)}</span>`:''}</li>`).join('')}</ul>`:'<p class="subtle" style="margin:0">No ingredients named in this step.</p>'}
+<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:700;min-height:2.6rem;padding:.3em 0">All ingredients</summary>${ingHTML(r,f,false)}</details></div>`}
+  else{main=`<div class="band"><h2>All done</h2></div><div class="inner donebox"><p class="big">Enjoy your ${esc(r.name)}!</p>
+${r.notes?`<div class="callout" style="text-align:left">${IC.bulb}<span><b>Tips and notes</b><br>${esc(r.notes)}</span></div>`:''}
+<div class="acts2" style="justify-content:center"><button class="btn primary" data-a="playclose">${IC.check}Finish</button><button class="btn" data-a="restart">Start over</button></div></div>`;
+    side=r.photo?`<div class="inner" style="padding:0"><img src="${esc(r.photo)}" alt="Photo of ${esc(r.name)}" style="width:100%;display:block"></div>`:''}
+  $('#layer').innerHTML=`<div class="player" role="dialog" aria-modal="true" aria-label="Cooking ${esc(r.name)}">
+<div class="ptop"><button class="btn" data-a="playclose">${IC.x}Stop</button><div class="ttl">${esc(r.name)}</div>${canSpeak?`<button class="btn" data-a="speak" aria-pressed="${c.speak}">${IC.speak}${c.speak?'Reading out loud: On':'Read out loud'}</button>`:''}</div>
+<div class="prog" aria-hidden="true">${Array.from({length:total},(_,k)=>`<span class="${k<i?'done':k===i?'on':''}"></span>`).join('')}</div>
+<div class="timers" id="timers">${timerChips()}</div>
+<div class="pbody"><section class="pcard ${i===0?'tg5':i>N?'tg6':'tg2'}" aria-live="polite">${main}</section>${side?`<aside class="pcard side tg5">${side}</aside>`:''}</div>
+<nav class="pnav"><button class="btn prevbtn" data-a="prev" ${i?'':'disabled'}>${IC.back}Back</button>${i<=N?`<button class="btn go next" data-a="next">${i===0?'Start step 1':i===N?'Finish':'Next step'}${IC.next}</button>`:`<button class="btn go next" data-a="playclose">${IC.check}Finish</button>`}</nav></div>`;
+  const nx=$('.player .next');if(nx)nx.focus({preventScroll:true});$('.pbody').scrollTop=0;
+  if(c.speak&&c.spoke!==i){c.spoke=i;speakNow()}}
+function speakText(){const c=P.play;const r=byId(c.id);const N=c.flat.length;if(c.i===0)return `Get ready to make ${r.name}. Gather your ingredients, then tap Start step 1.`;if(c.i>N)return `All done. Enjoy your ${r.name}.`;return `Step ${c.i}. ${c.flat[c.i-1].t}`}
+function hush(){try{canSpeak&&speechSynthesis.cancel()}catch(e){}}
+function say(text){if(!canSpeak)return;try{hush();const u=new SpeechSynthesisUtterance(text);u.rate=.9;u.lang=navigator.language||'en-US';speechSynthesis.speak(u)}catch(e){}}
+function speakNow(){if(P.play)say(speakText())}
+function movePlayer(d){const c=P.play;if(!c)return;const max=c.flat.length+1;const n=Math.min(max,Math.max(0,c.i+d));if(n===c.i)return;c.i=n;hush();drawPlayer()}
+function mmss(s){s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')}
+function timerChips(){if(!P.play)return '';return P.play.timers.map((t,k)=>`<div class="tchip ${t.left<=0?'ding':''}" role="timer"><span>${t.left<=0?'Time is up! ':''}${esc(t.label)} · ${mmss(t.left)}</span><button class="btn small" data-a="timerdel" data-v="${k}">${t.left<=0?'OK':'Cancel'}</button></div>`).join('')}
+let actx=null,alarmT=null;
+function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();[0,.35,.7].forEach(d=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;o.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.0001,actx.currentTime+d);g.gain.exponentialRampToValueAtTime(.4,actx.currentTime+d+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+d+.3);o.start(actx.currentTime+d);o.stop(actx.currentTime+d+.32)})}catch(e){}}
+/* A timer keeps ringing (up to 2 minutes) until someone taps OK, so it isn't missed from across the kitchen. */
+function startAlarm(label){if(alarmT)return;let n=0;const ring=()=>{beep();try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}if(++n>40)stopAlarm()};ring();alarmT=setInterval(ring,3000);if(P.play&&P.play.speak)say('Time is up. '+label)}
+function stopAlarm(){clearInterval(alarmT);alarmT=null}
+function addTimer(sec,label){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume&&actx.resume()}catch(e){}
+  const t={label,left:sec,end:Date.now()+sec*1000};t.h=setInterval(()=>{t.left=(t.end-Date.now())/1000;if(t.left<=0&&!t.rang){t.rang=true;clearInterval(t.h);startAlarm(label)}const el=$('#timers');if(el)el.innerHTML=timerChips()},500);
+  P.play.timers.push(t);$('#timers').innerHTML=timerChips();toast(`Timer started: ${label}`)}
+
+/* ---------- dialogs ---------- */
+function openDlg(html){const w=document.createElement('div');w.className='scrim';w.innerHTML=`<div class="dlg" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(w);
+  w.addEventListener('click',e=>{if(e.target===w||e.target.closest('[data-close]'))w.remove()});const f=w.querySelector('.btn.primary,.btn');if(f)f.focus();return w}
+function confirmDlg(title,text,ok,fn){const w=openDlg(`<h2>${esc(title)}</h2><p>${esc(text)}</p><div class="acts"><button class="btn" data-close>Cancel</button><button class="btn primary" data-ok>${esc(ok)}</button></div>`);w.querySelector('[data-ok]').onclick=()=>{w.remove();fn()}}
+let toastT=null;function toast(t){let el=$('.toast');if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=t;clearTimeout(toastT);toastT=setTimeout(()=>el.remove(),4200)}
+
+/* ---------- events ---------- */
+let filePurpose='add';
+function pickFile(purpose){filePurpose=purpose;$('#pickFile').click()}
+document.addEventListener('change',async e=>{const t=e.target;
+  if(t.id==='pickFile'){const f=t.files[0];t.value='';if(!f)return;if(filePurpose==='use')await useFile(f);else await addSentFile(f);return}
+  if(t.id==='kind'){P.kind=t.value;updateResults();return}
+  if(t.id==='speakDef'){P.cfg.speak=t.checked;saveCfg();return}
+  if(t.dataset.a==='check'){shopDo({t:'check',k:t.dataset.v,on:t.checked}).then(softRender);return}});
+document.addEventListener('input',e=>{if(e.target.id==='q'){P.q=e.target.value;updateResults();const has=!!P.q;if(has!==!!$('[data-a=clearq]'))softRender()}});
+document.addEventListener('submit',e=>{const f=e.target;if(f.dataset.form==='add'){e.preventDefault();const v=$('#newItem').value.trim();if(!v)return;shopDo({t:'addx',text:v}).then(()=>{softRender();const i=$('#newItem');if(i){i.value='';i.focus()}toast(`Added ${v}`)})}});
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b||b.tagName==='INPUT')return;const a=b.dataset.a,v=b.dataset.v;const r=byId(route().id);
+  if(a==='play'&&r){if(P.cfg.speak&&canSpeak){try{speechSynthesis.speak(new SpeechSynthesisUtterance(' '))}catch(err){}}go('/play/'+encodeURIComponent(r.id));return}
+  if(a==='playclose'){closePlayer();return}
+  if(a==='next'){movePlayer(1);return}if(a==='prev'){movePlayer(-1);return}if(a==='restart'){P.play.i=0;P.play.spoke=-1;drawPlayer();return}
+  if(a==='speak'){P.play.speak=!P.play.speak;if(P.play.speak){P.play.spoke=P.play.i;speakNow()}else hush();drawPlayer();return}
+  if(a==='sayagain'){speakNow();return}
+  if(a==='timer'){addTimer(+v,b.dataset.l);return}
+  if(a==='timerdel'){const t=P.play.timers[+v];if(t){clearInterval(t.h);P.play.timers.splice(+v,1)}if(!P.play.timers.some(x=>x.left<=0))stopAlarm();$('#timers').innerHTML=timerChips();return}
+  if(a==='serv'&&r){const base=r.serv;const cur=P.serv[r.id]??base;const step=base>=8?2:1;P.serv[r.id]=Math.max(1,cur+(+v)*step);softRender();return}
+  if(a==='bigpic'&&r){openDlg(`<img class="bigpic" src="${esc(r.photo)}" alt="Photo of ${esc(r.name)}"><div class="acts"><button class="btn primary" data-close>Close</button></div>`).querySelector('.dlg').style.maxWidth='min(96vw,1100px)';return}
+  if(a==='addshop'&&r){const {base,s}=scaleOf(r);await shopDo({t:'addr',id:r.id,serv:base?s:null});softRender();toast(`${r.name} is on the shopping list`);return}
+  if(a==='check'){return}
+  if(a==='have'){await shopDo({t:'have',k:v});softRender();return}
+  if(a==='back'){await shopDo({t:'back',k:v});softRender();return}
+  if(a==='delx'){await shopDo({t:'delx',text:v});softRender();return}
+  if(a==='delr'){await shopDo({t:'delr',id:v});softRender();return}
+  if(a==='clearchecked'){await shopDo({t:'clearchecked'});softRender();toast('Checked items removed');return}
+  if(a==='clearlist'){confirmDlg('Clear the whole list?','Everything on the shopping list will be removed.','Clear the list',async()=>{await shopDo({t:'clear'});softRender()});return}
+  if(a==='print'){print();return}
+  if(a==='clearq'){P.q='';softRender();$('#q')&&$('#q').focus();return}
+  if(a==='clearall'){P.q='';P.kind='';P.fav=false;softRender();return}
+  if(a==='all'||a==='favs'){P.fav=a==='favs';softRender();return}
+  if(a==='addsent'){pickFile('add');return}
+  if(a==='usefile'){pickFile('use');return}
+  if(a==='usedevice'){P.cfg.src='device';await saveCfg();await loadDevice();go('/');return}
+  if(a==='signin'){googleSignIn();return}
+  if(a==='signout'){confirmDlg('Sign out of Google?','Recipe Player will stop showing these recipes until someone signs in again. Nothing is deleted from Google Drive.','Sign out',driveSignOut);return}
+  if(a==='refresh'){if(P.cfg.src==='drive'){toast('Checking for new recipes…');await driveRefresh();if(P.status===null)toast('Your recipes are up to date');if(route().name==='settings')softRender()}else if(P.cfg.src==='device'){await loadDevice();softRender()}return}
+  if(a==='size'){P.cfg.size=v;applySize();saveCfg();softRender();return}
+  if(a==='install'&&installEvt){installEvt.prompt();installEvt=null;return}});
+document.addEventListener('keydown',e=>{if(!P.play||$('.scrim'))return;if(e.key==='ArrowRight'||(e.key===' '&&e.target.tagName!=='BUTTON')){e.preventDefault();movePlayer(1)}else if(e.key==='ArrowLeft'){e.preventDefault();movePlayer(-1)}else if(e.key==='Escape')closePlayer()});
+let tx=null,ty=null;
+document.addEventListener('touchstart',e=>{if(!P.play)return;tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+document.addEventListener('touchend',e=>{if(!P.play||tx==null)return;const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;tx=null;if(Math.abs(dx)>80&&Math.abs(dx)>Math.abs(dy)*1.5)movePlayer(dx<0?1:-1)},{passive:true});
+addEventListener('hashchange',render);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;if(P.play&&!wake)tryWake();
+  if(P.cfg.src==='drive'&&(!P.drive.last||Date.now()-new Date(P.drive.last)>120000))driveRefresh();
+  if(P.cfg.src==='device'&&!P.play)loadDevice().then(()=>softRender())});
+addEventListener('online',()=>{if(P.cfg.src==='drive'){driveRefresh()}});
+function applySize(){document.documentElement.dataset.size=P.cfg.size||'m'}
+
+/* ---------- start ---------- */
+(async function boot(){
+  if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  try{PDB=await openDB('recipe-player')}catch(e){$('#app').innerHTML='<main class="wrap"><div class="empty"><p>This web browser is blocking storage, so Recipe Player can’t run here. Try a regular (not private) browser window.</p></div></main>';return}
+  const [cfg,lib,drive,ops]=await Promise.all([kvGet(PDB,'cfg'),kvGet(PDB,'lib'),kvGet(PDB,'drive'),kvGet(PDB,'ops')]);
+  if(cfg)P.cfg={...P.cfg,...cfg};if(lib)P.lib={recipes:cleanList(lib.recipes),shop:ensureShop(lib.shop)};if(drive)P.drive={...P.drive,...drive};if(Array.isArray(ops))P.ops=ops;
+  applySize();try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+  await finishSignIn();
+  if(P.cfg.src==='device')await loadDevice();
+  if(route().name==='play')history.replaceState(null,'',location.pathname+'#/r/'+route().id);
+  render();
+  BOOTED=true;
+  if(P.cfg.src==='drive'){if(P.drive.noFolder)setStatus('nofolder');driveRefresh()}
+})();
+</script>
+</body>
+</html>
