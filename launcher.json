@@ -2,6 +2,10 @@
   "showcase": {
     "category": "Everyday",
     "order": 1,
-    "description": "A simple recipe app for saving and organizing your recipes. Import shared recipe files and cook along with the Recipe Player."
+    "description": "A simple recipe app for saving and organizing your recipes. Import shared recipe files and cook along with the Recipe Player.",
+    "links": [
+      { "name": "Recipe Player", "url": "https://mountytechwv.github.io/recipe-box/player.html", "note": "Cook along step by step" },
+      { "name": "Help", "url": "https://mountytechwv.github.io/recipe-box/help.html", "note": "How to use Recipe Box" }
+    ]
   }
 }
